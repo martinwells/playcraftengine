@@ -128,8 +128,8 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
 
                     if (!p.sprite.currentAnim)
                     {
-                        p.sprite.drawFrame(pc.device.ctx, p.frame % em.spriteSheet.framesWide,
-                            p.frame / em.spriteSheet.framesHigh, p.x, p.y, em.rotateSprite ? p.rotation : p.dir);
+                        p.sprite.drawFrame(pc.device.ctx, Math.round(p.frame % em.spriteSheet.framesWide),
+                            Math.round(p.frame / em.spriteSheet.framesHigh), p.x, p.y, em.rotateSprite ? p.rotation : p.dir);
                         pc.device.lastDrawMS += (Date.now() - this.drawStartTime);
                     }
                     else
