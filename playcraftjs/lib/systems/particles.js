@@ -143,7 +143,6 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
                     next = next.nextLinked;
 
                     // time to die?
-                    // if we have a fadeOut, then start on that
                     if (pc.device.now - p.start > p.lifetime)
                     {
                         p.release();
@@ -202,7 +201,6 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
             else
                 n.sprite.setCompositeOperation('source-over');
 
-
             n.fadeState = 1;    // 0=fading in, 1 = displaying, 2 = fading out
             n.fadeStateStart = pc.device.now;
             if (n.fadeInTime > 0)
@@ -211,7 +209,6 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
                 n.sprite.setAlpha(0);
             } else
                 n.sprite.setAlpha(1);
-
 
             return n;
         }
@@ -241,8 +238,6 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
         alphaMin: 1,
         alphaMax: 1,
         lastAlpha: 0 // time of last alpha change
-
-
     });
 
 

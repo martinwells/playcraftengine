@@ -115,7 +115,7 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.ParticleEmitter.create(
                         {
                             spriteSheet:this.starSheet,
-                            burst:8,
+                            burst:5,
                             delay:20,
                             thrustMin:8, thrustTime:300,
                             maxVelX:5, maxVelY:5,
@@ -126,7 +126,7 @@ GameScene = pc.Scene.extend('GameScene',
                             alphaMin:0, alphaMax:1, alphaDelay:50,
                             gravityY:0.02,
                             compositeOperation:'lighter',
-                            spinMin:-16, spinMax:16,
+                            spinMin:-80, spinMax:80,
                             rotateSprite:true
                         }));
                     return e;
