@@ -25,11 +25,11 @@ pc.Game = pc.Base.extend('pc.Game', {},
     process: function()
     {
         if (this.paused) return;
-        var nextScene = this.getFirstActiveScene();
-        while (nextScene)
+        var scene = this.getFirstActiveScene();
+        while (scene)
         {
-            nextScene.obj.process();
-            nextScene = nextScene.nextLinked;
+            scene.object().process();
+            scene = scene.next();
         }
 
         return true; // return false to quit the update loop
@@ -109,8 +109,8 @@ pc.Game = pc.Base.extend('pc.Game', {},
         var nextScene = this.getFirstScene();
         while (nextScene)
         {
-            nextScene.obj.pause();
-            nextScene = nextScene.nextLinked;
+            nextScene.object().pause();
+            nextScene = nextScene.next();
         }
     },
 
@@ -129,8 +129,8 @@ pc.Game = pc.Base.extend('pc.Game', {},
         var nextScene = this.getFirstScene();
         while (nextScene)
         {
-            nextScene.obj.resume();
-            nextScene = nextScene.nextLinked;
+            nextScene.object().resume();
+            nextScene = nextScene.next();
         }
     },
 
@@ -149,7 +149,7 @@ pc.Game = pc.Base.extend('pc.Game', {},
         while (nextScene)
         {
             nextScene.obj.reset();
-            nextScene = nextScene.nextLinked;
+            nextScene = nextScene.next();
         }
 
         this.scenes.clear();
@@ -169,7 +169,7 @@ pc.Game = pc.Base.extend('pc.Game', {},
         while (nextScene)
         {
             nextScene.obj.onResize(width, height);
-            nextScene = nextScene.nextLinked;
+            nextScene = nextScene.next();
         }
     },
 

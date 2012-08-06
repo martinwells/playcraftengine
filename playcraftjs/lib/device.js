@@ -301,37 +301,6 @@ pc.Device = pc.Base.extend('pc.Device',
                 xmlDoc.loadXML(xml);
                 return xmlDoc;
             }
-        },
-
-        setDebugCollisions:function (debug)
-        {
-            this.debugCollisions = debug;
-            var c = null;
-
-            if (debug)
-                c = '#33ff33';
-
-            // go through all the objects and turn on the collision rectangle
-            var nextScene = this.game.getFirstScene();
-            while (nextScene)
-            {
-                var nextLayer = nextScene.obj.getFirstLayer();
-                while (nextLayer)
-                {
-                    if (nextLayer.getFirstElement != undefined)
-                    {
-                        var nextElement = nextLayer.obj.getFirstElement();
-                        while (nextElement)
-                        {
-                            nextElement.obj.borderColor = c;
-                            nextElement = nextElement.nextLinked;
-                        }
-                    }
-                    nextLayer = nextLayer.nextLinked;
-                }
-                nextScene = nextScene.nextLinked;
-            }
-
         }
 
     });

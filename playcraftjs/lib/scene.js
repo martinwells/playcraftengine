@@ -52,7 +52,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 next.obj.onReady();
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -81,7 +81,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 next.obj.onResize(width, height);
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -206,7 +206,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
                     next.obj.draw();
                     pc.device.lastDrawMS += (Date.now() - this.startTime);
                 }
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -227,7 +227,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             {
                 if (layer.obj.collidable && layer.obj.active)
                     layer.obj.checkCollision(e, xMove, yMove);
-                layer = layer.nextLinked;
+                layer = layer.next();
             }
         },
 
@@ -241,7 +241,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 next.obj.pause();
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -255,7 +255,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 next.obj.resume();
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -265,7 +265,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 next.obj.reset();
-                next = next.nextLinked;
+                next = next.next();
             }
 
             this.layers.clear();
@@ -285,7 +285,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             while (next)
             {
                 found.push(next.obj.entitiesUnderXY(x, y));
-                next = next.nextLinked;
+                next = next.next();
             }
 
         },

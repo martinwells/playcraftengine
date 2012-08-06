@@ -34,11 +34,11 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
          */
         cleanup: function()
         {
-            var next = this.entitySuicides.first;
-            while (next)
+            var entity = this.entitySuicides.first;
+            while (entity)
             {
-                this._doRemoveEntity(next.obj);
-                next = next.nextLinked;
+                this._doRemoveEntity(entity.object());
+                entity = entity.next();
             }
 
             this.entitySuicides.clear();

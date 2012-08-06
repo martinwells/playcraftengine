@@ -140,7 +140,7 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
                     }
 
                     // assign next before we (maybe) remove this one
-                    next = next.nextLinked;
+                    next = next.next();
 
                     // time to die?
                     if (pc.device.now - p.start > p.lifetime)

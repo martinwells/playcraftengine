@@ -74,7 +74,7 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
                     layouts.add(al, next.obj);
                     //console.log(' adding: ' + next.obj.toString() + ' to anchor group: ' + al);
                 }
-                next = next.nextLinked;
+                next = next.next();
             }
 
             // now go through all the anchor groups and lay things out
@@ -161,7 +161,7 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
 
                     cy += spatial.dim.y + layout.margin.bottom;
 
-                    listNext = listNext.nextLinked;
+                    listNext = listNext.next();
                 }
 
             }
@@ -189,7 +189,7 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
                     this._entityDim.y += layout.margin.top + sp.dim.y + layout.margin.bottom;
                 }
 
-                listNext = listNext.nextLinked;
+                listNext = listNext.next();
             }
 
             return this._entityDim;

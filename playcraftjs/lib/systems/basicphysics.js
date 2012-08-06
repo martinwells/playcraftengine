@@ -178,7 +178,7 @@ pc.systems.BasicPhysics = pc.EntitySystem.extend('pc.systems.BasicPhysics',
                             }
                         }
 
-                        next = next.nextLinked;
+                        next = next.next();
 
                     } // while next collidable (other entities loop)
 
@@ -212,7 +212,7 @@ pc.systems.BasicPhysics = pc.EntitySystem.extend('pc.systems.BasicPhysics',
                     while (tcNext)
                     {
                         tcNext.obj.current = false;
-                        tcNext = tcNext.nextLinked;
+                        tcNext = tcNext.next();
                     }
 
                     for (var i=0; i < this.collisionMaps.length; i++)
@@ -261,7 +261,7 @@ pc.systems.BasicPhysics = pc.EntitySystem.extend('pc.systems.BasicPhysics',
                             this.onCollisionEnd(tcNext.obj);
                             collidable.removeTileCollision(tcNext.obj);
                         }
-                        tcNext = tcNext.nextLinked;
+                        tcNext = tcNext.next();
                     }
 
 

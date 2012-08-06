@@ -69,7 +69,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
                     {
                         // add will check to make sure this entity isn't in there already
                         next.obj.add(entity);
-                        next = next.nextLinked;
+                        next = next.next();
                     }
                 }
             }
@@ -93,7 +93,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
                     {
                         // just a plain removal, since this entity is going entirely
                         next.obj.remove(entity);
-                        next = next.nextLinked;
+                        next = next.next();
                     }
                 }
             }
@@ -121,7 +121,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             {
                 next.obj.add(entity);
                 next.obj.onComponentAdded(entity, component);
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -138,7 +138,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
                 // another type might still apply to a given system
                 next.obj.removeIfNotMatched(entity);
                 next.obj.onComponentRemoved(entity, component);
-                next = next.nextLinked;
+                next = next.next();
             }
 
         },
@@ -150,7 +150,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             {
                 // get a list of entities with the components that match this one
                 next.obj.processAll();
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 
@@ -160,7 +160,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             while(next)
             {
                 next.obj.onResize(width, height);
-                next = next.nextLinked;
+                next = next.next();
             }
         }
 

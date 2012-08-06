@@ -81,7 +81,7 @@ pc.EntitySystem = pc.System.extend('pc.EntitySystem',
             {
                 if (next.obj.active)
                     this.process(next.obj);
-                next = next.nextLinked;
+                next = next.next();
             }
 
             // clear suicides
@@ -90,7 +90,7 @@ pc.EntitySystem = pc.System.extend('pc.EntitySystem',
             while (next)
             {
                 this.remove(next.obj);
-                next = next.nextLinked;
+                next = next.next();
             }
             this.suicides.clear();
 

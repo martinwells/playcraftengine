@@ -47,7 +47,7 @@ pc.systems.Effects = pc.EntitySystem.extend('pc.systems.Effects',
 //                      this component could just modify physics over time?
 //                }
 
-                next = next.nextLinked;
+                next = next.next();
             }
         },
 

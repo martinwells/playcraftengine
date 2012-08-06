@@ -133,7 +133,7 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                         }
                     }
                 }
-                next = next.nextLinked;
+                next = next.next();
             }
 
             pc.device.lastDrawMS += (Date.now() - startTime);
