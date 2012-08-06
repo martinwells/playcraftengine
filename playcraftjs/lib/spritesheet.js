@@ -11,6 +11,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
     framesHigh: 1,
     scaleX: 1,
     scaleY: 1,
+    sourceX: 0,
+    sourceY: 0,
     alpha: 1,
     useRotation: false,
     compositeOperation: null,
@@ -38,6 +40,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         this.framesHigh = pc.checked(options.framesHigh, this.image.height/this.frameHeight);
         this.scaleX = pc.checked(options.scaleX, 1);
         this.scaleY = pc.checked(options.scaleY, 1);
+        this.sourceX = pc.checked(options.sourceX, 0);
+        this.sourceY = pc.checked(options.sourceY, 0);
         this.alpha = pc.checked(options.alpha, 1);
         this.useRotation = pc.checked(options.useRotation, false);
 
@@ -143,7 +147,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         if (state.currentAnim == null)
         {
 
-            this.image.draw(ctx, 0, 0, Math.round(x), Math.round(y), this.frameWidth, this.frameHeight, dir);
+            this.image.draw(ctx, this.sourceX, this.sourceY, Math.round(x), Math.round(y), this.frameWidth, this.frameHeight, dir);
 
         } else
         {
@@ -159,7 +163,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
                 fy = state.currentAnim.frameY;
 
                 this.image.draw(ctx,
-                    this.frameXPos[fx], this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight, this.dirTmp);
+                    this.sourceX + this.frameXPos[fx], this.sourceY + this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight, this.dirTmp);
             }
             else
             {
@@ -186,7 +190,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
                 }
 
                 this.image.draw(ctx,
-                    this.frameXPos[fx], this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight);
+                    this.sourceX + this.frameXPos[fx], this.sourceY + this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y),
+                    this.frameWidth, this.frameHeight);
             }
         }
 
@@ -212,7 +217,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
             this.image.setCompositeOperation(this.compositeOperation);
 
         this.image.draw(ctx,
-            this.frameXPos[frameX], this.frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
+            this.sourceX + this.frameXPos[frameX], this.sourceY + this.frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
             this.frameWidth, this.frameHeight, angle);
 
         if (this.alpha < 1) ctx.globalAlpha = 1;
