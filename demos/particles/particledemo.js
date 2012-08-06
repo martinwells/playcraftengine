@@ -13,6 +13,7 @@ GameScene = pc.Scene.extend('GameScene',
         smokeSheet:null,
         snowSheet:null,
         currentEmitter:null,
+        particleCountText: null,
         current:0,
         total:8,
 
@@ -35,7 +36,7 @@ GameScene = pc.Scene.extend('GameScene',
             // Setup sprite sheets
             // ------------------------------------------------------------------------------------
             var starsImage = pc.device.loader.get('stars').resource;
-            this.starSheet = new pc.SpriteSheet({image:starsImage, frameWidth:20, frameHeight:20, framesWide:4, framesHigh:3});
+            this.starSheet = new pc.SpriteSheet({sourceX:20, image:starsImage, frameWidth:20, frameHeight:20, framesWide:3, framesHigh:3});
 
             this.flareSheet = new pc.SpriteSheet({ image:pc.device.loader.get('flare').resource, frameWidth:30, frameHeight:30 });
             this.flareSheet.addAnimationWithDirections('floating', 0, 0, null, 1, 400, 0, true);
@@ -63,6 +64,14 @@ GameScene = pc.Scene.extend('GameScene',
             this.displayTitle();
             this.displayAlert('[Mouse click to see more]');
 
+            // create the particle counter
+            this.particleCountText = pc.Entity.create(this.gameLayer);
+            this.particleCountText.addComponent(pc.components.Text.create({ color:'#ffffff', text:['Particles: 0'],
+                lineWidth:0, fontHeight:20 }));
+            this.particleCountText.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:20 }));
+            this.particleCountText.addComponent(pc.components.Layout.create({ vertical:'top', horizontal:'right',
+                margin:{ top:30, right:30 } }));
+
             // create the first emitter
             this.currentEmitter = this.createEmitter(this.current);
 
@@ -73,11 +82,20 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindAction(this, 'next', 'space');
         },
 
+        lastUpdatedCount:0,
+
         process:function ()
         {
             // clear the background
             pc.device.ctx.fillStyle = '#000';
             pc.device.ctx.fillRect(0, 0, pc.device.canvasWidth, pc.device.canvasHeight);
+
+            if (pc.device.now - this.lastUpdatedCount > 1000)
+            {
+                this.particleCountText.getComponent('text').text[0] = 'Particles: ' +
+                    this.currentEmitter.getComponent('emitter')._particles.length();
+                this.lastUpdatedCount = pc.device.now;
+            }
 
             // then let the system process/draw everything
             this._super();
@@ -115,14 +133,14 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.ParticleEmitter.create(
                         {
                             spriteSheet:this.starSheet,
-                            burst:5,
+                            burst:3,
                             delay:20,
                             thrustMin:8, thrustTime:300,
                             maxVelX:5, maxVelY:5,
                             rangeX:10, rangeY:10, // x axis modification: 10 equals -5 position.x to +5 position.x
                             scaleXMin:0, scaleYMin:0,
                             angleMin:-100, angleMax:-80,
-                            lifeMin:3500,
+                            lifeMin:2300,
                             alphaMin:0, alphaMax:1, alphaDelay:50,
                             gravityY:0.02,
                             compositeOperation:'lighter',
