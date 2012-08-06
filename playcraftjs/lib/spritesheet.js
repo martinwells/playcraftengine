@@ -1,0 +1,278 @@
+/**
+ * SpriteSheet -- an animated, directional image.
+ */
+
+pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
+{
+    image: null,    // the source image for all sprite frames
+    frameWidth: 0,
+    frameHeight: 0,
+    framesWide: 1,
+    framesHigh: 1,
+    scaleX: 1,
+    scaleY: 1,
+    alpha: 1,
+    useRotation: false,
+    compositeOperation: null,
+
+    // animations
+    totalFrames: 0,
+    animations: null,
+
+    // precalcs (arrays of frame positions)
+    frameXPos: null,
+    frameYPos: null,
+
+    init: function(options)
+    {
+        this._super();
+
+        if (pc.checked(options.image))
+            this.image = options.image;
+        else
+            throw "No image supplied";
+
+        this.frameWidth = pc.checked(options.frameWidth, 1);
+        this.frameHeight = pc.checked(options.frameHeight, 1);
+        this.framesWide = pc.checked(options.framesWide, this.image.width/this.frameWidth);
+        this.framesHigh = pc.checked(options.framesHigh, this.image.height/this.frameHeight);
+        this.scaleX = pc.checked(options.scaleX, 1);
+        this.scaleY = pc.checked(options.scaleY, 1);
+        this.alpha = pc.checked(options.alpha, 1);
+        this.useRotation = pc.checked(options.useRotation, false);
+
+        this.totalFrames = this.framesWide * this.framesHigh;
+        this.animations = new pc.Hashtable();
+
+        // precalcs
+        this.frameXPos = [];
+        for (var fx=0; fx < this.framesWide; fx++)
+            this.frameXPos.push(fx * this.frameWidth);
+        this.frameYPos = [];
+        for (var fy=0; fy < this.framesHigh; fy++)
+            this.frameYPos.push(fy * this.frameHeight);
+    },
+
+    /**
+     * Adds an animation that has multiple directions
+     * @param name A descriptive name for the animation
+     * @param frameX The starting frame X position (in frames, not pixels)
+     * @param frameY The starting frame Y position (in frames, not pixels)
+     * @param frames An array of frame numbers, note these are OFFSET by frameX and frameY. Use null
+     * to automatically sequence through all frames across the image
+     * @param directions the number of directions this animation has (assumes a row is used for each direction)
+     * @param time Seconds to loop through entire sequence
+     * @param loops Number of times to cycle through this animation, use 0 to loop infinitely
+     */
+    addAnimationWithDirections: function(name, frameX, frameY, frames, directions, time, loops, dirAcross)
+    {
+        var aframes = frames;
+        if (aframes == null)
+        {
+            aframes = [];
+            for (var i=0; i < this.framesWide; i++)
+                aframes.push( i );
+        }
+
+        this.animations.put(name, { frameX:frameX, frameY:frameY, dirAcross: pc.checked(dirAcross, false),
+            frames:aframes, directions: directions, frameRate: (time/aframes.length), degreesPerDir: (360/directions),
+            loops: loops });
+    },
+
+    addAnimation: function(name, frameX, frameY, frames, time, loops)
+    {
+        this.addAnimationWithDirections(name, frameX, frameY, frames, 1, time, loops);
+    },
+
+    /**
+     * Change this sprites animation. Animation frames always start from 0 again.
+     * @param name Key name of the animation to switch to.
+     */
+    setAnimation: function(state, name, speedOffset)
+    {
+        state.currentAnim = this.animations.get(name);
+        if (state.currentAnim == null)
+            this.warn('attempt to set unknown animation [' + name + ']');
+        state.currentFrame = 0;
+        state.animSpeedOffset = pc.checked(speedOffset,0);
+    },
+
+    hasAnimation: function(name)
+    {
+        return (this.animations.get(name) != null);
+    },
+
+    /**
+     * Sets the scale to draw the image at
+     * @param scaleX {number} Value to multiply the image width by (e.g. width * scaleX)
+     * @param scaleY {number} Value to multiply the image height by (e.g. height * scaleX)
+     */
+    setScale: function(scaleX, scaleY)
+    {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+    },
+
+    /**
+     * Sets the componsite drawing operation for this sprite sheet. Set to null to clear it back to the default.
+     * @param o
+     */
+    setCompositeOperation: function(o)
+    {
+        this.compositeOperation = o;
+    },
+
+    /**
+     * Draw this sprite
+     * @param x On-screen x position
+     * @param y On-screen y position
+     * @param dir The facing direction (in degrees)
+     */
+    dirTmp: 0,
+
+    draw: function(ctx, state, x, y, dir)
+    {
+        if (!this.image.loaded || state == null || !state.active) return;
+
+        this._fixScale();
+        if (this.alpha < 1) ctx.globalAlpha = this.alpha;
+
+        if (this.compositeOperation != null)
+            this.image.setCompositeOperation(this.compositeOperation);
+
+        if (state.currentAnim == null)
+        {
+
+            this.image.draw(ctx, 0, 0, Math.round(x), Math.round(y), this.frameWidth, this.frameHeight, dir);
+
+        } else
+        {
+            var fx = 0;
+            var fy = 0;
+
+            if (this.useRotation)
+            {
+                // rotation/direction drawing is done using canvas rotation (slower)
+                this.dirTmp = dir;
+
+                fx = state.currentAnim.frames[state.currentFrame];
+                fy = state.currentAnim.frameY;
+
+                this.image.draw(ctx,
+                    this.frameXPos[fx], this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight, this.dirTmp);
+            }
+            else
+            {
+                // rely on the sprite images to draw rotation
+
+                this.dirTmp = Math.round( dir / state.currentAnim.degreesPerDir);
+
+                if (this.dirTmp > state.currentAnim.directions-1) this.dirTmp = 0; // accommodate the edge case causing by rounding back
+
+                if (!state.currentAnim.dirAcross)
+                {
+                    fx = this.dirTmp + state.currentAnim.frameX;
+                    fy = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameY;
+                } else
+                {
+                    fx = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameX + this.dirTmp;
+                    fy = state.currentAnim.frameY;
+                }
+
+                if (state.currentAnim.directions == 1)
+                {
+                    fy = state.currentAnim.frameY;
+                    fx = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameX;
+                }
+
+                this.image.draw(ctx,
+                    this.frameXPos[fx], this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight);
+            }
+        }
+
+        // restore scaling (as images can be used amongst spritesheets, we need to be nice)
+        this.image.setScale(1, 1);
+
+        // set the alpha back to normal
+        if (this.alpha < 1) ctx.globalAlpha = 1;
+
+        if (this.compositeOperation != null)
+            this.image.setCompositeOperation('source-over');
+
+
+    },
+
+    drawFrame: function(ctx, frameX, frameY, x, y, angle)
+    {
+        if (!this.image.loaded) return;
+        if (this.alpha < 1) ctx.globalAlpha = this.alpha;
+
+        this._fixScale();
+        if (this.compositeOperation != null)
+            this.image.setCompositeOperation(this.compositeOperation);
+
+        this.image.draw(ctx,
+            this.frameXPos[frameX], this.frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
+            this.frameWidth, this.frameHeight, angle);
+
+        if (this.alpha < 1) ctx.globalAlpha = 1;
+        if (this.compositeOperation != null)
+            this.image.setCompositeOperation('source-over');
+    },
+
+    /**
+     * Draw all the frames of a sprite sheet according to the image and parameters you set it
+     * up with. Primarily this is intended for debugging or sprite testing.
+     * @param ctx Context to draw on
+     * @param x Starting x position to draw on the given context
+     * @param y Starting y position to draw on the given context
+     */
+    drawAllFrames: function(ctx, x, y)
+    {
+        for (var fy=0; fy < this.framesHigh; fy++)
+            for (var fx=0; fx < this.framesWide; fx++)
+                this.drawFrame(ctx, fx, fy, x+(fx*this.frameWidth), y+(fy*this.frameHeight));
+    },
+
+    _fixScale: function()
+    {
+        if (this.scaleX != 1 || this.scaleY != 1)
+            this.image.setScale(this.scaleX, this.scaleY);
+    },
+
+    update: function(state, delta)
+    {
+        if (state.currentAnim == null || !state.active) return;
+
+        // see if enough time has past to increment the frame count
+        if (state.currentAnim.frames.length <= 1) return;
+
+        if (state.acDelta > (state.currentAnim.frameRate + state.animSpeedOffset))
+        {
+            state.currentFrame++;
+            if (state.currentFrame >= state.currentAnim.frames.length-1)
+            {
+                state.loopCount++;
+                // checked if we have looped the animation enough times
+                if (state.currentAnim.loops) // 0 means loop forever
+                    if (state.loopCount >= state.currentAnim.loops)
+                        state.active = false;
+
+                state.currentFrame = 0; // take it from the top
+            }
+            state.acDelta -= state.currentAnim.frameRate;
+        } else
+        {
+            state.acDelta += delta;
+        }
+    },
+
+    reset: function()
+    {
+        this.image = null;
+        this.animations = null;
+    }
+
+
+
+});

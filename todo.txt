@@ -1,0 +1,181 @@
+
+HyperGate
+- limit turret turning degrees over time
+
+
+TODO (NOW)
+==========
+
+- anchor control
+- components to add
+    - composite image modifier
+    - scaling modifier
+- 8-way directional input controller
+- camera shake
+    - how to do camera shake effect (layer.shake());
+
+- physics debug needs optional origin
+- AI tracking component
+- physics scaling, layer scaling
+- clean up the node app.js sample server
+- input system example using systems rather than events (InputComponent)
+    - directional control component - how to do reactions on physics (thrust particle system etc)
+- more shapes (circle)
+- how to sequence events (simple state machine?)
+- more effects (bounce, float, swipe)
+    (use physics simulation?
+    http://cocos2d-javascript.org/demos/actions
+    MoveTo, MoveBy, JumpTo, JumpBy
+    Blink
+    Rotate
+    Sequences
+    EaseIn/Out
+- Layer / entity object transitions
+    Rotate Out
+    Rotate In
+- collision tile creation for physics
+- test map/tile loading
+
+LATER (REQUIRED FOR LAUNCH)
+=====
+- fix onResize
+- scene transitions (attach effects like slide?)
+- script loader: Add js to the resource loader - what about a minified version???? doesn't that cover it
+- Fix multitouch issue (more than one control at once)
+- bunch of simple demos (scenes, sprites, physics etc)
+- docs (jsdoc plus demo games)
+- fix draw bug with rotating rectangles off screen
+
+POST_LAUNCH
+===========
+- Support multiple component types
+- Remove dependency on jQuery
+Input
+    - support for scroll wheel and accelerometer (see below)
+
+Physics
+- Multiple collision shapes (multiple fixtures) - see http://blog.sethladd.com/2011/09/box2d-with-complex-and-concave-objects.html
+- port to using float32array (instead of objects)
+- Linear velocity
+
+
+IDEAS
+=====
+- Demo game - Crazy Ice Tanks - physics demo of tanks on ice... big guns push tanks
+
+
+ROADMAP
+=======
+- spatial grid
+    http://howlingmoonsoftware.com/wordpress/?p=726
+- JSON descriptor files
+- UI system
+    - Scrolling lists
+    - json based layout?
+- editor
+    - When game is paused, allow selection of entities
+
+
+LATER
+=====
+
+- rotation on animated images
+- Isometric support (easy?)
+- A*
+- Change input state to be a ref to an object state to adjust, rather than a separate lookup hashtable?
+- multiplayer
+- more browser testing (older versions)
+- expanded UI
+- chipmunk support (https://github.com/josephg/Chipmunk-js/)
+
+
+CODE CLEANUP
+============
+jsdoc -- test output
+@property
+move all internals to _ and a different section
+
+
+Ideas/Later
+- Add stats graph to system for timing (count ms effort for each system)
+- Asomium powered exe creator
+
+
+DOCS
+====
+Components - entities can only have one component of a given type.
+
+The rules of a component:
+
+It should only contain data about itself. The entity it impacts should be passed in to calls
+It is primarily data, it can contains operations that are limited and exclusive to the component
+itself, but this should be avoided. That's what systems are for.
+
+--
+Components are only data, can I put static operational code in my components?
+--
+Yes, you can put code that operates on the data, but avoid putting operational code, such
+as a rect component having the code to draw itself on the screen. This belongs in a shape drawing system.
+
+Config method should CLEAR all variables... they can be left over from a previous pool usage
+
+A template component:
+
+NAME = pc.components.Component.extend('NAME',
+    {
+        create: function(options)
+        {
+            var n = this._super();
+            n.config(options);
+            return n;
+        }
+    },
+    {
+        data: 0,
+
+        init: function(options)
+        {
+            this._super(this.Class.shortName);
+            this.data = default;
+            if (pc.valid(options))
+                this.config(options);
+        },
+
+        config: function(options)
+        {
+            this.data = pc.checked(options.data, 1);
+        }
+    });
+
+
+
+Systems Development
+====================
+You can autocreate components if you don't need options
+
+
+
+applyImpulse/Force
+Tip: if you attach something to an entity, it's center of mass will be impacted. If you then apply force
+it will create toque (spin).
+
+
+Physics
+=======
+debug draw wont offset for origin (planned)
+
+collisionMasks must match
+
+
+INSTALLATION
+============
+Download and install node.js -- you can use your own web server as well
+
+Install sublime text 2
+
+
+Sprite/Image Composite Operations
+=================================
+
+examples: http://www.tutorialspoint.com/html5/canvas_composition.htm
+default is source-over

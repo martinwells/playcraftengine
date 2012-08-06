@@ -1,0 +1,295 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'ffi' ]
+info using npm@1.0.106
+info using node@v0.4.10-pre
+verbose config file /Users/Martin/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+silly testEngine { name: 'application-name',
+silly testEngine   version: '0.0.1',
+silly testEngine   private: true,
+silly testEngine   dependencies: { express: '2.4.3', jade: '>= 0.0.1' },
+silly testEngine   _id: 'application-name@0.0.1',
+silly testEngine   devDependencies: {},
+silly testEngine   engines: { node: '*' },
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/package.json
+verbose loadDefaults application-name@0.0.1
+silly testEngine { name: 'express',
+silly testEngine   description: 'Sinatra inspired web development framework',
+silly testEngine   version: '2.4.3',
+silly testEngine   author: 
+silly testEngine    { name: 'TJ Holowaychuk',
+silly testEngine      email: 'tj@vision-media.ca' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'TJ Holowaychuk',
+silly testEngine        email: 'tj@vision-media.ca' },
+silly testEngine      { name: 'Aaron Heckmann',
+silly testEngine        email: 'aaron.heckmann+github@gmail.com' },
+silly testEngine      { name: 'Ciaran Jessup', email: 'ciaranj@gmail.com' },
+silly testEngine      { name: 'Guillermo Rauch', email: 'rauchg@gmail.com' } ],
+silly testEngine   dependencies: 
+silly testEngine    { connect: '>= 1.5.2 < 2.0.0',
+silly testEngine      mime: '>= 0.0.1',
+silly testEngine      qs: '>= 0.0.6' },
+silly testEngine   devDependencies: 
+silly testEngine    { 'connect-form': '0.2.1',
+silly testEngine      ejs: '0.4.2',
+silly testEngine      expresso: '0.7.2',
+silly testEngine      hamljs: '0.5.1',
+silly testEngine      jade: '0.11.0',
+silly testEngine      stylus: '0.13.0',
+silly testEngine      should: '0.2.1',
+silly testEngine      'express-messages': '0.0.2',
+silly testEngine      'node-markdown': '>= 0.0.1',
+silly testEngine      'connect-redis': '>= 0.0.1' },
+silly testEngine   keywords: [ 'framework', 'sinatra', 'web', 'rest', 'restful' ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/visionmedia/express.git' },
+silly testEngine   main: 'index',
+silly testEngine   bin: { express: './bin/express' },
+silly testEngine   scripts: { test: 'make test', prepublish: 'npm prune' },
+silly testEngine   engines: { node: '>= 0.4.1 < 0.5.0' },
+silly testEngine   _id: 'express@2.4.3',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/express/package.json
+verbose loadDefaults express@2.4.3
+silly testEngine { name: 'jade',
+silly testEngine   description: 'Jade template engine',
+silly testEngine   version: '0.13.0',
+silly testEngine   author: 
+silly testEngine    { name: 'TJ Holowaychuk',
+silly testEngine      email: 'tj@vision-media.ca' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/visionmedia/jade.git' },
+silly testEngine   main: './index.js',
+silly testEngine   bin: { jade: './bin/jade' },
+silly testEngine   devDependencies: 
+silly testEngine    { expresso: '0.6.4',
+silly testEngine      'coffee-script': '>= 0.0.1',
+silly testEngine      sass: '>= 0.0.1',
+silly testEngine      less: '>= 0.0.1',
+silly testEngine      markdown: '>= 0.0.1',
+silly testEngine      stylus: '>= 0.0.1' },
+silly testEngine   scripts: { prepublish: 'npm prune' },
+silly testEngine   engines: { node: '>= 0.1.98' },
+silly testEngine   _id: 'jade@0.13.0',
+silly testEngine   dependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/jade/package.json
+verbose loadDefaults jade@0.13.0
+WARN logging@2.0.9 package.json: bugs['web'] should probably be bugs['url']
+silly testEngine { name: 'logging',
+silly testEngine   version: '2.0.9',
+silly testEngine   description: 'Super sexy color console logging.',
+silly testEngine   homepage: 'http://github.com/dylang/logging',
+silly testEngine   author: { name: 'Dylan Greene', email: 'dylang@gmail.com' },
+silly testEngine   contributors: [ { name: 'Dylan Greene', email: 'dylang@gmail.com' } ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/dylang/logging.git' },
+silly testEngine   bugs: 
+silly testEngine    { email: 'dylang@gmail.com',
+silly testEngine      url: 'http://github.com/dylang/logging/issues' },
+silly testEngine   main: 'index',
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   licenses: 
+silly testEngine    [ { type: 'MIT',
+silly testEngine        url: 'http://github.com/isaacs/npm/raw/master/LICENSE' } ],
+silly testEngine   _id: 'logging@2.0.9',
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/logging/package.json
+verbose loadDefaults logging@2.0.9
+silly testEngine { name: 'restler',
+silly testEngine   version: '0.2.1',
+silly testEngine   description: 'An HTTP client library for node.js',
+silly testEngine   contributors: [ { name: 'Dan Webb', email: 'dan@danwebb.net' } ],
+silly testEngine   homepage: 'https://github.com/danwrong/restler',
+silly testEngine   directories: { lib: './lib' },
+silly testEngine   main: './lib/restler',
+silly testEngine   engines: { node: '>= 0.3.7' },
+silly testEngine   _id: 'restler@0.2.1',
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/restler/package.json
+verbose loadDefaults restler@0.2.1
+silly testEngine { name: 'socket.io',
+silly testEngine   version: '0.7.9',
+silly testEngine   description: 'Real-time apps made cross-browser & easy with a WebSocket-like API',
+silly testEngine   homepage: 'http://socket.io',
+silly testEngine   keywords: 
+silly testEngine    [ 'websocket',
+silly testEngine      'socket',
+silly testEngine      'realtime',
+silly testEngine      'socket.io',
+silly testEngine      'comet',
+silly testEngine      'ajax' ],
+silly testEngine   author: 
+silly testEngine    { name: 'Guillermo Rauch',
+silly testEngine      email: 'guillermo@learnboost.com' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'Guillermo Rauch', email: 'rauchg@gmail.com' },
+silly testEngine      { name: 'Arnout Kazemier',
+silly testEngine        email: 'info@3rd-eden.com' },
+silly testEngine      { name: 'Vladimir Dronnikov',
+silly testEngine        email: 'dronnikov@gmail.com' } ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/LearnBoost/Socket.IO-node.git' },
+silly testEngine   dependencies: 
+silly testEngine    { 'socket.io-client': '0.7.9',
+silly testEngine      policyfile: '0.0.4',
+silly testEngine      redis: '0.6.6' },
+silly testEngine   devDependencies: 
+silly testEngine    { expresso: '0.7.7',
+silly testEngine      should: '0.0.4',
+silly testEngine      assertvanish: '0.0.3-1' },
+silly testEngine   main: 'index',
+silly testEngine   engines: { node: '>= 0.4.0' },
+silly testEngine   _id: 'socket.io@0.7.9',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/socket.io/package.json
+verbose loadDefaults socket.io@0.7.9
+silly testEngine { name: 'stylus',
+silly testEngine   description: 'Robust, expressive, and feature-rich CSS superset',
+silly testEngine   version: '0.15.2',
+silly testEngine   author: 
+silly testEngine    { name: 'TJ Holowaychuk',
+silly testEngine      email: 'tj@vision-media.ca' },
+silly testEngine   keywords: 
+silly testEngine    [ 'css',
+silly testEngine      'parser',
+silly testEngine      'style',
+silly testEngine      'stylesheets',
+silly testEngine      'jade',
+silly testEngine      'language' ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/learnboost/stylus.git' },
+silly testEngine   main: './index.js',
+silly testEngine   engines: { node: '>= 0.2.4' },
+silly testEngine   bin: { stylus: './bin/stylus' },
+silly testEngine   scripts: { prepublish: 'npm prune' },
+silly testEngine   dependencies: { cssom: '0.2.0', growl: '1.1.0' },
+silly testEngine   _id: 'stylus@0.15.2',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/stylus/package.json
+verbose loadDefaults stylus@0.15.2
+silly testEngine { name: 'uglify-js',
+silly testEngine   description: 'JavaScript parser and compressor/beautifier toolkit',
+silly testEngine   author: 
+silly testEngine    { name: 'Mihai Bazon',
+silly testEngine      email: 'mihai.bazon@gmail.com',
+silly testEngine      url: 'http://mihai.bazon.net/blog' },
+silly testEngine   version: '1.3.1',
+silly testEngine   main: './uglify-js.js',
+silly testEngine   bin: { uglifyjs: './bin/uglifyjs' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git@github.com:mishoo/UglifyJS.git' },
+silly testEngine   devDependencies: { nodeunit: '0.7.x' },
+silly testEngine   scripts: { test: '$(which nodeunit || echo node_modules/nodeunit/bin/nodeunit) test/unit/scripts.js && test/testparser.js && test/testconsolidator.js' },
+silly testEngine   _id: 'uglify-js@1.3.1',
+silly testEngine   dependencies: {},
+silly testEngine   engines: { node: '*' },
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/uglify-js/package.json
+verbose loadDefaults uglify-js@1.3.1
+silly testEngine { name: 'winston',
+silly testEngine   description: 'A multi-transport async logging library for Node.js',
+silly testEngine   version: '0.3.5',
+silly testEngine   author: 
+silly testEngine    { name: 'Charlie Robbins',
+silly testEngine      email: 'charlie.robbins@gmail.com' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'Matthew Bergman',
+silly testEngine        email: 'mzbphoto@gmail.com' },
+silly testEngine      { name: 'Marak Squires',
+silly testEngine        email: 'marak@nodejitsu.com' } ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/indexzero/winston.git' },
+silly testEngine   keywords: [ 'logging', 'sysadmin', 'tools' ],
+silly testEngine   dependencies: 
+silly testEngine    { colors: '0.x.x',
+silly testEngine      eyes: '0.1.x',
+silly testEngine      loggly: '0.3.x',
+silly testEngine      pkginfo: '0.2.x' },
+silly testEngine   devDependencies: { vows: '0.5.x' },
+silly testEngine   main: './lib/winston',
+silly testEngine   scripts: { test: 'vows test/*-test.js --spec' },
+silly testEngine   engines: { node: '>= 0.4.0' },
+silly testEngine   _id: 'winston@0.3.5',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/Dev/projects/ios/appLab/bundle/server/node_modules/winston/package.json
+verbose loadDefaults winston@0.3.5
+verbose from cache /Users/Martin/Dev/projects/ios/appLab/bundle/server/package.json
+verbose into /Users/Martin/Dev/projects/ios/appLab/bundle/server [ 'ffi' ]
+verbose cache add ffi
+verbose cache add [ 'ffi', null ]
+silly cache add: name, spec, args [ undefined, 'ffi', [ 'ffi', null ] ]
+verbose parsed url { pathname: 'ffi', href: 'ffi' }
+info addNamed [ 'ffi', '' ]
+verbose addNamed [ null, '' ]
+verbose GET ffi
+verbose raw, before any munging ffi
+verbose url resolving [ 'https://registry.npmjs.org/', './ffi' ]
+verbose url resolved https://registry.npmjs.org/ffi
+verbose etag "5R9BZE51MRJ4AUB4M7CG8SE41"
+silly get cb [ 304,
+silly get cb   { server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+silly get cb     etag: '"5R9BZE51MRJ4AUB4M7CG8SE41"',
+silly get cb     date: 'Tue, 26 Jun 2012 00:43:25 GMT',
+silly get cb     'content-length': '0' } ]
+verbose etag ffi from cache
+ERR! Error: No compatible version found: ffi
+ERR! No valid targets found.
+ERR! Perhaps not compatible with your version of node?
+ERR!     at installTargetsError (/usr/local/lib/node_modules/npm/lib/cache.js:424:10)
+ERR!     at /usr/local/lib/node_modules/npm/lib/cache.js:406:17
+ERR!     at saved (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/get.js:136:7)
+ERR!     at cb (/usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:36:9)
+ERR! Report this *entire* log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 11.3.0
+ERR! command "node" "/usr/local/bin/npm" "install" "ffi"
+ERR! cwd /Users/Martin/Dev/projects/ios/appLab/bundle/server
+ERR! node -v v0.4.10-pre
+ERR! npm -v 1.0.106
+verbose exit [ 1, true ]

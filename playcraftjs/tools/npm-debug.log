@@ -1,0 +1,578 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'execSync' ]
+info using npm@1.0.106
+info using node@v0.4.10-pre
+verbose config file /Users/Martin/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+silly testEngine { name: 'express',
+silly testEngine   description: 'Sinatra inspired web development framework',
+silly testEngine   version: '2.4.7',
+silly testEngine   author: 
+silly testEngine    { name: 'TJ Holowaychuk',
+silly testEngine      email: 'tj@vision-media.ca' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'TJ Holowaychuk',
+silly testEngine        email: 'tj@vision-media.ca' },
+silly testEngine      { name: 'Aaron Heckmann',
+silly testEngine        email: 'aaron.heckmann+github@gmail.com' },
+silly testEngine      { name: 'Ciaran Jessup', email: 'ciaranj@gmail.com' },
+silly testEngine      { name: 'Guillermo Rauch', email: 'rauchg@gmail.com' } ],
+silly testEngine   dependencies: 
+silly testEngine    { connect: '1.7.x',
+silly testEngine      mime: '>= 0.0.1',
+silly testEngine      qs: '>= 0.3.1',
+silly testEngine      mkdirp: '0.0.7' },
+silly testEngine   devDependencies: 
+silly testEngine    { 'connect-form': '0.2.1',
+silly testEngine      ejs: '0.4.2',
+silly testEngine      expresso: '0.7.2',
+silly testEngine      hamljs: '0.5.1',
+silly testEngine      jade: '0.11.0',
+silly testEngine      stylus: '0.13.0',
+silly testEngine      should: '0.2.1',
+silly testEngine      'express-messages': '0.0.2',
+silly testEngine      'node-markdown': '>= 0.0.1',
+silly testEngine      'connect-redis': '>= 0.0.1' },
+silly testEngine   keywords: [ 'framework', 'sinatra', 'web', 'rest', 'restful' ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/visionmedia/express.git' },
+silly testEngine   main: 'index',
+silly testEngine   bin: { express: './bin/express' },
+silly testEngine   scripts: { test: 'make test', prepublish: 'npm prune' },
+silly testEngine   engines: { node: '>= 0.4.1 < 0.5.0' },
+silly testEngine   _id: 'express@2.4.7',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/express/package.json
+verbose loadDefaults express@2.4.7
+silly testEngine { name: 'colors',
+silly testEngine   description: 'get colors in your node.js console like what',
+silly testEngine   version: '0.5.1',
+silly testEngine   author: { name: 'Marak Squires' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/Marak/colors.js.git' },
+silly testEngine   engines: { node: '>=0.1.90' },
+silly testEngine   main: 'colors',
+silly testEngine   _id: 'colors@0.5.1',
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/colors/package.json
+verbose loadDefaults colors@0.5.1
+silly testEngine { name: 'hooks',
+silly testEngine   description: 'Adds pre and post hook functionality to your JavaScript methods.',
+silly testEngine   version: '0.1.9',
+silly testEngine   keywords: [ 'node', 'hooks', 'middleware', 'pre', 'post' ],
+silly testEngine   homepage: 'https://github.com/bnoguchi/hooks-js/',
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/bnoguchi/hooks-js.git' },
+silly testEngine   author: 
+silly testEngine    { name: 'Brian Noguchi',
+silly testEngine      email: 'brian.noguchi@gmail.com',
+silly testEngine      url: 'https://github.com/bnoguchi/' },
+silly testEngine   main: './hooks.js',
+silly testEngine   directories: { lib: '.' },
+silly testEngine   scripts: { test: 'make test' },
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: 
+silly testEngine    { expresso: '>=0.7.6',
+silly testEngine      should: '>=0.2.1',
+silly testEngine      underscore: '>=1.1.4' },
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   licenses: [ 'MIT' ],
+silly testEngine   _id: 'hooks@0.1.9',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/hooks/package.json
+verbose loadDefaults hooks@0.1.9
+silly testEngine { name: 'impact',
+silly testEngine   description: 'nodejs backend for impactjs (http://impactjs.com)',
+silly testEngine   author: 
+silly testEngine    { name: 'Conner Petzold',
+silly testEngine      email: 'cpetzold@gmail.com' },
+silly testEngine   version: '0.1.0',
+silly testEngine   main: './lib',
+silly testEngine   dependencies: { express: '2.0.0', glob: '2.0.9' },
+silly testEngine   engines: { node: '0.4', npm: '1' },
+silly testEngine   _id: 'impact@0.1.0',
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/impact/package.json
+verbose loadDefaults impact@0.1.0
+silly testEngine { name: 'less',
+silly testEngine   description: 'Leaner CSS',
+silly testEngine   url: 'http://lesscss.org',
+silly testEngine   keywords: [ 'css', 'parser', 'lesscss', 'browser' ],
+silly testEngine   author: 
+silly testEngine    { name: 'Alexis Sellier',
+silly testEngine      email: 'self@cloudhead.net' },
+silly testEngine   contributors: [],
+silly testEngine   version: '1.1.4',
+silly testEngine   bin: { lessc: './bin/lessc' },
+silly testEngine   main: './lib/less/index',
+silly testEngine   directories: { test: './test' },
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   _id: 'less@1.1.4',
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/less/package.json
+verbose loadDefaults less@1.1.4
+WARN mongodb@0.9.6-21 package.json: bugs['web'] should probably be bugs['url']
+silly testEngine { name: 'mongodb',
+silly testEngine   description: 'A node.js driver for MongoDB',
+silly testEngine   keywords: [ 'mongodb', 'mongo', 'driver', 'db' ],
+silly testEngine   version: '0.9.6-21',
+silly testEngine   author: 
+silly testEngine    { name: 'Christian Amor Kvalheim',
+silly testEngine      email: 'christkv@gmail.com' },
+silly testEngine   contributors: 
+silly testEngine    [ { name: 'Aaron Heckmann' },
+silly testEngine      { name: 'Christoph Pojer' },
+silly testEngine      { name: 'Pau Ramon Revilla' },
+silly testEngine      { name: 'Nathan White' },
+silly testEngine      { name: 'Emmerman' },
+silly testEngine      { name: 'Seth LaForge' },
+silly testEngine      { name: 'Boris Filipov' },
+silly testEngine      { name: 'Stefan Schärmeli' },
+silly testEngine      { name: 'Tedde Lundgren' },
+silly testEngine      { name: 'renctan' },
+silly testEngine      { name: 'Sergey Ukustov' },
+silly testEngine      { name: 'Ciaran Jessup' },
+silly testEngine      { name: 'kuno' },
+silly testEngine      { name: 'srimonti' },
+silly testEngine      { name: 'Erik Abele' },
+silly testEngine      { name: 'Pratik Daga' },
+silly testEngine      { name: 'Slobodan Utvic' },
+silly testEngine      { name: 'Kristina Chodorow' },
+silly testEngine      { name: 'Yonathan Randolph' },
+silly testEngine      { name: 'Brian Noguchi' },
+silly testEngine      { name: 'Sam Epstein' },
+silly testEngine      { name: 'James Harrison Fisher' },
+silly testEngine      { name: 'Vladimir Dronnikov' },
+silly testEngine      { name: 'Ben Hockey' },
+silly testEngine      { name: 'Henrik Johansson' },
+silly testEngine      { name: 'Simon Weare' },
+silly testEngine      { name: 'Alex Gorbatchev' },
+silly testEngine      { name: 'Shimon Doodkin' },
+silly testEngine      { name: 'Kyle Mueller' },
+silly testEngine      { name: 'Eran Hammer-Lahav' },
+silly testEngine      { name: 'Marcin Ciszak' },
+silly testEngine      { name: 'François de Metz' },
+silly testEngine      { name: 'Vinay Pulim' },
+silly testEngine      { name: 'nstielau' },
+silly testEngine      { name: 'Adam Wiggins' },
+silly testEngine      { name: 'entrinzikyl' },
+silly testEngine      { name: 'Jeremy Selier' },
+silly testEngine      { name: 'Ian Millington' },
+silly testEngine      { name: 'Public Keating' },
+silly testEngine      { name: 'andrewjstone' },
+silly testEngine      { name: 'Christopher Stott' },
+silly testEngine      { name: 'Corey Jewett' },
+silly testEngine      { name: 'brettkiefer' },
+silly testEngine      { name: 'Rob Holland' },
+silly testEngine      { name: 'Senmiao Liu' },
+silly testEngine      { name: 'heroic' },
+silly testEngine      { name: 'gitfy' },
+silly testEngine      { name: 'Andrew Stone' } ],
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/christkv/node-mongodb-native.git' },
+silly testEngine   bugs: 
+silly testEngine    { email: 'node-mongodb-native@googlegroups.com',
+silly testEngine      url: 'http://github.com/christkv/node-mongodb-native/issues' },
+silly testEngine   os: [ 'linux', 'darwin', 'freebsd' ],
+silly testEngine   config: { native: false },
+silly testEngine   main: './lib/mongodb/index',
+silly testEngine   directories: { lib: './lib/mongodb' },
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   scripts: { install: 'bash ./install.sh' },
+silly testEngine   licenses: 
+silly testEngine    [ { type: 'Apache License, Version 2.0',
+silly testEngine        url: 'http://www.apache.org/licenses/LICENSE-2.0' } ],
+silly testEngine   _id: 'mongodb@0.9.6-21',
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/mongodb/package.json
+verbose loadDefaults mongodb@0.9.6-21
+silly testEngine { name: 'jade',
+silly testEngine   description: 'Jade template engine',
+silly testEngine   version: '0.16.2',
+silly testEngine   author: 
+silly testEngine    { name: 'TJ Holowaychuk',
+silly testEngine      email: 'tj@vision-media.ca' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/visionmedia/jade.git' },
+silly testEngine   main: './index.js',
+silly testEngine   bin: { jade: './bin/jade' },
+silly testEngine   dependencies: { commander: '0.1.0', mkdirp: '>= 0.0.7' },
+silly testEngine   devDependencies: 
+silly testEngine    { expresso: '0.6.4',
+silly testEngine      'coffee-script': '>= 0.0.1',
+silly testEngine      sass: '>= 0.0.1',
+silly testEngine      less: '>= 0.0.1',
+silly testEngine      markdown: '>= 0.0.1',
+silly testEngine      stylus: '>= 0.0.1',
+silly testEngine      uubench: '0.0.1',
+silly testEngine      'uglify-js': '>= 1.0.7' },
+silly testEngine   scripts: { prepublish: 'npm prune' },
+silly testEngine   engines: { node: '>= 0.1.98' },
+silly testEngine   _id: 'jade@0.16.2',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/jade/package.json
+verbose loadDefaults jade@0.16.2
+silly testEngine { name: 'mongoose',
+silly testEngine   description: 'Mongoose MongoDB ORM',
+silly testEngine   version: '2.3.0',
+silly testEngine   author: 
+silly testEngine    { name: 'Guillermo Rauch',
+silly testEngine      email: 'guillermo@learnboost.com' },
+silly testEngine   keywords: 
+silly testEngine    [ 'mongodb',
+silly testEngine      'mongoose',
+silly testEngine      'orm',
+silly testEngine      'data',
+silly testEngine      'datastore',
+silly testEngine      'nosql' ],
+silly testEngine   dependencies: 
+silly testEngine    { hooks: '0.1.9',
+silly testEngine      mongodb: '0.9.6-20',
+silly testEngine      colors: '0.5.0' },
+silly testEngine   devDependencies: { should: '0.2.1', gleak: '0.1.3' },
+silly testEngine   directories: { lib: './lib/mongoose' },
+silly testEngine   scripts: { test: 'make test' },
+silly testEngine   main: './index.js',
+silly testEngine   engines: { node: '>= 0.4.0' },
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/LearnBoost/mongoose.git' },
+silly testEngine   _id: 'mongoose@2.3.0',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/mongoose/package.json
+verbose loadDefaults mongoose@2.3.0
+verbose has wscript [ undefined,
+verbose has wscript   { file: '/Users/Martin/node_modules/glob/package.json',
+verbose has wscript     contributors: false,
+verbose has wscript     serverjs: false,
+verbose has wscript     wscript: true } ]
+WARN glob@2.0.9 package.json: bugs['web'] should probably be bugs['url']
+silly testEngine { name: 'glob',
+silly testEngine   description: 'glob/fnmatch binding for node',
+silly testEngine   author: 
+silly testEngine    { name: 'Isaac Z. Schlueter',
+silly testEngine      email: 'i@izs.me',
+silly testEngine      url: 'http://blog.izs.me/' },
+silly testEngine   version: '2.0.9',
+silly testEngine   main: './lib/glob',
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/isaacs/node-glob.git' },
+silly testEngine   homepage: 'https://github.com/isaacs/node-glob',
+silly testEngine   keywords: 
+silly testEngine    [ 'glob',
+silly testEngine      'pattern',
+silly testEngine      'match',
+silly testEngine      'filesystem',
+silly testEngine      'posix',
+silly testEngine      'fnmatch' ],
+silly testEngine   bugs: { url: 'https://github.com/isaacs/node-glob/issues' },
+silly testEngine   engines: { node: '0.4' },
+silly testEngine   _id: 'glob@2.0.9',
+silly testEngine   scripts: { preinstall: 'node-waf clean || true; node-waf configure build' },
+silly testEngine   dependencies: {},
+silly testEngine   devDependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true }
+verbose caching /Users/Martin/node_modules/glob/package.json
+verbose loadDefaults glob@2.0.9
+verbose into /Users/Martin [ 'execSync' ]
+verbose cache add execSync
+verbose cache add [ 'execSync', null ]
+silly cache add: name, spec, args [ undefined, 'execSync', [ 'execSync', null ] ]
+verbose parsed url { pathname: 'execSync', href: 'execSync' }
+info addNamed [ 'execSync', '' ]
+verbose addNamed [ null, '' ]
+verbose GET execSync
+verbose raw, before any munging execSync
+verbose url resolving [ 'https://registry.npmjs.org/', './execSync' ]
+verbose url resolved https://registry.npmjs.org/execSync
+silly get cb [ 200,
+silly get cb   { vary: 'Accept',
+silly get cb     server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+silly get cb     etag: '"5H82BR8AVH3RB6XFM8OLLHO49"',
+silly get cb     date: 'Tue, 26 Jun 2012 00:28:52 GMT',
+silly get cb     'content-type': 'application/json',
+silly get cb     'content-length': '1700' } ]
+verbose mkdir (expected) error ENOENT, No such file or directory '/Users/Martin/.npm/execSync'
+verbose mkdir done: /Users/Martin/.npm/execSync 755
+verbose GET execSync/0.0.1
+verbose raw, before any munging execSync/0.0.1
+verbose url resolving [ 'https://registry.npmjs.org/', './execSync/0.0.1' ]
+verbose url resolved https://registry.npmjs.org/execSync/0.0.1
+silly get cb [ 200,
+silly get cb   { vary: 'Accept',
+silly get cb     server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+silly get cb     etag: '"5H82BR8AVH3RB6XFM8OLLHO49"',
+silly get cb     date: 'Tue, 26 Jun 2012 00:28:53 GMT',
+silly get cb     'content-type': 'application/json',
+silly get cb     'content-length': '629' } ]
+verbose mkdir (expected) error ENOENT, No such file or directory '/Users/Martin/.npm/execSync/0.0.1'
+verbose mkdir done: /Users/Martin/.npm/execSync/0.0.1 755
+verbose bin dist [ '0.4-ares1.7.4-ev4.4-openssl0.9.8l-v83.1.8.26-darwin-11.3.0',
+verbose bin dist   { shasum: 'd11a23606d201cf5eb7ea9b2f61cd5e0bc31b1dd',
+verbose bin dist     tarball: 'http://registry.npmjs.org/execSync/-/execSync-0.0.1.tgz' } ]
+verbose addRemoteTarball [ 'https://registry.npmjs.org/execSync/-/execSync-0.0.1.tgz',
+verbose addRemoteTarball   'd11a23606d201cf5eb7ea9b2f61cd5e0bc31b1dd' ]
+verbose mkdir (expected) error ENOENT, No such file or directory '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033'
+verbose mkdir (expected) error ENOENT, No such file or directory '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435'
+verbose mkdir done: /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435 755
+info fetch https://registry.npmjs.org/execSync/-/execSync-0.0.1.tgz
+verbose fetch to /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/tmp.tgz
+silly updated sha bytes 1260
+info shasum d11a23606d201cf5eb7ea9b2f61cd5e0bc31b1dd
+info shasum /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/tmp.tgz
+verbose mkdir (expected) error ENOENT, No such file or directory '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents'
+verbose mkdir (expected) error ENOENT, No such file or directory '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm'
+verbose mkdir done: /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm 755
+verbose unpack_ uid, gid [ 502, 20 ]
+verbose unpackTarget /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf',
+silly spawning     '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/tmp.tgz' ],
+silly spawning   '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm' ]
+silly tar err x package/package.json
+silly tar err x package/README.md
+silly tar err x package/index.js
+silly tar err x package/test.js
+silly tar exit 0
+silly asyncMap in gTP /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package
+silly asyncMap in gTP /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package/index.js
+silly asyncMap in gTP /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package/package.json
+silly asyncMap in gTP /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package/README.md
+silly asyncMap in gTP /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package/test.js
+verbose gunzed /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package
+verbose rm'ed /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package
+verbose renamed [ '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/___package.npm/package',
+verbose renamed   '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package' ]
+silly testEngine { author: { name: 'Mario Gutierrez', email: 'mario@mgutz.com' },
+silly testEngine   name: 'execSync',
+silly testEngine   description: 'Synchronous exec when you NEED it.',
+silly testEngine   version: '0.0.1',
+silly testEngine   dependencies: { ffi: '~1.0.0' },
+silly testEngine   devDependencies: {},
+silly testEngine   optionalDependencies: {},
+silly testEngine   engines: { node: '*' },
+silly testEngine   _id: 'execSync@0.0.1',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   path: '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package' }
+verbose caching /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package/package.json
+verbose loadDefaults execSync@0.0.1
+verbose tarball contents [ 'package' ]
+verbose from cache /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package/package.json
+verbose pack /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package /Users/Martin/.npm/execSync/0.0.1/package.tgz
+silly makeList /var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents/package
+verbose mkdir'ed /Users/Martin/.npm/execSync/0.0.1
+verbose tar about to write tar and gzip it.
+silly tar args [ '-czvf', '-', '-T', '-' ]
+silly spawning [ 'tar',
+silly spawning   [ '-czvf', '-', '-T', '-' ],
+silly spawning   '/var/folders/gs/2tlm1d0x09l2crqtj3rg6sh40000gp/T/npm-1340670533033/1340670533033-0.824236256070435/contents' ]
+verbose mkdir (expected) error ENOENT, No such file or directory '/Users/Martin/.npm/execSync/0.0.1/___package.npm'
+verbose mkdir done: /Users/Martin/.npm/execSync/0.0.1/___package.npm 755
+verbose unpack_ uid, gid [ 502, 20 ]
+verbose unpackTarget /Users/Martin/.npm/execSync/0.0.1/package
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf',
+silly spawning     '/Users/Martin/.npm/execSync/0.0.1/package.tgz' ],
+silly spawning   '/Users/Martin/.npm/execSync/0.0.1/___package.npm' ]
+silly tar err x package/index.js
+silly tar err x package/package.json
+silly tar err x package/README.md
+silly tar err x package/test.js
+silly tar exit 0
+silly asyncMap in gTP /Users/Martin/.npm/execSync/0.0.1/___package.npm/package
+silly asyncMap in gTP /Users/Martin/.npm/execSync/0.0.1/___package.npm/package/index.js
+silly asyncMap in gTP /Users/Martin/.npm/execSync/0.0.1/___package.npm/package/package.json
+silly asyncMap in gTP /Users/Martin/.npm/execSync/0.0.1/___package.npm/package/README.md
+silly asyncMap in gTP /Users/Martin/.npm/execSync/0.0.1/___package.npm/package/test.js
+verbose gunzed /Users/Martin/.npm/execSync/0.0.1/___package.npm/package
+verbose rm'ed /Users/Martin/.npm/execSync/0.0.1/package
+verbose renamed [ '/Users/Martin/.npm/execSync/0.0.1/___package.npm/package',
+verbose renamed   '/Users/Martin/.npm/execSync/0.0.1/package' ]
+silly testEngine { author: { name: 'Mario Gutierrez', email: 'mario@mgutz.com' },
+silly testEngine   name: 'execSync',
+silly testEngine   description: 'Synchronous exec when you NEED it.',
+silly testEngine   version: '0.0.1',
+silly testEngine   dependencies: { ffi: '~1.0.0' },
+silly testEngine   devDependencies: {},
+silly testEngine   optionalDependencies: {},
+silly testEngine   engines: { node: '*' },
+silly testEngine   _id: 'execSync@0.0.1',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   dist: { shasum: '1b2645fb44032970280000b6710a53e36fad658a' },
+silly testEngine   scripts: {} }
+verbose caching /Users/Martin/.npm/execSync/0.0.1/package/package.json
+verbose loadDefaults execSync@0.0.1
+silly updated sha bytes 10240
+info shasum 1b2645fb44032970280000b6710a53e36fad658a
+info shasum /Users/Martin/.npm/execSync/0.0.1/package.tgz
+verbose from cache /Users/Martin/.npm/execSync/0.0.1/package/package.json
+verbose chmod /Users/Martin/.npm/execSync/0.0.1/package.tgz 644
+verbose chown [ '/Users/Martin/.npm/execSync/0.0.1/package.tgz',
+verbose chown   502,
+verbose chown   20 ]
+silly resolved [ { author: { name: 'Mario Gutierrez', email: 'mario@mgutz.com' },
+silly resolved     name: 'execSync',
+silly resolved     description: 'Synchronous exec when you NEED it.',
+silly resolved     version: '0.0.1',
+silly resolved     dependencies: { ffi: '~1.0.0' },
+silly resolved     devDependencies: {},
+silly resolved     optionalDependencies: {},
+silly resolved     engines: { node: '*' },
+silly resolved     _id: 'execSync@0.0.1',
+silly resolved     _engineSupported: true,
+silly resolved     _npmVersion: '1.0.106',
+silly resolved     _nodeVersion: 'v0.4.10-pre',
+silly resolved     _defaultsLoaded: true,
+silly resolved     dist: { shasum: '1b2645fb44032970280000b6710a53e36fad658a' },
+silly resolved     scripts: {} } ]
+info into /Users/Martin execSync@0.0.1
+info installOne execSync@0.0.1
+info unbuild /Users/Martin/node_modules/execSync
+verbose from cache /Users/Martin/.npm/execSync/0.0.1/package/package.json
+verbose mkdir (expected) error ENOENT, No such file or directory '/Users/Martin/node_modules/___execSync.npm'
+verbose mkdir done: /Users/Martin/node_modules/___execSync.npm 755
+verbose unpack_ uid, gid [ 502, 20 ]
+verbose unpackTarget /Users/Martin/node_modules/execSync
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf',
+silly spawning     '/Users/Martin/.npm/execSync/0.0.1/package.tgz' ],
+silly spawning   '/Users/Martin/node_modules/___execSync.npm' ]
+silly tar err x package/index.js
+silly tar err x package/package.json
+silly tar err x package/README.md
+silly tar err x package/test.js
+silly tar exit 0
+silly asyncMap in gTP /Users/Martin/node_modules/___execSync.npm/package
+silly asyncMap in gTP /Users/Martin/node_modules/___execSync.npm/package/index.js
+silly asyncMap in gTP /Users/Martin/node_modules/___execSync.npm/package/package.json
+silly asyncMap in gTP /Users/Martin/node_modules/___execSync.npm/package/README.md
+silly asyncMap in gTP /Users/Martin/node_modules/___execSync.npm/package/test.js
+verbose gunzed /Users/Martin/node_modules/___execSync.npm/package
+verbose rm'ed /Users/Martin/node_modules/execSync
+verbose renamed [ '/Users/Martin/node_modules/___execSync.npm/package',
+verbose renamed   '/Users/Martin/node_modules/execSync' ]
+silly testEngine { author: { name: 'Mario Gutierrez', email: 'mario@mgutz.com' },
+silly testEngine   name: 'execSync',
+silly testEngine   description: 'Synchronous exec when you NEED it.',
+silly testEngine   version: '0.0.1',
+silly testEngine   dependencies: { ffi: '~1.0.0' },
+silly testEngine   devDependencies: {},
+silly testEngine   optionalDependencies: {},
+silly testEngine   engines: { node: '*' },
+silly testEngine   _id: 'execSync@0.0.1',
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.4.10-pre',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   scripts: {} }
+verbose caching /Users/Martin/node_modules/execSync/package.json
+verbose loadDefaults execSync@0.0.1
+info preinstall execSync@0.0.1
+verbose from cache /Users/Martin/node_modules/execSync/package.json
+verbose into /Users/Martin/node_modules/execSync [ 'ffi@~1.0.0' ]
+verbose cache add ffi@~1.0.0
+verbose cache add [ 'ffi@~1.0.0', null ]
+silly cache add: name, spec, args [ undefined, 'ffi@~1.0.0', [ 'ffi@~1.0.0', null ] ]
+verbose parsed url { pathname: 'ffi@~1.0.0', href: 'ffi@~1.0.0' }
+silly cache add: name, spec, args [ 'ffi', '~1.0.0', [ 'ffi', '~1.0.0' ] ]
+verbose parsed url { pathname: '~1.0.0', href: '~1.0.0' }
+info addNamed [ 'ffi', '~1.0.0' ]
+verbose addNamed [ null, '>=1.0.0- <1.1.0-' ]
+verbose GET ffi
+verbose raw, before any munging ffi
+verbose url resolving [ 'https://registry.npmjs.org/', './ffi' ]
+verbose url resolved https://registry.npmjs.org/ffi
+silly get cb [ 200,
+silly get cb   { vary: 'Accept',
+silly get cb     server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+silly get cb     etag: '"5R9BZE51MRJ4AUB4M7CG8SE41"',
+silly get cb     date: 'Tue, 26 Jun 2012 00:28:54 GMT',
+silly get cb     'content-type': 'application/json',
+silly get cb     'content-length': '8679' } ]
+verbose mkdir (expected) error ENOENT, No such file or directory '/Users/Martin/.npm/ffi'
+verbose mkdir done: /Users/Martin/.npm/ffi 755
+verbose about to build /Users/Martin/node_modules/execSync
+ERR! error installing execSync@0.0.1 Error: No compatible version found: ffi@'>=1.0.0- <1.1.0-'
+ERR! error installing execSync@0.0.1 No valid targets found.
+ERR! error installing execSync@0.0.1 Perhaps not compatible with your version of node?
+ERR! error installing execSync@0.0.1     at installTargetsError (/usr/local/lib/node_modules/npm/lib/cache.js:424:10)
+ERR! error installing execSync@0.0.1     at /usr/local/lib/node_modules/npm/lib/cache.js:406:17
+ERR! error installing execSync@0.0.1     at saved (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/get.js:136:7)
+ERR! error installing execSync@0.0.1     at cb (/usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:36:9)
+info unbuild /Users/Martin/node_modules/execSync
+verbose from cache /Users/Martin/node_modules/execSync/package.json
+info preuninstall execSync@0.0.1
+info uninstall execSync@0.0.1
+verbose unbuild execSync@0.0.1 [ true,
+verbose unbuild execSync@0.0.1   '/Users/Martin/node_modules',
+verbose unbuild execSync@0.0.1   '/Users/Martin/node_modules' ]
+info postuninstall execSync@0.0.1
+verbose installOne cb execSync@0.0.1
+ERR! Error: No compatible version found: ffi@'>=1.0.0- <1.1.0-'
+ERR! No valid targets found.
+ERR! Perhaps not compatible with your version of node?
+ERR!     at installTargetsError (/usr/local/lib/node_modules/npm/lib/cache.js:424:10)
+ERR!     at /usr/local/lib/node_modules/npm/lib/cache.js:406:17
+ERR!     at saved (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/get.js:136:7)
+ERR!     at cb (/usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:36:9)
+ERR! Report this *entire* log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 11.3.0
+ERR! command "node" "/usr/local/bin/npm" "install" "execSync"
+ERR! cwd /Users/Martin/Dev/projects/ios/appLab/bundle/playcraftjs/tools
+ERR! node -v v0.4.10-pre
+ERR! npm -v 1.0.106
+verbose exit [ 1, true ]
