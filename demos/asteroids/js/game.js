@@ -1,5 +1,5 @@
 /**
- * HyperGate -- game.js
+ * Asteroids -- game.js
  */
 
 
@@ -396,10 +396,8 @@ GameScene = pc.Scene.extend('GameScene',
             this.asteroidsLeft += 2+(this.level*2);
         },
 
-        // todo: firing component
         lastFireTime:0,
         fireDelay:150,
-        lastTurretDirUpdate:0,
 
         process:function ()
         {
