@@ -16,12 +16,8 @@ pc.Scene = pc.Base.extend('pc.Scene',
         activeLayers:null,
         paused:false,
         active:true,
-
-        // todo: systems! -- systems contain entities! we use this to sort which entities to process and draw... so systems need to be in here
-
         viewPort: null,
         viewPortCenter: null, // readonly, changes when you call setViewPort
-
         offset:null,           // a flexible origin you can apply to all layers (nice for camera shaking etc)
 
         init:function (name)
@@ -118,6 +114,18 @@ pc.Scene = pc.Base.extend('pc.Scene',
         },
 
         /**
+         * Resorts layer processing/drawing order based on each layers zIndex value
+         */
+        sortLayers: function()
+        {
+            this.activeLayers.sort(
+                function(a, b)
+                {
+                    return a.zIndex > b.zIndex;
+                });
+        },
+
+        /**
          * Fired when a bound event/action is triggered in the input system. Use bindAction
          * to set one up. Override this in your subclass to do something about it.
          * @param actionName The name of the action that happened
@@ -143,11 +151,10 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.layersByName.put(layer.name, layer);
             this.layers.add(layer);
             this.activeLayers.add(layer);
-            if (layer.collidable)
-                this.collidableLayers.add(layer);
             layer.active = true;
             layer.scene = this;
             layer.onAddedToScene();
+            this.sortLayers();
 
             return layer;
         },
@@ -157,8 +164,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.layersByName.remove(layer.name);
             this.layers.remove(layer);
             this.activeLayers.remove(layer);
-            if (layer.collidable)
-                this.collidableLayers.remove(layer);
             layer.active = false;
             layer.scene = null;
             layer.onRemovedFromScene();
@@ -167,6 +172,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
         setLayerActive:function (layer)
         {
             this.activeLayers.add(layer);
+            this.sortLayers();
             layer.active = true;
 
         },
@@ -207,27 +213,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
                     pc.device.lastDrawMS += (Date.now() - this.startTime);
                 }
                 next = next.next();
-            }
-        },
-
-        /**
-         * Notification that an entity in a layer is shifting it's position, so we do collision detection
-         * across all the layer. If a collision occurs, the parties are notified with an onCollision call.
-         * @param e {pc.Entity} Entity that is about to move
-         * @param xMove {Number} X movement (prior to movement occurring)
-         * @param yMove {Number} Y movement (prior to movement occurring)
-         */
-        collisionCheckEntity:function (e, xMove, yMove)
-        {
-            if (!e._collidable) return;
-
-            // check to see if we collided with anything (across all layers)
-            var layer = this.collidableLayers.first;
-            while (layer)
-            {
-                if (layer.obj.collidable && layer.obj.active)
-                    layer.obj.checkCollision(e, xMove, yMove);
-                layer = layer.next();
             }
         },
 
@@ -287,7 +272,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 found.push(next.obj.entitiesUnderXY(x, y));
                 next = next.next();
             }
-
         },
 
 
@@ -297,7 +281,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
          * available spritesheet image resource. Note that only a single tilesheet is currently supported.
          * @param levelData
          */
-        loadFromTMX:function (levelData)
+        loadFromTMX:function (levelData, entityFactory)
         {
             var xmlDoc = pc.device.parseXML(levelData.data);
             var mapXML = xmlDoc.getElementsByTagName('map')[0];
@@ -307,23 +291,30 @@ pc.Scene = pc.Base.extend('pc.Scene',
 
             // load up the tilesets (note: only 1 is supported right now)
             // todo: add support for multiple tile sets
+
+            //
+            // TILESET
+            //
             var tileSet = xmlDoc.getElementsByTagName('tileset')[0];
             var tsName = tileSet.getAttribute('name');
             var tsImageWidth = tileSet.getAttribute('width');
             var tsImageHeight = tileSet.getAttribute('height');
+            var tileSheet = pc.device.loader.get(tsName);
+            pc.assert(tileSheet, 'Unable to locate tile image resource: ' + tsName + '. It must match the tileset name in tiled.');
+
             var tsImageResource = pc.device.loader.get(tsName).resource;
-            var tsSpriteSheet = new pc.SpriteSheet(tsImageResource, tileWidth, tileHeight, tsImageWidth / tileWidth,
-                tsImageHeight / tileHeight);
+            var tsSpriteSheet = new pc.SpriteSheet({ image:tsImageResource, frameWidth:tileWidth, frameHeight:tileHeight });
 
-
-            // load tiled layers
+            //
+            // LAYERS
+            //
             var layers = xmlDoc.getElementsByTagName('layer');
             for (var m = 0; m < layers.length; m++)
             {
                 // partial construction
                 var newLayer = new pc.TileLayer(null, tsSpriteSheet);
                 // fill in the rest using the data from the TMX file
-                newLayer.loadFromTMX(layers[m]);
+                newLayer.loadFromTMX(layers[m], tileWidth, tileHeight);
                 this.addLayer(newLayer);
             }
 
@@ -335,7 +326,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 var n = new pc.EntityLayer(null);
 
                 // fill in the rest using the data from the TMX file
-                n.loadFromTMX(objectGroups[i]);
+                n.loadFromTMX(objectGroups[i], entityFactory);
                 this.addLayer(n);
             }
 

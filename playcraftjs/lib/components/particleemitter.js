@@ -13,17 +13,17 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
     },
     {
         active: true,
-        emitting: true,           // true if the emitter should be creating new emissions
-        scaleXMin: 0,             // minimum amount to grow particles at (negative values shrink) x-axis
-        scaleXMax: 0,             // maximum amount to grow particles at (negative values shrink) x-axis
-        scaleYMin: 0,             // minimum amount to grow particles at (negative values shrink) y-axis
-        scaleYMax: 0,             // maximum amount to grow particles at (negative values shrink) y-axis
-        fadeInTime: 0,            // time to spend fading in the particle
-        fadeOutTime: 0,          // time spent fading out the particle
+        emitting: true,         // true if the emitter should be creating new emissions
+        scaleXMin: 0,           // minimum amount to grow particles at (negative values shrink) x-axis
+        scaleXMax: 0,           // maximum amount to grow particles at (negative values shrink) x-axis
+        scaleYMin: 0,           // minimum amount to grow particles at (negative values shrink) y-axis
+        scaleYMax: 0,           // maximum amount to grow particles at (negative values shrink) y-axis
+        fadeInTime: 0,          // time to spend fading in the particle
+        fadeOutTime: 0,         // time spent fading out the particle
         angleMin: 0,            // minimum angle (direction) to fire a particle in
         angleMax: 0,            // maximum angle (direction) to fire a particle in
-        thrustMin: 0,            // minimum speed
-        thrustMax: 0,            // (optional) maximum speed (default is speed minimum
+        thrustMin: 0,           // minimum speed
+        thrustMax: 0,           // (optional) maximum speed (default is speed minimum
         thrustTime: 0,          // how long to thrust for
         spinMin: 0,
         spinMax: 0,
@@ -103,6 +103,18 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
                 this._particles = new pc.LinkedList();
             else
                 this._particles.clear();
+        },
+
+        onBeforeRemoved: function()
+        {
+            // being removed from entity, so need to release any particles that
+            // are left back into the pool
+            var p = this._particles.first;
+            while (p)
+            {
+                p.obj.release();
+                p = p.next();
+            }
         }
 
     });

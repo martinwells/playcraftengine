@@ -52,7 +52,6 @@ var app = module.exports = express.createServer();
 app.configure(function()
 {
     app.use(express.logger());
-//    app.set('views', '../demos');
     app.set("view options", {layout: false});
     app.register('.html', {
         compile: function(str, options)
@@ -95,17 +94,22 @@ app.get('/demos/particles', function(req, res)
     res.render('index.html');
 });
 
+app.get('/demos/scrollia', function (req, res)
+{
+    app.set('views', '../../demos/scrollia');
+    res.render('index.html');
+});
+
+app.get('/demos/angrycannons', function (req, res)
+{
+    app.set('views', '../../demos/angrycannons');
+    res.render('index.html');
+});
+
 app.get('/demos/asteroids', function (req, res)
 {
     app.set('views', '../../demos/asteroids');
     res.render('index.html');
-});
-
-
-app.get('/demos/layering', function(req, res)
-{
-    app.set('views', '../../demos/layering');
-    res.render('layering.html');
 });
 
 

@@ -139,10 +139,10 @@ pc.Image = pc.Base.extend('pc.Image', {},
                 this.onErrorCallback(this);
         },
 
-        resize:function (scale)
+        resize:function (scaleX, scaleY)
         {
-            var sw = this.width * scale;
-            var sh = this.height * scale;
+            var sw = this.width * scaleX;
+            var sh = this.height * scaleY;
 
             // todo: fix this code
             var startingImage = document.createElement('canvas');
@@ -164,7 +164,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
             {
                 for (var x = 0; x < sw; x++)
                 {
-                    var i = (Math.floor(y / scale) * this.width + Math.floor(x / scale)) * 4;
+                    var i = (Math.floor(y / scaleY) * this.width + Math.floor(x / scaleX)) * 4;
                     var is = (y * sw + x) * 4;
                     for (var j = 0; j < 4; j++)
                         resultPixels.data[is + j] = startingPixels.data[i + j];
@@ -173,6 +173,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
             ctx.putImageData(resultPixels, 0, 0);
             this.image = result;
+            return this;
         }
 
 
@@ -192,6 +193,8 @@ pc.CanvasImage = pc.Base.extend('pc.CanvasImage', {},
         init:function (canvas)
         {
             this.canvas = canvas;
+            this.width = canvas.width;
+            this.height = canvas.height;
         },
 
         draw:function (ctx, sx, sy, x, y, width, height)

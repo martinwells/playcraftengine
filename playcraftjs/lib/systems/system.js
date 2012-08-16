@@ -34,7 +34,7 @@ pc.System = pc.Base.extend('pc.System',
         {
         },
 
-        onRemovedToLayer:function (layer)
+        onRemovedFromLayer:function (layer)
         {
         }
     });

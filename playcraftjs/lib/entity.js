@@ -80,6 +80,11 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
             this.layer.entityManager.removeComponent(this, component);
         },
 
+        removeComponentByType: function(componentType)
+        {
+            this.removeComponent(this._componentCache.get(componentType));
+        },
+
         getComponent: function(componentType)
         {
             return this._componentCache.get(componentType);
@@ -133,9 +138,9 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
  * EntityFactory -- for creating entities (mostly just an interface class
  * you extend from to create an entity factory
  */
-pc.EntityFactory = pc.Base.extend('GameEntityFactory',
-    {},
+pc.EntityFactory = pc.Base.extend('pc.EntityFactory',
+    { },
     {
-        createEntity: function(layer, entityType, x, y)
+        createEntity:function (layer, type, x, y, w, h, options)
         { }
     });

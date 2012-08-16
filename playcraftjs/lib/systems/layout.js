@@ -122,7 +122,7 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
                         break;
                     case 'bottom-right':
                         cx += this.layer.getScreenRect().w - dim.x;
-                        cy = this.layer.getScreenRect().h - dim.y - this.bottom.margin;
+                        cy = this.layer.getScreenRect().h - dim.y - this.margin.bottom;
                         break;
                 }
 
@@ -189,7 +189,7 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
                     this._entityDim.y += layout.margin.top + sp.dim.y + layout.margin.bottom;
                 }
 
-                listNext = listNext.next();
+                listNext = listNext.nextLinked;
             }
 
             return this._entityDim;

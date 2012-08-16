@@ -105,7 +105,6 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('ext/base64.js');
     loader.add('ext/sylvester.js');
     loader.add('ext/box2d.2.1a-playcraft.js');
-//    loader.add('ext/box2dweb.2.1a-pc.js');
 
     // Playcraft Engine
     loader.add('boot.js'); // <--- must be first for engine scripts (sets up some translations)
@@ -115,6 +114,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('color.js');
     loader.add('debug.js');
     loader.add('device.js');
+    loader.add('sound.js');
     loader.add('layer.js');
     loader.add('entity.js');
     loader.add('sprite.js');
@@ -129,7 +129,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('components/basicphysics.js');
     loader.add('components/physics.js');
     loader.add('components/alpha.js');
-    loader.add('components/attachment.js');
+    loader.add('components/joint.js');
     loader.add('components/expiry.js');
     loader.add('components/debuginfo.js');
     loader.add('components/health.js');

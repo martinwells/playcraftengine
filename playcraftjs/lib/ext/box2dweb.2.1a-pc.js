@@ -3867,35 +3867,100 @@ Box2D.Dynamics.Joints.b2RevoluteJoint.prototype.SetMaxMotorTorque = function(a) 
 Box2D.Dynamics.Joints.b2RevoluteJoint.prototype.GetMotorTorque = function() {
   return this.m_maxMotorTorque
 };
-Box2D.Dynamics.Joints.b2RevoluteJoint.prototype.InitVelocityConstraints = function(a) {
-  var b = this.m_bodyA, c = this.m_bodyB, d, e = 0;
-  d = b.m_xf.R;
-  var f = this.m_localAnchor1.x - b.m_sweep.localCenter.x, g = this.m_localAnchor1.y - b.m_sweep.localCenter.y, e = d.col1.x * f + d.col2.x * g, g = d.col1.y * f + d.col2.y * g, f = e;
-  d = c.m_xf.R;
-  var h = this.m_localAnchor2.x - c.m_sweep.localCenter.x, i = this.m_localAnchor2.y - c.m_sweep.localCenter.y, e = d.col1.x * h + d.col2.x * i, i = d.col1.y * h + d.col2.y * i, h = e;
-  d = b.m_invMass;
-  var e = c.m_invMass, j = b.m_invI, k = c.m_invI;
-  this.m_mass.col1.x = d + e + g * g * j + i * i * k;
-  this.m_mass.col2.x = -g * f * j - i * h * k;
-  this.m_mass.col3.x = -g * j - i * k;
-  this.m_mass.col1.y = this.m_mass.col2.x;
-  this.m_mass.col2.y = d + e + f * f * j + h * h * k;
-  this.m_mass.col3.y = f * j + h * k;
-  this.m_mass.col1.z = this.m_mass.col3.x;
-  this.m_mass.col2.z = this.m_mass.col3.y;
-  this.m_mass.col3.z = j + k;
-  this.m_motorMass = 0 == j + k ? 0 : 1 / (j + k);
-  this.m_enableMotor || (this.m_motorImpulse = 0);
-  if(this.m_enableLimit) {
-    var l = c.m_sweep.a - b.m_sweep.a - this.m_referenceAngle;
-    Math.abs(this.m_upperAngle - this.m_lowerAngle) < 2 * Box2D.Common.b2Settings.b2_angularSlop ? this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_equalLimits : l <= this.m_lowerAngle ? (this.m_limitState != Box2D.Dynamics.Joints.b2Joint.e_atLowerLimit && (this.m_impulse.z = 0), this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_atLowerLimit) : l >= this.m_upperAngle ? (this.m_limitState != Box2D.Dynamics.Joints.b2Joint.e_atUpperLimit && (this.m_impulse.z = 0), this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_atUpperLimit) : 
-    (this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_inactiveLimit, this.m_impulse.z = 0)
-  }else {
-    this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_inactiveLimit
-  }
-  a.warmStarting ? (this.m_impulse.x *= a.dtRatio, this.m_impulse.y *= a.dtRatio, this.m_motorImpulse *= a.dtRatio, a = this.m_impulse.x, l = this.m_impulse.y, b.m_linearVelocity.x -= d * a, b.m_linearVelocity.y -= d * l, b.m_angularVelocity -= j * (f * l - g * a + this.m_motorImpulse + this.m_impulse.z), c.m_linearVelocity.x += e * a, c.m_linearVelocity.y += e * l, c.m_angularVelocity += k * (h * l - i * a + this.m_motorImpulse + this.m_impulse.z)) : (this.m_impulse.SetZero(), this.m_motorImpulse = 
-  0)
+
+
+Box2D.Dynamics.Joints.b2RevoluteJoint.prototype.InitVelocityConstraints = function(step)
+{
+    var bA = this.m_bodyA;
+    var bB = this.m_bodyB;
+    var tMat;
+    var tX = 0;
+    tMat = bA.m_xf.R;
+    var r1X = this.m_localAnchor1.x - bA.m_sweep.localCenter.x;
+    var r1Y = this.m_localAnchor1.y - bA.m_sweep.localCenter.y;
+    tX = (tMat.col1.x * r1X + tMat.col2.x * r1Y);
+    r1Y = (tMat.col1.y * r1X + tMat.col2.y * r1Y);
+    r1X = tX;
+    tMat = bB.m_xf.R;
+    var r2X = this.m_localAnchor2.x - bB.m_sweep.localCenter.x;
+    var r2Y = this.m_localAnchor2.y - bB.m_sweep.localCenter.y;
+    tX = (tMat.col1.x * r2X + tMat.col2.x * r2Y);
+    r2Y = (tMat.col1.y * r2X + tMat.col2.y * r2Y);
+    r2X = tX;
+    var m1 = bA.m_invMass;
+    var m2 = bB.m_invMass;
+    var i1 = bA.m_invI;
+    var i2 = bB.m_invI;
+    this.m_mass.col1.x = m1 + m2 + r1Y * r1Y * i1 + r2Y * r2Y * i2;
+    this.m_mass.col2.x = (-r1Y * r1X * i1) - r2Y * r2X * i2;
+    this.m_mass.col3.x = (-r1Y * i1) - r2Y * i2;
+    this.m_mass.col1.y = this.m_mass.col2.x;
+    this.m_mass.col2.y = m1 + m2 + r1X * r1X * i1 + r2X * r2X * i2;
+    this.m_mass.col3.y = r1X * i1 + r2X * i2;
+    this.m_mass.col1.z = this.m_mass.col3.x;
+    this.m_mass.col2.z = this.m_mass.col3.y;
+    this.m_mass.col3.z = i1 + i2;
+    if (i1 + i2 == 0)
+    {
+        this.m_motorMass = 0;
+    } else
+    {
+        this.m_motorMass = 0.01;//1.0 / (i1 + i2);
+    }
+    if (!this.m_enableMotor)
+    {
+        this.m_motorImpulse = 0.0;
+    }
+    if (this.m_enableLimit)
+    {
+        var jointAngle = bB.m_sweep.a - bA.m_sweep.a - this.m_referenceAngle;
+        if (Math.abs(this.m_upperAngle - this.m_lowerAngle) < 2.0 * Box2D.Common.b2Settings.b2_angularSlop)
+        {
+            this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_equalLimits;
+        } else if (jointAngle <= this.m_lowerAngle)
+        {
+            if (this.m_limitState != Box2D.Dynamics.Joints.b2Joint.e_atLowerLimit)
+            {
+                this.m_impulse.z = 0.0;
+            }
+            this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_atLowerLimit;
+        } else if (jointAngle >= this.m_upperAngle)
+        {
+            if (this.m_limitState != Box2D.Dynamics.Joints.b2Joint.e_atUpperLimit)
+            {
+                this.m_impulse.z = 0.0;
+            }
+            this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_atUpperLimit;
+        } else
+        {
+            this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_inactiveLimit;
+            this.m_impulse.z = 0.0;
+        }
+    } else
+    {
+        this.m_limitState = Box2D.Dynamics.Joints.b2Joint.e_inactiveLimit;
+    }
+    if (step.warmStarting)
+    {
+        this.m_impulse.x *= step.dtRatio;
+        this.m_impulse.y *= step.dtRatio;
+        this.m_motorImpulse *= step.dtRatio;
+        var PX = this.m_impulse.x;
+        var PY = this.m_impulse.y;
+        bA.m_linearVelocity.x -= m1 * PX;
+        bA.m_linearVelocity.y -= m1 * PY;
+        bA.m_angularVelocity -= i1 * ((r1X * PY - r1Y * PX) + this.m_motorImpulse + this.m_impulse.z);
+        bB.m_linearVelocity.x += m2 * PX;
+        bB.m_linearVelocity.y += m2 * PY;
+        bB.m_angularVelocity += i2 * ((r2X * PY - r2Y * PX) + this.m_motorImpulse + this.m_impulse.z);
+    } else
+    {
+        this.m_impulse.SetZero();
+        this.m_motorImpulse = 0.0;
+    }
 };
+
+
 Box2D.Dynamics.Joints.b2RevoluteJoint.prototype.SolveVelocityConstraints = function(a) {
   var b = this.m_bodyA, c = this.m_bodyB, d = 0, e = d = 0, f = 0, g = 0, h = 0, i = b.m_linearVelocity, j = b.m_angularVelocity, k = c.m_linearVelocity, l = c.m_angularVelocity, n = b.m_invMass, m = c.m_invMass, o = b.m_invI, p = c.m_invI;
   this.m_enableMotor && this.m_limitState != Box2D.Dynamics.Joints.b2Joint.e_equalLimits && (e = this.m_motorMass * -(l - j - this.m_motorSpeed), f = this.m_motorImpulse, g = a.dt * this.m_maxMotorTorque, this.m_motorImpulse = Box2D.Common.Math.b2Math.Clamp(this.m_motorImpulse + e, -g, g), e = this.m_motorImpulse - f, j -= o * e, l += p * e);

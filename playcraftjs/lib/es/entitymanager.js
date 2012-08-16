@@ -196,7 +196,8 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         {
             if (this.componentsByEntityPlusType.get(entity.objectId + ':' + component.getType()))
             {
-                this.warn('adding component ' + component.getType() +
+                // multiple components of the same type are not supported due to performance reasons
+                throw ('adding component ' + component.getType() +
                     ' to entity ' + entity + ' when it already has one of that type');
             }
             this.componentsByEntityPlusType.put(entity.objectId + ':' + component.getType(), component);

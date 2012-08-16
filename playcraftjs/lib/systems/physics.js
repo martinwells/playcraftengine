@@ -25,9 +25,6 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
             var gravity = new Box2D.Common.Math.b2Vec2(this.gravity.x * this.Class.SCALE, this.gravity.y * this.Class.SCALE);
             this.world = new Box2D.Dynamics.b2World(gravity, true);
 
-            // todo: create physics from tilemap for collisions
-            // based on config options containing tilemaps (like BasicPhysics does)
-
             if (options.debug == true)
             {
                 // enable debug drawing
@@ -40,6 +37,9 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                 debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
                 this.world.SetDebugDraw(debugDraw);
             }
+
+            if (pc.valid(options.tileCollisionMap))
+                this.addTileCollisionMap(optons.tileCollisionMap);
 
             // setup the contact listeners
             var listener = new Box2D.Dynamics.b2ContactListener;
@@ -72,7 +72,7 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
         {
             var sp = entity.getComponent('spatial');
             var ph = entity.getComponent('physics');
-            var at = entity.getComponent('attachment');
+            var at = entity.getComponent('joint');
 
             if (!ph._body)
             {
@@ -136,7 +136,7 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                 bodyDef.linearDamping = ph.linearDamping;
                 bodyDef.angularDamping = ph.angularDamping;
                 bodyDef.isBullet = ph.bullet;
-                bodyDef.fixedRotation = ph.allowRotate;
+                bodyDef.fixedRotation = ph.fixedRotation;
 
                 ph._body = this.world.CreateBody(bodyDef);
                 ph._fixture = ph._body.CreateFixture(fixDef);
@@ -147,11 +147,14 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                     var md = new Box2D.Collision.Shapes.b2MassData();
                     md.center = new Box2D.Common.Math.b2Vec2(ph.centerOfMass.x * pc.systems.Physics.SCALE, ph.centerOfMass.y * pc.systems.Physics.SCALE);
                     if (ph.mass != -1) md.mass = ph.mass;
+                    md.I = 1;
                     ph._body.SetMassData(md);
                 } else
                 {
                     md = new Box2D.Collision.Shapes.b2MassData();
                     md.mass = 1;
+                    md.I = 1;
+
                     ph._body.SetMassData(md);
                 }
 
@@ -175,14 +178,14 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
 
                         switch (at.type)
                         {
-                            case pc.AttachmentType.WELD:
+                            case pc.JointType.WELD:
                                 jointDef = new Box2D.Dynamics.Joints.b2WeldJointDef;
                                 jointDef.bodyA = connectToPhysics._body;
                                 jointDef.bodyB = ph._body;
                                 jointDef.collideConnected = false;
                                 jointDef.localAnchorA.Set(at.offset.x * this.Class.SCALE, at.offset.y * this.Class.SCALE);
+                                jointDef.localAnchorB.Set(at.attachmentOffset.x * this.Class.SCALE, at.attachmentOffset.y * this.Class.SCALE);
                                 connectToPhysics._body.SetAwake(true);
-                                // todo: attachedTo anchor offsets (not just attached)
 
                                 // set this bodies position to the right place
                                 var atPos = connectToPhysics._body.GetPosition();
@@ -193,15 +196,17 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                                     });
                                 break;
 
-                            case pc.AttachmentType.DISTANCE:
+                            case pc.JointType.DISTANCE:
                                 jointDef = new Box2D.Dynamics.Joints.b2DistanceJointDef;
                                 jointDef.bodyA = connectToPhysics._body;
                                 jointDef.bodyB = ph._body;
+                                jointDef.frequency = at.frequency;
+                                jointDef.dampingRatio = at.dampingRatio;
                                 jointDef.collideConnected = false;
                                 jointDef.length = at.distance;
                                 jointDef.localAnchorA.Set(at.offset.x * this.Class.SCALE, at.offset.y * this.Class.SCALE);
+                                jointDef.localAnchorB.Set(at.attachmentOffset.x * this.Class.SCALE, at.attachmentOffset.y * this.Class.SCALE);
                                 connectToPhysics._body.SetAwake(true);
-                                // todo: attachedTo anchor offsets (not just attached)
 
                                 // set this bodies position to the right place
                                 atPos = connectToPhysics._body.GetPosition();
@@ -212,13 +217,29 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                                     });
                                 break;
 
-                            case pc.AttachmentType.REVOLUTE:
+                            case pc.JointType.REVOLUTE:
                                 jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef;
                                 jointDef.bodyA = connectToPhysics._body;
                                 jointDef.bodyB = ph._body;
                                 jointDef.collideConnected = false;
+                                jointDef.referenceAngle = at.angle;
                                 jointDef.localAnchorA.Set(at.offset.x * this.Class.SCALE, at.offset.y * this.Class.SCALE);
+                                jointDef.localAnchorB.Set(at.attachmentOffset.x * this.Class.SCALE, at.attachmentOffset.y * this.Class.SCALE);
                                 connectToPhysics._body.SetAwake(true);
+
+                                if (at.enableLimit)
+                                {
+                                    jointDef.enableLimit = at.enableLimit;
+                                    jointDef.lowerAngle = pc.Math.degToRad(at.lowerAngleLimit);
+                                    jointDef.upperAngle = pc.Math.degToRad(at.upperAngleLimit);
+                                }
+
+                                if (at.enableMotor)
+                                {
+                                    jointDef.enableMotor = at.enableMotor;
+                                    jointDef.motorSpeed = pc.Math.degToRad(at.motorSpeed);
+                                    jointDef.maxMotorTorque = at.maxMotorTorque;
+                                }
 
                                 // set this bodies position to the right place
                                 var atPos2 = connectToPhysics._body.GetPosition();
@@ -248,19 +269,17 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                 var currentSpeed = ph._body.GetLinearVelocity().Length() / pc.systems.Physics.SCALE;
                 if (currentSpeed > ph.maxSpeed / this.Class.SCALE)
                 {
-                    // slow it down
+                      // slow it down
                     var s = ph._body.GetLinearVelocity();
                     s.Multiply(0.8);
                     ph._body.SetLinearVelocity(s);
                 }
             }
-
         },
-
 
         processAll:function ()
         {
-            this.world.Step(pc.device.elapsed / 200, 7, 7);
+            this.world.Step(pc.device.elapsed / 200, 10, 10);
             this.world.DrawDebugData();
             this.world.ClearForces();
 
@@ -290,6 +309,13 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
             }, aabb);
 
             return entities;
+        },
+
+
+        addTileCollisionMap: function(tileMap)
+        {
+            // create physics shapes (max verticies?) by just add adjacent tiles?
+
         },
 
         /** Not implemented fully yet

@@ -34,8 +34,24 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         else
             throw "No image supplied";
 
-        this.frameWidth = pc.checked(options.frameWidth, 1);
-        this.frameHeight = pc.checked(options.frameHeight, 1);
+        if (!pc.valid(options.frameWidth))
+        {
+            if (pc.valid(options.framesWide) && options.framesWide > 0)
+                this.frameWidth = this.image.width/options.framesWide;
+            else
+                this.frameWidth = this.image.width;
+        } else
+            this.frameWidth = options.frameWidth;
+
+        if (!pc.valid(options.frameHeight))
+        {
+            if (pc.valid(options.framesHigh) && options.framesHigh > 0)
+                this.frameHeight = this.image.height / options.framesHigh;
+            else
+                this.frameHeight = this.image.height;
+        } else
+            this.frameHeight = options.frameHeight;
+
         this.framesWide = pc.checked(options.framesWide, this.image.width/this.frameWidth);
         this.framesHigh = pc.checked(options.framesHigh, this.image.height/this.frameHeight);
         this.scaleX = pc.checked(options.scaleX, 1);

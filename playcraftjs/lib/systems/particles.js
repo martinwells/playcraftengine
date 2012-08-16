@@ -28,7 +28,7 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
                         var frame = 0;
                         if (em.spriteSheet.animations.size() == 0)
                             // pick a random frame to use
-                            frame = pc.Math.rand(0, em.spriteSheet.framesHigh * em.spriteSheet.framesWide);
+                            frame = pc.Math.rand(0, (em.spriteSheet.framesHigh * em.spriteSheet.framesWide)-1);
 
                         em._particles.add(
                             pc._Particle.create(
@@ -128,8 +128,8 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
 
                     if (!p.sprite.currentAnim)
                     {
-                        p.sprite.drawFrame(pc.device.ctx, Math.round(p.frame % em.spriteSheet.framesWide),
-                            Math.round(p.frame / em.spriteSheet.framesHigh), p.x, p.y, em.rotateSprite ? p.rotation : p.dir);
+                        p.sprite.drawFrame(pc.device.ctx, p.frame % em.spriteSheet.framesWide,
+                            Math.floor(p.frame / em.spriteSheet.framesWide), p.x, p.y, em.rotateSprite ? p.rotation : p.dir);
                         pc.device.lastDrawMS += (Date.now() - this.drawStartTime);
                     }
                     else
@@ -238,6 +238,7 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
         alphaMin: 1,
         alphaMax: 1,
         lastAlpha: 0 // time of last alpha change
+
     });
 
 

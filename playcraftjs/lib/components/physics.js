@@ -12,20 +12,20 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         bounce:0.5,
         faceVel:false,
         density:0,
-        mass: -1,
+        mass:-1,
         friction:0,
-        linearDamping: 0,   // rate at which an object will slow down movement
-        angularDamping: 0,  // rate at which ab object will slow down its rate of spin
-        allowRotate: false, // whether when colliding, the object can react by rotating
-        bullet: false,      // tell the physics engine to expect this object to move fast (slows things down
-                            // so only enable if collisions are not being handled well (enables CCD between dynamic
-                            // entities)
+        linearDamping:0, // rate at which an object will slow down movement
+        angularDamping:0, // rate at which ab object will slow down its rate of spin
+        fixedRotation:false, // allow the object to rotate
+        bullet:false, // tell the physics engine to expect this object to move fast (slows things down
+        // so only enable if collisions are not being handled well (enables CCD between dynamic
+        // entities)
 
         /**
          * Shape of the collision (either RECT, CIRCLE or POLY). Rect and Circle use the dimensions
          * of the associated spatial object. Poly uses an array of points.
          */
-        shape: 0,
+        shape:0,
 
         /**
          * The collision margin to use (collisions are smaller on all sides by this amount)
@@ -55,21 +55,21 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         /**
          * Whether the object can move in space (true gives it infinite mass)
          */
-        immovable: false,
+        immovable:false,
 
         /**
          * Collisions will be reported, but actual collision will occur in physics, i.e. a poison cloud
          * which damages the player, but they don't collide with it physically
          * @default false
          */
-        sensorOnly: false,
+        sensorOnly:false,
 
-        centerOfMass: null,
+        centerOfMass:null,
 
-        _body:null,             // set by the physics system, if this is attached to a physics body
-        force: 0,               // force to apply
-        turn: 0,                // turn to apply (through angular velocity)
-        torque:0,               // torque to apply
+        _body:null, // set by the physics system, if this is attached to a physics body
+        force:0, // force to apply
+        turn:0, // turn to apply (through angular velocity)
+        torque:0, // torque to apply
 
         init:function (options)
         {
@@ -98,7 +98,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this.maxSpeed = pc.checked(options.maxSpeed, 0);
             this.mass = pc.checked(options.mass, -1);
 
-            this.allowRotate = pc.checked(options.allowRotate, false);
+            this.fixedRotation = pc.checked(options.fixedRotation, false);
             this.thrust = pc.checked(options.thrust, 0);
             this.bounce = pc.checked(options.bounce, 0.5);
             this.faceVel = pc.checked(options.faceVel, 0);
@@ -111,7 +111,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this.sensorOnly = pc.checked(options.sensorOnly, false);
             this.immovable = pc.checked(options.immovable, false);
 
-            this.density = pc.checked(options.density, 1.0);
+            this.density = pc.checked(options.density, 1);
             this.friction = pc.checked(options.friction, 0.5);
             this.linearDamping = pc.checked(options.linearDamping, 0);
             this.angularDamping = pc.checked(options.angularDamping, 0);
@@ -128,13 +128,13 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
-        setPos: function(x, y)
+        setPos:function (x, y)
         {
             if (this._body)
                 this._body.SetPosition({x:x * pc.systems.Physics.SCALE, y:y * pc.systems.Physics.SCALE});
         },
 
-        applyTurn: function(d)
+        applyTurn:function (d)
         {
             if (this._body)
             {
@@ -145,7 +145,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
 
         },
 
-        setDir: function(d)
+        setDir:function (d)
         {
             if (this._body)
             {
@@ -155,7 +155,16 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.dir = d;
         },
 
-        applyForce: function(f)
+        getDir:function ()
+        {
+            if (this._body)
+            {
+                return pc.Math.radToDeg(this._body.GetAngle());
+            }
+            return 0;
+        },
+
+        applyForce:function (f)
         {
             if (this._body)
             {
@@ -170,7 +179,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.force = f;
         },
 
-        applyImpulse: function(f)
+        applyImpulse:function (f)
         {
             if (this._body)
             {
@@ -185,7 +194,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.impulse = f;
         },
 
-        applyTorque: function(a)
+        applyTorque:function (a)
         {
             if (this._body)
             {
@@ -194,7 +203,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.torque = a;
         },
 
-        setCenterOfMass: function(x, y)
+        setCenterOfMass:function (x, y)
         {
             if (this._body)
             {
@@ -208,13 +217,13 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
-        getSpeed: function()
+        getSpeed:function ()
         {
             if (this._body)
                 return this._body.GetLinearVelocity().Length() / pc.systems.Physics.SCALE;
         },
 
-        setLinearVelocity: function(x, y)
+        setLinearVelocity:function (x, y)
         {
             this._body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(x * pc.systems.Physics.SCALE, y * pc.systems.Physics.SCALE));
         },
@@ -224,25 +233,32 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this._body.SetAngularVelocity(a);
         },
 
-        setCollisionCategory: function(c)
+        setCollisionCategory:function (c)
         {
             this.collisionCategory = c;
+            var f = this._fixture.GetFilterData();
+            f.collisionCategory = c;
+            this._fixture.SetFilterData(f);
+
             this._fixture.GetFilterData().categoryBits = c;
         },
 
-        setCollisionGroup: function(g)
+        setCollisionGroup:function (g)
         {
             this.collisionGroup = g;
-            this._fixture.GetFilterData().groupIndex = g;
+            var f = this._fixture.GetFilterData();
+            f.groupIndex = g;
+            this._fixture.SetFilterData(f);
         },
 
-        setCollisionMask: function(m)
+        setCollisionMask:function (m)
         {
-            this.collisionMask = m;
-            this._fixture.GetFilterData().maskBits = m;
+            var f = this._fixture.GetFilterData();
+            f.maskBits = m;
+            this._fixture.SetFilterData(f);
         },
 
-        setIsSensor: function(s)
+        setIsSensor:function (s)
         {
             this.sensorOnly = s;
             this._fixture.isSensor = s;

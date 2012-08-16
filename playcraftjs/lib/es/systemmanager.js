@@ -12,7 +12,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             this.systemsByComponentType = new pc.Hashtable();
         },
 
-        add: function(system)
+        add: function(system, entityManager)
         {
             system.layer = this.layer;
             system.systemManager = this;
@@ -34,6 +34,14 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
                 // add this system to the component type map, but only if it hasn't been added already
                 if (!list.has(system))
                     list.add(system);
+            }
+
+            // add all the entities to this system
+            var entity = entityManager.entities.first;
+            while (entity)
+            {
+                this._handleEntityAdded(entity.object());
+                entity = entity.next();
             }
 
             system.onAddedToLayer(this.layer);

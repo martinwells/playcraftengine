@@ -62,13 +62,13 @@ pc.Loader = pc.Base.extend('pc.Loader', {},
     {
         // resource.src already has the baseUrl set by the resource class (i.e. pc.Image)
         // so no need to add it here
-        this.resources.put(resource.name, { resource: resource, state: this.State.QUEUED } );
+        this.resources.put(resource.name.toLowerCase(), { resource: resource, state: this.State.QUEUED } );
         this.info('Adding resource ' + resource.src + ' to the queue.');
     },
 
     get: function(name)
     {
-        var res = this.resources.get(name);
+        var res = this.resources.get(name.toLowerCase());
         if (!res)
             this.warn("Attempting to get a resource that hasn't been added: " + name);
         return res;

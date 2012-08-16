@@ -94,6 +94,7 @@ pc.Input = pc.Base('pc.Input',
             if (obj.uniqueId == null)
                 throw "Oops, you can't bind a state to an object if it doesn't have a uniqueId function";
 
+            input = input.toUpperCase();
             // There can be many bindings associated with a particular input, so we see
             // if there is already one, and then append this to the array, otherwise
             // we create the array
@@ -290,6 +291,8 @@ pc.Input = pc.Base('pc.Input',
             // There can be many bindings associated with a particular input event, so we see
             // if there is already one, and then append this to the array, otherwise
             // we create the array
+            input = input.toUpperCase();
+
             var bindingSet = this.actionBindings.get(input);
             if (bindingSet == null)
                 this.actionBindings.put(input, [

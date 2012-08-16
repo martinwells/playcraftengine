@@ -8,20 +8,22 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
     paused:false,
     active:false,
     scene:null,
+    zIndex:0,
 
     /**
      * World coordinate origin for this layer
      */
     origin:null,
 
-    init:function (name)
+    init:function (name, zIndex)
     {
         this._super();
 
         this.name = name;
         this.origin = pc.Point.create(0, 0);
-        this._worldPos = pc.Point.create(0,0);
-        this._screenPos = pc.Point.create(0,0);
+        this._worldPos = pc.Point.create(0, 0);
+        this._screenPos = pc.Point.create(0, 0);
+        this.zIndex = pc.checked(zIndex, 0);
     },
 
     release:function ()
@@ -46,6 +48,13 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
         this.scene.setLayerInactive(this);
     },
 
+    setZIndex:function (z)
+    {
+        this.zIndex = z;
+        if (this.scene)
+            this.scene.sortLayers();
+    },
+
     /**
      * Sets the origin world point of the top left of this layer.
      * @param p {pc.Point} the origin point to use
@@ -56,20 +65,20 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
         this.origin.y = p.y;
     },
 
-    _worldPos: null, // cached temp
+    _worldPos:null, // cached temp
 
     /**
      * Gets the world position of a screen position.
      * @param pos {pc.Point} World position of this layer (cached, so you don't need to release it)
      */
-    worldPos: function(pos)
+    worldPos:function (pos)
     {
         this._worldPos.x = pos.x + this.origin.x;
         this._worldPos.y = pos.y + this.origin.y;
         return this._worldPos;
     },
 
-    _screenPos: null, // cached temp
+    _screenPos:null, // cached temp
     /**
      * Get a screen relative position from a world coordinate. You should release the position
      * object after use
@@ -102,7 +111,7 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
     {
     },
 
-    process:function()
+    process:function ()
     {
     },
 
@@ -154,9 +163,9 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
  */
 pc.EntityLayer = pc.Layer('pc.Layer', {},
     {
-        entityManager: null,
-        systemManager: null,
-        worldSize: null,
+        entityManager:null,
+        systemManager:null,
+        worldSize:null,
 
         init:function (name, worldSizeX, worldSizeY, entityFactory)
         {
@@ -169,23 +178,33 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
             this.worldSize = pc.Dim.create(pc.checked(worldSizeX, 10000), pc.checked(worldSizeY, 10000));
         },
 
-        getEntityManager: function()
+        getEntityManager:function ()
         {
             return this.entityManager;
         },
 
-        getSystemManager: function()
+        getSystemManager:function ()
         {
             return this.systemManager;
         },
 
-        process:function()
+        addSystem: function(system)
+        {
+            this.systemManager.add(system, this.entityManager);
+        },
+
+        removeSystem: function(system)
+        {
+            this.systemManager.remove(system);
+        },
+
+        process:function ()
         {
             this.systemManager.processAll();
             this.entityManager.cleanup();
         },
 
-        loadFromTMX:function (groupXML)
+        loadFromTMX:function (groupXML, entityFactory)
         {
             this.name = groupXML.getAttribute('name');
 
@@ -195,23 +214,30 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
             for (var i = 0; i < objs.length; i++)
             {
                 var objData = objs[i];
-
-                // todo:
-                // rewrite this to feed data to the entity factory
-                // createEntity('type', options); fill in options using xml attribute list
-                // convert xml into json, then parse json into options object
-
-                var entityType = objData.getAttribute('type');
+                var entityType = null;
                 var x = parseInt(objData.getAttribute('x'));
                 var y = parseInt(objData.getAttribute('y'));
+                var w = parseInt(objData.getAttribute('width'));
+                var h = parseInt(objData.getAttribute('height'));
+                var props = objData.getElementsByTagName("properties")[0].getElementsByTagName("property");
 
-                // assemble all the attributes into a json object for passing to the entity factory
+                var options = {};
+                for (var p=0; p < props.length; p++)
+                {
+                    var name = props[p].getAttribute("name");
+                    var value = props[p].getAttribute("value");
+                    options[name] = value;
+                    if (name === 'entity')
+                        entityType = value;
+                }
 
                 // create a new entity
                 // ask the entity factory to create entity of this type and on this layer
-//                entityFactory.createEntity()
-                var n = eval('new ' + objClass + '()');
-                n.Class.create(this, x, y);
+                //
+                if (entityType)
+                    entityFactory.createEntity(this, entityType, x, y, w, h, options);
+                else
+                    this.warn('Entity loaded from map with no "entity" type property set. x=' + x + ' y=' + y)
             }
         },
 
@@ -223,32 +249,19 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
 
     });
 
-
 /**
- * @class pc.TiledLayer
- * TiledLayer provides tools for generating tiled map layers.
- * The primary reason to use a tile map is speed. You *could* generate a map simply by
- * creating entities on the screen at fixed, regular positions. A tile map makes
- * things a lot faster due to its granularity. It's easy to figure out which
- * tiles should be drawn because the tile size is fixed, and therefore we can
- * order things in a quick 2d array.
+ * A map of tiles, typically used to generate physics, or render tiles on a TileLayer
  */
-
-
-// create a tilemap object which contains tiles
-// it has the collision testing (generically)
-// the tile layer is then a spritesheet, rendering code and THATS ALL
-
 pc.TileMap = pc.Base.extend('pc.TileMap',
     {
-        EMPTY_TILE: -1
+        EMPTY_TILE:-1
     },
     {
-        tiles:null,           // a 2d array of tiles
-        tilesWide:0,          // number of tiles wide the map is
-        tilesHigh:0,          // number of tiles high the map is
-        tileWidth:0,          // width of a tile
-        tileHeight:0,         // height of a tile
+        tiles:null, // a 2d array of tiles
+        tilesWide:0, // number of tiles wide the map is
+        tilesHigh:0, // number of tiles high the map is
+        tileWidth:0, // width of a tile
+        tileHeight:0, // height of a tile
 
         init:function (tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
         {
@@ -291,6 +304,11 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
                     this.tiles[aty][atx] = tileType;
         },
 
+        isOnMap:function (x, y)
+        {
+            return (x >= 0 && x < this.tilesWide && y >= 0 && y < this.tilesHigh);
+        },
+
         /**
          * Clear a region of the tile map (setting the tiles to 0)
          * @param tx
@@ -312,8 +330,11 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
          * Loads a tile map from a TMX formatted data stream
          * @param layerXML
          */
-        loadFromTMX:function (layerXML)
+        loadFromTMX:function (layerXML, tileWidth, tileHeight)
         {
+            this.tileWidth = tileWidth;
+            this.tileHeight = tileHeight;
+
             this.tilesWide = parseInt(layerXML.getAttribute('width'));
             this.tilesHigh = parseInt(layerXML.getAttribute('height'));
 
@@ -359,12 +380,21 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
 
     });
 
+/**
+ * @class pc.TiledLayer
+ * TiledLayer provides tools for generating tiled map layers.
+ * The primary reason to use a tile map is speed. You *could* generate a map simply by
+ * creating entities on the screen at fixed, regular positions. A tile map makes
+ * things a lot faster due to its granularity. It's easy to figure out which
+ * tiles should be drawn because the tile size is fixed, and therefore we can
+ * order things in a quick 2d array.
+ */
 pc.TileLayer = pc.Layer.extend('pc.TileLayer',
     { },
     {
-        tileMap: null,
-        tileSpriteSheet:null,   // the images to use for each tile
-        debugShowGrid:false,    // true to show a nice grid helping with debugging
+        tileMap:null,
+        tileSpriteSheet:null, // the images to use for each tile
+        debugShowGrid:false, // true to show a nice grid helping with debugging
 
         init:function (name, tileSpriteSheet, tileMap)
         {
@@ -420,7 +450,7 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                     {
                         pc.device.ctx.save();
                         pc.device.ctx.strokeStyle = '#222222';
-                        pv.device.ctx.strokeRect((x * this.tileMap.tileWidth) - this.origin.x, (y * this.tileMap.tileHeight) - this.origin.y,
+                        pc.device.ctx.strokeRect((x * this.tileMap.tileWidth) - this.origin.x, (y * this.tileMap.tileHeight) - this.origin.y,
                             this.tileMap.tileWidth, this.tileMap.tileHeight);
                         pc.device.ctx.restore();
                     }
@@ -432,10 +462,10 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
          * Loads a tile map from a TMX formatted data stream
          * @param layerXML
          */
-        loadFromTMX:function (layerXML)
+        loadFromTMX:function (layerXML, tileWidth, tileHeight)
         {
             this.name = layerXML.getAttribute('name');
-            this.tileMap.loadFromTMX(layerXML);
+            this.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
         }
 
 

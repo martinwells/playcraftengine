@@ -26,11 +26,11 @@ GameScene = pc.Scene.extend('GameScene',
             // ------------------------------------------------------------------------------------
             this.gameLayer = this.addLayer(new pc.EntityLayer('game'));
 
-            this.gameLayer.systemManager.add(new pc.systems.Particles());
-            this.gameLayer.systemManager.add(new pc.systems.Effects());
-            this.gameLayer.systemManager.add(new pc.systems.Render());
-            this.gameLayer.systemManager.add(new pc.systems.Expiration());
-            this.gameLayer.systemManager.add(new pc.systems.Layout());
+            this.gameLayer.addSystem(new pc.systems.Particles());
+            this.gameLayer.addSystem(new pc.systems.Effects());
+            this.gameLayer.addSystem(new pc.systems.Render());
+            this.gameLayer.addSystem(new pc.systems.Expiration());
+            this.gameLayer.addSystem(new pc.systems.Layout());
 
             // ------------------------------------------------------------------------------------
             // Setup sprite sheets
@@ -79,7 +79,9 @@ GameScene = pc.Scene.extend('GameScene',
             // Setup the controls
             // ------------------------------------------------------------------------------------
             pc.device.input.bindAction(this, 'next', 'MOUSE_LEFT_BUTTON');
+            pc.device.input.bindAction(this, 'next', 'TOUCH');
             pc.device.input.bindAction(this, 'next', 'space');
+            pc.device.input.bindAction(this, 'stats', 'D');
         },
 
         lastUpdatedCount:0,
@@ -111,6 +113,9 @@ GameScene = pc.Scene.extend('GameScene',
                     if (this.current >= this.total) this.current = 0;
                     this.currentEmitter = this.createEmitter(this.current);
                     break;
+                case 'stats':
+                    console.log(pc.Pool.getStats());
+                    break;
             }
         },
 
@@ -138,7 +143,6 @@ GameScene = pc.Scene.extend('GameScene',
                             thrustMin:8, thrustTime:300,
                             maxVelX:5, maxVelY:5,
                             rangeX:10, rangeY:10, // x axis modification: 10 equals -5 position.x to +5 position.x
-                            scaleXMin:0, scaleYMin:0,
                             angleMin:-100, angleMax:-80,
                             lifeMin:2300,
                             alphaMin:0, alphaMax:1, alphaDelay:50,

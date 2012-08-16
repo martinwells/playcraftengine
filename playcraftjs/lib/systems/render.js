@@ -87,7 +87,7 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                             } else
                             {
                                 ctx.fillRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
-                                if (rect.strokeColor)
+                                if (rect.strokeColor && rect.lineWidth)
                                     ctx.strokeRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
                             }
 

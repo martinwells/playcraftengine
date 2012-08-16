@@ -27,7 +27,7 @@ pc.Device = pc.Base.extend('pc.Device',
         showDebug:true,
         debugCollisions:false,
         enablePooling:true,
-        soundEnabled:false,
+        soundEnabled:true,
 
         elementsDrawn:0,
         lastProcessMS:0,
@@ -107,6 +107,11 @@ pc.Device = pc.Base.extend('pc.Device',
             this.onReady();
         },
 
+        canPlay: function(format)
+        {
+            return gamecore.Device.canPlay(format);
+        },
+
         onReadyAppMobi:function ()
         {
             AppMobi.display.useViewport(document.body.offsetWidth, document.body.offsetHeight);
@@ -139,13 +144,22 @@ pc.Device = pc.Base.extend('pc.Device',
             } else
             {
                 // if the game canvas is in a surrounding div, size based on that
-                if (this.panelElement)
+                if (this.isiPad || this.isiPhone)
                 {
-                    this.canvas.width = this.panelElement.offsetWidth;
-                    this.canvas.height = this.panelElement.offsetHeight;
-                    this.canvasWidth = this.canvas.width;
-                    this.canvasHeight = this.canvas.height;
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+
+                } else
+                {
+                    if (this.panelElement)
+                    {
+                        this.canvas.width = this.panelElement.offsetWidth;
+                        this.canvas.height = this.panelElement.offsetHeight;
+                    }
                 }
+
+                this.canvasWidth = this.canvas.width;
+                this.canvasHeight = this.canvas.height;
 
                 this.screen = pc.Dim.create(this.canvasWidth, this.canvasHeight);
 
@@ -259,19 +273,30 @@ pc.Device = pc.Base.extend('pc.Device',
             if (typeof AppMobi !== 'undefined' && AppMobi.device.orientation != '0')
                 flip = true;
 
+            if (this.isiPad)
+                flip = true;
+
             if (flip)
             {
                 // in landscape, flip things around
                 var w = this.canvas.width;
                 this.canvas.width = this.canvas.height;
                 this.canvas.height = w;
-
-                if (this.isiPad) // todo: weird appmobi issue for frontier -- performance dies when rendering past 1000 pixels (with starfield on)
-                    this.canvas.width = 1000;
             }
 
-            this.canvasWidth = this.canvas.width;
-            this.canvasHeight = this.canvas.height;
+/*  iPad 3/4s retina fixing; not done yet
+            if (this.pixelRatio == 2)
+            {
+                this.canvas.setAttribute('height', window.innerHeight * 2);
+                this.canvas.setAttribute('width', window.innerWidth * 2);
+//                this.ctx.scale(2, 2);
+            } else
+ */           {
+                this.canvasWidth = this.canvas.width;
+                this.canvasHeight = this.canvas.height;
+            }
+            // debugging screen size on devices
+            //alert('size: ' + this.canvasWidth + ' x ' + this.canvasHeight+ ' is:' + this.isiPad + ' pr: ' + this.pixelRatio);
 
             this.game.onResize(this.canvasWidth, this.canvasHeight);
             this.debugPanel.onResize();

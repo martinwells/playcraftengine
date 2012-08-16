@@ -56,7 +56,7 @@ pc.DebugPanel = pc.Base('pc.DebugPanel', {}, {
         }
         
         this.poolGraph = new pc.CanvasLineGraph(this.ctx, 'Pool Size', '', 100,
-            [{ name:'pooled (in use)', color:'#8e1c82'}, {name:'pooled (allocated)', color:'#5b1654'} ], this.panelWidth - ((this.panelWidth/np)*2)+10, 10, (this.panelWidth/np)-20, this.panelHeight-20);
+            [{name:'pooled', color:'#5b1654'} ], this.panelWidth - ((this.panelWidth/np)*2)+10, 10, (this.panelWidth/np)-20, this.panelHeight-20);
 
         this.entityGraph = new pc.CanvasLineGraph(this.ctx, 'Entities', '', 100,
             [{ name:'drawn (total)', color:'#f9f007'} ], this.panelWidth - (this.panelWidth/np)+10, 10, (this.panelWidth/np)-20, this.panelHeight-20);
@@ -109,7 +109,7 @@ pc.DebugPanel = pc.Base('pc.DebugPanel', {}, {
                     if (console.memory.totalJSHeapSize != 0)
                         this.memGraph.addLine1( (window.performance.memory.usedJSHeapSize/1024/1024) );
             if (this.poolGraph != null)
-                this.poolGraph.addLine1(gamecore.Pool.totalUsed, gamecore.Pool.totalPooled);
+                this.poolGraph.addLine1(gamecore.Pool.totalPooled);
         }
     },
 
