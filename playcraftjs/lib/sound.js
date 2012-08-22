@@ -181,7 +181,7 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                     if (loop)
                         this.sounds[i].loop = true;
                     this.sounds[i].play();
-                    return;
+                    return this.sounds[i];
                 }
             }
 

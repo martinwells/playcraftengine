@@ -47,6 +47,21 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
             this.lastMove.y = 0;
         },
 
+        getPos: function()
+        {
+            return this.pos;
+        },
+
+        getDir: function()
+        {
+            return this.dir;
+        },
+
+        getDim: function()
+        {
+            return this.dim;
+        },
+
         getCenterPos: function()
         {
             this._centerPos.x = this.pos.x + (this.dim.x/2);

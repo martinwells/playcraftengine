@@ -7,7 +7,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
     {},
     {
         smokeSheet:null,
-        explosionSound: null,
+        explosionSound:null,
 
         init:function (options)
         {
@@ -15,7 +15,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
             this.smokeSheet = new pc.SpriteSheet(
                 {image:pc.device.loader.get('smoke').resource,
                     frameWidth:32, frameHeight:32, framesWide:16, framesHigh:1});
-            this.smokeSheet.addAnimation('smoking', 0, 0, null, 1000, 1);
+            this.smokeSheet.addAnimation({ name:'smoking', time:1000, loops:1 });
 
             if (pc.device.soundEnabled)
             {
@@ -24,11 +24,11 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
             }
         },
 
-        onEntityCollision:function (entityA, entityB, force)
+        onCollision:function (objAType, objBType, entityA, entityB, force)
         {
         },
 
-        onEntityCollisionStart:function (entityA, entityB)
+        onCollisionStart:function (objAType, objBType, entityA, entityB)
         {
             if ((entityB.hasTag('ASTEROID') || entityB.hasTag('ASTEROID-SMALL')) && entityA.hasTag('BULLET'))
             {
@@ -59,11 +59,11 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                         {
                             var addX = 0;
                             var addY = 0;
-                            if (sp.pos.x < sp.dim.x) addX += sp.dim.x+1;
-                            if (sp.pos.y < sp.dim.y) addY += sp.dim.y+1;
-                            if (sp.pos.x > pc.device.canvasWidth-sp.dim.x) addX = -sp.dim.x+1;
-                            if (sp.pos.y > pc.device.canvasHeight-sp.dim.y) addY = -sp.dim.y+1;
-                            this.layer.scene.createEntity('asteroid-small', this.layer, sp.pos.x+addX, sp.pos.y+addY);
+                            if (sp.pos.x < sp.dim.x) addX += sp.dim.x + 1;
+                            if (sp.pos.y < sp.dim.y) addY += sp.dim.y + 1;
+                            if (sp.pos.x > pc.device.canvasWidth - sp.dim.x) addX = -sp.dim.x + 1;
+                            if (sp.pos.y > pc.device.canvasHeight - sp.dim.y) addY = -sp.dim.y + 1;
+                            this.layer.scene.createEntity('asteroid-small', this.layer, sp.pos.x + addX, sp.pos.y + addY);
                         }
 
                         entityA.layer.scene.asteroidsLeft += count;
@@ -74,7 +74,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
             }
         },
 
-        onEntityCollisionEnd:function (entityA, entityB)
+        onCollisionEnd:function (objAType, objBType, entityA, entityB)
         {
         }
 
@@ -98,9 +98,9 @@ GameScene = pc.Scene.extend('GameScene',
         playerPhysics:null,
         playerSpatial:null,
         engine:null,
-        asteroidsLeft: 0,
-        leftCounter: null,
-        level: 0,
+        asteroidsLeft:0,
+        leftCounter:null,
+        level:0,
 
         starsLayer:null,
         nebulaLayer:null,
@@ -111,8 +111,9 @@ GameScene = pc.Scene.extend('GameScene',
         playerSheet:null,
         plasmaFireSheet:null,
         explosionSheet:null,
-        music: null,
-        fireSound: null,
+        music:null,
+        musicPlaying:true,
+        fireSound:null,
 
         init:function ()
         {
@@ -126,26 +127,27 @@ GameScene = pc.Scene.extend('GameScene',
                 this.music = pc.device.loader.get('music1').resource;
                 this.music.setVolume(0.5);
                 this.music.play(true);
+                this.musicPlaying = true;
             }
 
             // setup the sprites used in the game scene
             this.asteroidSheet = new pc.SpriteSheet({  image:pc.device.loader.get('asteroid1').resource, useRotation:true, frameWidth:64, frameHeight:64 });
-            this.asteroidSheet.addAnimationWithDirections('floating', 0, 0, null, 1, 500, 0);
+            this.asteroidSheet.addAnimation({ name:'floating', time:500, frameCount:20 });
 
-            this.smallAsteroidSheet = new pc.SpriteSheet({  image:pc.device.loader.get('asteroid-small').resource, useRotation:true, frameWidth:24, frameHeight:24 });
-            this.smallAsteroidSheet.addAnimationWithDirections('floating', 0, 0, null, 1, 500, 0);
+            this.smallAsteroidSheet = new pc.SpriteSheet({ image:pc.device.loader.get('asteroid-small').resource, useRotation:true, frameWidth:24, frameHeight:24 });
+            this.smallAsteroidSheet.addAnimation({ name:'floating', time:500, frameCount:20 });
 
             this.playerSheet = new pc.SpriteSheet(
-                { image:pc.device.loader.get('player-ship').resource, frameWidth:48, frameHeight:48, useRotation:true});
-            this.playerSheet.addAnimationWithDirections('floating', 0, 0, [0], 1, 0, 0);
+                { image:pc.device.loader.get('player-ship').resource, frameWidth:40, frameHeight:40, useRotation:true});
+            this.playerSheet.addAnimation({ name:'floating', frameCount:1});
 
             this.plasmaFireSheet = new pc.SpriteSheet({ image:pc.device.loader.get('plasma-fire').resource, frameWidth:30, frameHeight:30 });
-            this.plasmaFireSheet.addAnimationWithDirections('floating', 0, 0, null, 1, 400, 0, true);
+            this.plasmaFireSheet.addAnimation({ name:'floating', time:400, dirAcross:true });
 
             this.explosionSheet = new pc.SpriteSheet(
                 {image:pc.device.loader.get('explosions').resource,
                     frameWidth:24, frameHeight:24, framesWide:16, framesHigh:8, useRotation:true});
-            this.explosionSheet.addAnimation('exploding', 0, 3, null, 500, 1);
+            this.explosionSheet.addAnimation({ name:'exploding', frameY:3, framesCount:16, time:1600, loops:1 });
 
             //-----------------------------------------------------------------------------
             // stars layer
@@ -155,7 +157,7 @@ GameScene = pc.Scene.extend('GameScene',
                 this.starSheet.frameHeight, this.starSheet.frameHeight);
             tileMap.generate(0);
             tileMap.setTile(1, 0, 1);
-            this.starsLayer = this.addLayer(new pc.TileLayer('star layer', this.starSheet, tileMap));
+            this.starsLayer = this.addLayer(new pc.TileLayer('star layer', this.starSheet, false, tileMap));
 
             //-----------------------------------------------------------------------------
             // game layer
@@ -172,7 +174,7 @@ GameScene = pc.Scene.extend('GameScene',
 
             // setup the starting entities
             this.player = this.createEntity('player', this.gameLayer,
-                this.gameLayer.scene.viewPort.w / 2, this.gameLayer.scene.viewPort.h / 2, 0);
+                (this.gameLayer.scene.viewPort.w / 2)-24, (this.gameLayer.scene.viewPort.h / 2)-24, 0);
             this.engine = this.createEntity('engine', this.gameLayer,
                 this.gameLayer.scene.viewPort.w / 2, this.gameLayer.scene.viewPort.h / 2, 0, this.player);
             this.playerPhysics = this.player.getComponent('physics');
@@ -202,6 +204,8 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindState(this, 'reversing', 'DOWN');
             pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
             pc.device.input.bindState(this, 'firing', 'SPACE');
+            pc.device.input.bindAction(this, 'toggle debug', 'F');
+            pc.device.input.bindAction(this, 'toggle music', 'M');
         },
 
         createEntity:function (type, layer, x, y, dir, attachTo)
@@ -216,7 +220,7 @@ GameScene = pc.Scene.extend('GameScene',
 
                     e.addComponent(pc.components.Sprite.create(
                         {
-                            currentFrame:pc.Math.rand(0, 20),
+                            currentFrame:pc.Math.rand(0, 10),
                             animSpeedOffset:pc.Math.rand(500, 1000),
                             spriteSheet:this.smallAsteroidSheet, animationStart:'floating'
                         }));
@@ -230,10 +234,9 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.Physics.create(
                         {
                             force:25,
-                            margin:5,
                             mass:2,
                             bounce:1,
-                            shape:pc.CollisionShape.CIRCLE,
+                            shapes:[{shape:pc.CollisionShape.CIRCLE}],
                             collisionCategory:CollisionType.ENEMY,
                             collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY
                         }));
@@ -256,7 +259,7 @@ GameScene = pc.Scene.extend('GameScene',
 
                     e.addComponent(pc.components.Sprite.create(
                         {
-                            currentFrame:pc.Math.rand(0, 20),
+                            currentFrame:pc.Math.rand(0, 10),
                             animSpeedOffset:pc.Math.rand(500, 1000),
                             spriteSheet:this.asteroidSheet, animationStart:'floating'
                         }));
@@ -270,10 +273,9 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.Physics.create(
                         {
                             impulse:35,
-                            margin:25,
                             mass:10,
                             bounce:1,
-                            shape:pc.CollisionShape.CIRCLE,
+                            shapes:[ {shape:pc.CollisionShape.CIRCLE} ],
                             collisionCategory:CollisionType.ENEMY,
                             collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY
                         }));
@@ -290,12 +292,14 @@ GameScene = pc.Scene.extend('GameScene',
 
                     e.addComponent(pc.components.Physics.create(
                         {
-                            maxSpeed:50,
-                            margin:25,
+                            maxSpeed:{x:50, y:50},
                             linearDamping:0.1,
-                            centerOfMass:{x:0, y:0},
                             mass:10,
-                            shape:pc.CollisionShape.CIRCLE,
+                            shapes:[
+                                {
+                                    shape:pc.CollisionShape.CIRCLE
+                                }
+                            ],
                             collisionCategory:CollisionType.FRIENDLY,
                             collisionMask:CollisionType.ENEMY
                         }));
@@ -305,10 +309,7 @@ GameScene = pc.Scene.extend('GameScene',
                     // attach the engine emitter (it's an entity so it can be attached to the back of the ship)
                     var engine = pc.Entity.create(layer);
                     engine.addComponent(pc.components.Spatial.create({ dir:dir, w:20, h:20}));
-                    engine.addComponent(pc.components.Physics.create(
-                        {
-                            shape:pc.CollisionShape.CIRCLE, mass:0.1
-                        }));
+                    engine.addComponent(pc.components.Physics.create({ shapes:[ { shape:pc.CollisionShape.CIRCLE } ] }));
                     engine.addComponent(pc.components.ParticleEmitter.create(
                         {
                             spriteSheet:this.explosionSheet,
@@ -343,11 +344,10 @@ GameScene = pc.Scene.extend('GameScene',
 
                     e.addComponent(pc.components.Physics.create(
                         {
-                            maxSpeed:80,
+                            maxSpeed:{x:80, y:80},
                             force:80,
-                            margin:20,
-                            collisionCategory:CollisionType.FRIENDLY,
-                            collisionMask:CollisionType.ENEMY
+                            shapes:[ { offset:{w:-25}, shape:pc.CollisionShape.CIRCLE } ],
+                            collisionCategory:CollisionType.FRIENDLY, collisionMask:CollisionType.ENEMY
                         }));
 
                     return e;
@@ -355,11 +355,11 @@ GameScene = pc.Scene.extend('GameScene',
                 case 'instructions':
                     e = pc.Entity.create(layer);
                     e.addComponent(pc.components.Rect.create({ color:'#222222', lineColor:'#888888', lineWidth:3 }));
-                    e.addComponent(pc.components.Fade.create({ startDelay:3000, fadeInTime:1500, fadeOutTime:1500 }));
-                    e.addComponent(pc.components.Text.create({ text:['Arrows key to move', 'Space to fire'], lineWidth:0,
-                        fontHeight:14, offset:{x:25, y:-35} }));
+                    e.addComponent(pc.components.Fade.create({ startDelay:1000, fadeInTime:3500, holdTime:3000, fadeOutTime:1500 }));
+                    e.addComponent(pc.components.Text.create({ text:['Arrow keys=move', 'Space=fire', 'F=toggle debug', 'M=toggle music'], lineWidth:0,
+                        fontHeight:14, offset:{x:25, y:-65} }));
                     e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
-                    e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:60 }));
+                    e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:85 }));
                     e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{ left:80 } }));
 
                     return e;
@@ -373,7 +373,10 @@ GameScene = pc.Scene.extend('GameScene',
             e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0, w:w, h:h }));
             e.addComponent(pc.components.Physics.create({ immovable:true,
                 collisionCategory:CollisionType.ENEMY, collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY,
-                shape:pc.CollisionShape.RECT}));
+                shapes:[
+                    { shape:pc.CollisionShape.RECT }
+                ]
+            }));
         },
 
         createLevelAlert:function ()
@@ -408,13 +411,35 @@ GameScene = pc.Scene.extend('GameScene',
             e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'center' }));
         },
 
-        newLevel: function()
+        newLevel:function ()
         {
             this.level++;
-
-            for (var i = 0; i < 2+(this.level*2); i++)
+            var count = 2 + (this.level * 2);
+            for (var i = 0; i < count; i++)
                 this.createEntity('asteroid', this.gameLayer);
-            this.asteroidsLeft += 2+(this.level*2);
+            this.asteroidsLeft += count;
+        },
+
+        onAction:function (actionName, event, pos)
+        {
+            if (actionName === 'toggle debug')
+            {
+                var ph = this.gameLayer.getSystemsByComponentType('physics').first.object();
+                ph.setDebug(!ph.debug);
+            }
+
+            if (actionName === 'toggle music')
+            {
+                if (this.musicPlaying)
+                {
+                    this.music.stop();
+                    this.musicPlaying = false;
+                } else
+                {
+                    this.music.play();
+                    this.musicPlaying = true;
+                }
+            }
         },
 
         lastFireTime:0,
@@ -458,14 +483,12 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     this.fireSound.play(false);
                     var tc = this.playerSpatial.getCenterPos();
+                    tc.subtract(15, 15);
                     tc.moveInDir(this.playerSpatial.dir, 20);
                     this.createEntity('plasmaFire', this.gameLayer, tc.x, tc.y, this.playerSpatial.dir);
                     this.lastFireTime = pc.device.now;
                 }
             }
-
-            pc.device.ctx.fillStyle = '#000';
-            pc.device.ctx.fillRect(0, 0, pc.device.canvasWidth, pc.device.canvasHeight);
 
             this._super();
         }

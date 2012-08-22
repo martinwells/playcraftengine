@@ -33,19 +33,19 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
             // smoke
             this.smokeSheet = new pc.SpriteSheet({image:pc.device.loader.get('smoke').resource,
                     frameWidth:32, frameHeight:32, framesWide:16, framesHigh:1});
-            this.smokeSheet.addAnimation('smoking', 0, 0, null, 1000, 1);
+            this.smokeSheet.addAnimation({ name:'smoking', frameCount:16 });
 
             // explosion
             this.explosionSheet = new pc.SpriteSheet(
                 {image:pc.device.loader.get('explosions').resource, framesWide:16, framesHigh:8, useRotation:true});
-            this.explosionSheet.addAnimation('exploding', 0, 5, null, 500, 1);
+            this.explosionSheet.addAnimation({ name:'exploding', frameY:5, frameCount:16, time:500, loops:1 });
 
             // crate debris
             this.debrisSheet = new pc.SpriteSheet(
                 {image:pc.device.loader.get('crate-debris').resource, frameWidth: 42, frameHeight: 42, framesWide:2, framesHigh:1});
         },
 
-        onEntityCollision:function (entityA, entityB, force)
+        onCollision:function (objAType, objBType, entityA, entityB, force)
         {
             if (entityB.hasTag('CRATE') && entityA.hasTag('BULLET') && force > 3.5)
             {
@@ -86,15 +86,22 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                     // change to an explosion sprite
                     entityB.removeComponentByType('sprite');
                     entityB.addComponent(pc.components.Sprite.create({ spriteSheet:this.explosionSheet }));
+
+                    entityB.layer.scene.crateCount--;
+                    if (entityB.layer.scene.crateCount <= 0)
+                    {
+                        entityB.layer.scene.createReminder();
+                    }
+
                 }
             }
         },
 
-        onEntityCollisionStart:function (entityA, entityB)
+        onCollisionStart:function (objAType, objBType, entityA, entityB)
         {
         },
 
-        onEntityCollisionEnd:function (entityA, entityB)
+        onCollisionEnd:function (objAType, objBType, entityA, entityB)
         {
         }
 
@@ -119,6 +126,7 @@ GameScene = pc.Scene.extend('GameScene',
         crate2Sheet: null,
         floorY: 0,
         fireSound: null,
+        crateCount: 0,
 
         init:function ()
         {
@@ -203,6 +211,7 @@ GameScene = pc.Scene.extend('GameScene',
             // setup the starting entities
             // create a floor
             this.createWall(this.gameLayer, 0, this.floorY-30, pc.device.canvasWidth, 1); // bottom
+            this.createWall(this.gameLayer, pc.device.canvasWidth-10, 0, 1, pc.device.canvasHeight); // right side
 
             // create some rocks
             this.createCrates();
@@ -217,6 +226,7 @@ GameScene = pc.Scene.extend('GameScene',
             //--------------------------------------------------------------------------------------------
             // foreground layer -- primarily so things appear to fall into the grass which is painted last
             //--------------------------------------------------------------------------------------------
+
             this.foregroundLayer = this.addLayer(new pc.EntityLayer('foreground layer', 10000, 10000));
             this.foregroundLayer.addSystem(new pc.systems.Render());
 
@@ -244,7 +254,6 @@ GameScene = pc.Scene.extend('GameScene',
             bottomCover.addComponent(pc.components.Spatial.create({ x:0, y:this.floorY+79,
                 w:pc.device.canvasWidth, h:pc.device.canvasHeight-(this.floorY+79) }));
 
-
             // setup the controls
             pc.device.input.bindState(this, 'aim upwards', 'W');
             pc.device.input.bindState(this, 'aim upwards', 'UP');
@@ -265,7 +274,7 @@ GameScene = pc.Scene.extend('GameScene',
             for (var i=0; i < 5; i++)
                 this.createCrate(placeX+(i*48),
                     placeY - this.crate1Sheet.frameHeight-2);
-            for (i = 0; i < 1; i++)
+            for (i = 0; i < 4; i++)
                 this.createCrate(placeX + (i * 48),
                     placeY - 100 - this.crate1Sheet.frameHeight - 48 - 2 );
             for (i = 0; i < 2; i++)
@@ -275,12 +284,15 @@ GameScene = pc.Scene.extend('GameScene',
 
         createCrate: function(x, y)
         {
+            if (this.crateCount > 25) return;
+            this.crateCount++;
+
             var crate = pc.Entity.create(this.gameLayer);
             crate.addTag('CRATE');
             crate.addComponent(pc.components.Sprite.create({ spriteSheet:pc.Math.rand(0,1) == 0 ? this.crate1Sheet : this.crate2Sheet}));
             crate.addComponent(pc.components.Spatial.create({x:x, y:y + (pc.Math.rand(6, 24)), dir:pc.Math.rand(0, 20),
                 w:this.crate1Sheet.frameWidth, h:this.crate1Sheet.frameHeight}));
-            crate.addComponent(pc.components.Physics.create({ shape:pc.CollisionShape.RECT,
+            crate.addComponent(pc.components.Physics.create({
                 collisionCategory:CollisionType.ENEMY,
                 collisionGroup: 1,
                 collisionMask:CollisionType.FRIENDLY,
@@ -299,9 +311,9 @@ GameScene = pc.Scene.extend('GameScene',
             // cannon barrel
             var barrel = pc.Entity.create(this.gameLayer);
             barrel.addComponent(pc.components.Sprite.create({ spriteSheet:this.cannonBarrelSheet }));
-            barrel.addComponent(pc.components.Spatial.create({ dir:340, w:this.cannonBarrelSheet.frameWidth,
+            barrel.addComponent(pc.components.Spatial.create({ dir:330, w:this.cannonBarrelSheet.frameWidth,
                 h: this.cannonBarrelSheet.frameHeight}));
-            this.barrelPhysics = barrel.addComponent(pc.components.Physics.create({ shape:pc.CollisionShape.RECT,
+            this.barrelPhysics = barrel.addComponent(pc.components.Physics.create({
                 collisionCategory:CollisionType.FRIENDLY,
                 collisionMask:CollisionType.ENEMY|CollisionType.FRIENDLY, mass: 1,
                 fixedRotation:true,
@@ -313,7 +325,7 @@ GameScene = pc.Scene.extend('GameScene',
             cannonBase.addComponent(pc.components.Sprite.create({ spriteSheet:this.cannonBaseSheet }));
             cannonBase.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0,
                 w:this.cannonBaseSheet.frameWidth, h:this.cannonBaseSheet.frameHeight}));
-            cannonBase.addComponent(pc.components.Physics.create({ shape:pc.CollisionShape.RECT,
+            cannonBase.addComponent(pc.components.Physics.create({
                 fixedRotation:true,
                 collisionCategory:CollisionType.FRIENDLY,
                 collisionMask:CollisionType.FRIENDLY, mass: 10
@@ -343,9 +355,8 @@ GameScene = pc.Scene.extend('GameScene',
 
             e.addComponent(pc.components.Physics.create(
                 {
-                    maxSpeed:50,
+                    maxSpeed:{x:80, y:80},
                     force:120,
-                    margin:5,
                     bounce:0.1,
                     collisionCategory:CollisionType.FRIENDLY,
                     collisionMask:CollisionType.FRIENDLY|CollisionType.ENEMY
@@ -354,7 +365,7 @@ GameScene = pc.Scene.extend('GameScene',
 
         createInstructions:function ()
         {
-            e = pc.Entity.create(this.gameLayer);
+            var e = pc.Entity.create(this.gameLayer);
             e.addComponent(pc.components.Rect.create({ color:'#222222', lineColor:'#888888', lineWidth:3 }));
             e.addComponent(pc.components.Fade.create({ startDelay:1000, holdTime: 2000, fadeInTime:1500, fadeOutTime:1500 }));
             e.addComponent(pc.components.Text.create({ text:['Up/Down to Aim', 'Space to fire', 'C for more crates'], lineWidth:0,
@@ -366,14 +377,27 @@ GameScene = pc.Scene.extend('GameScene',
             return e;
         },
 
+        createReminder:function ()
+        {
+            var e = pc.Entity.create(this.gameLayer);
+            e.addComponent(pc.components.Rect.create({ color:'#222222', lineColor:'#888888', lineWidth:3 }));
+            e.addComponent(pc.components.Fade.create({ holdTime:2500, fadeInTime:500, fadeOutTime:500 }));
+            e.addComponent(pc.components.Text.create({ text:['Press C to add more crates'], lineWidth:0,
+                fontHeight:14, offset:{x:10, y:-15} }));
+            e.addComponent(pc.components.Expiry.create({ lifetime:4000 }));
+            e.addComponent(pc.components.Spatial.create({ dir:0, w:200, h:40 }));
+            e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'right', margin:{ right:80 } }));
+
+            return e;
+        },
+
         createWall:function (layer, x, y, w, h)
         {
             var e = pc.Entity.create(layer);
             e.addTag('WALL');
             e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0, w:w, h:h }));
             e.addComponent(pc.components.Physics.create({ immovable:true,
-                collisionCategory:CollisionType.FRIENDLY, collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY,
-                shape:pc.CollisionShape.RECT}));
+                collisionCategory:CollisionType.FRIENDLY, collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY }));
         },
 
         lastFireTime:0,
@@ -466,7 +490,7 @@ TheGame = pc.Game.extend('TheGame',
 
             if (pc.device.soundEnabled)
             {
-                pc.device.loader.add(new pc.Sound('smash', 'sounds/woodsmash', ['ogg', 'mp3'], 5));
+                pc.device.loader.add(new pc.Sound('smash', 'sounds/woodsmash', ['ogg', 'mp3'], 10));
                 pc.device.loader.add(new pc.Sound('explosion', 'sounds/explosion', ['ogg', 'mp3'], 12));
             }
 

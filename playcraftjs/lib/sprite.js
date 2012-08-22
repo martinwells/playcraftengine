@@ -134,14 +134,19 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
          * @param name Key name of the animation to switch to.
          * @param speedOffset allows you to modify the animation speed for this instance of a sprite
          *                    good for randomizing animations on sprite so they all don't look the same
+         * @param force Restart the animation, even if this is the currently playing animation (default is true)
          */
-        setAnimation:function (name, speedOffset)
+        setAnimation:function (name, speedOffset, force)
         {
+            var f = pc.checked(force, true);
+            if (!f)
+                if (this.currentAnim.name === name) return;
+
             this.currentAnim = this.spriteSheet.animations.get(name);
             this.currentFrame = 0;
             this.loopCount = 0;
             this.active = true;
-            this.animSpeedOffset = speedOffset;
+            this.animSpeedOffset = pc.checked(speedOffset, 0);
             this.currentAnimName = name;
         },
 

@@ -87,6 +87,17 @@ pc.Math = pc.Base('pc.Math',
                 return (angleA + (360 - angleB)) < (Math.abs(angleB - angleA));
         },
 
+        /**
+         * Returns whether an angle is facing to the right from a side-scrolling 2d perspective
+         * @param angle Angle to test
+         * @return true is facing to the right, otherwise false (meaning it's facing left)
+         */
+        isFacingRight: function(angle)
+        {
+            if (angle > 270 || angle < 90) return true;
+            return false;
+        },
+
         radToDeg:function (radians)
         {
             return (radians * pc.Math.RADIAN_TO_DEGREE);
@@ -283,18 +294,21 @@ pc.Point = pc.Pooled('pc.Point',
         {
             this.x = x;
             this.y = y;
+            return this;
         },
 
         add: function(x, y)
         {
             this.x += x;
             this.y += y;
+            return this;
         },
 
         subtract:function (x, y)
         {
             this.x -= x;
             this.y -= y;
+            return this;
         },
 
         /**
@@ -340,6 +354,7 @@ pc.Point = pc.Pooled('pc.Point',
             var c = a.rotate(pc.Math.degToRad(angle), b);
             this.x = c.elements[0];
             this.y = c.elements[1];
+            return this;
         },
 
         /**
@@ -351,6 +366,7 @@ pc.Point = pc.Pooled('pc.Point',
         {
             this.x += distance * Math.cos(pc.Math.degToRad(dir));
             this.y += distance * Math.sin(pc.Math.degToRad(dir));
+            return this;
         },
 
         /**

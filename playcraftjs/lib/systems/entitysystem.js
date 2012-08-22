@@ -3,7 +3,7 @@
  * that contain the componentTypes specified in the constructor.
  */
 
-pc.EntitySystem = pc.System.extend('pc.EntitySystem',
+pc.EntitySystem = pc.systems.System.extend('pc.EntitySystem',
     {},
     {
         componentTypes: null,

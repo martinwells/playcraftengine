@@ -1,7 +1,7 @@
 
 pc.systems = {};
 
-pc.System = pc.Base.extend('pc.System',
+pc.systems.System = pc.Base.extend('pc.System',
     { },
     {
         layer: null,
@@ -27,6 +27,10 @@ pc.System = pc.Base.extend('pc.System',
          * Called by the system when the layer has changed size
          */
         onResize: function()
+        {
+        },
+
+        onOriginChange: function(x, y)
         {
         },
 

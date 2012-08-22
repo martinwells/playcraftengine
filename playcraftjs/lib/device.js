@@ -218,12 +218,13 @@ pc.Device = pc.Base.extend('pc.Device',
                 this.elapsed = this.now - this.lastFrame;
                 this.lastDrawMS = 0;
 
-                // do not render frame when delta is too high
                 this.currentFPS = Math.round(1000.0 / this.elapsed);
                 this.elementsDrawn = 0;
 
                 this.startTime = Date.now();
-                this.running = this.game.process();
+                // do not render frame when delta is too high
+                if (this.elapsed < 200)
+                    this.running = this.game.process();
                 this.lastProcessMS = (Date.now() - this.startTime) - this.lastDrawMS;
 
                 // process the input system

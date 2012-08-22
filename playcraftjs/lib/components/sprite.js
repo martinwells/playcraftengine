@@ -15,11 +15,13 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
         {
             this._super(this.Class.shortName);
             this.sprite = pc.Sprite.create();
+            this.offset = pc.Point.create(0,0);
             if (pc.valid(options))
                 this.config(options);
         },
 
         sprite: null,
+        offset: null, // drawing offset
 
         config: function(options)
         {
@@ -28,6 +30,16 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
                 throw this.getUniqueId() + ': no spritesheet specified';
 
             this.sprite.setSpriteSheet(spriteSheet);
+
+            if (pc.valid(options.offset))
+            {
+                this.offset.x = pc.checked(options.offset.x, 0);
+                this.offset.y = pc.checked(options.offset.y, 0);
+            } else
+            {
+                this.offset.x = 0;
+                this.offset.y = 0;
+            }
 
             var animationStart = pc.checked(options.animationStart, null);
             var animationStartDelay = pc.checked(options.animationStartDelay, 0);

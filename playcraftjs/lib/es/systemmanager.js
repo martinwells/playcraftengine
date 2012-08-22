@@ -62,6 +62,21 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
+        getByComponentType: function(componentType)
+        {
+            return this.systemsByComponentType.get(componentType);
+        },
+
+        onOriginChange: function(x, y)
+        {
+            var system = this.systems.first;
+            while (system)
+            {
+                system.object().onOriginChange(x, y);
+                system = system.next();
+            }
+        },
+
         _handleEntityAdded: function(entity)
         {
             // grab a list of all the component types from the entity

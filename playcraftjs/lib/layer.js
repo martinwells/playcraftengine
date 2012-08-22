@@ -9,6 +9,9 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
     active:false,
     scene:null,
     zIndex:0,
+    originTrack: null,
+    originTrackXRatio: 1,
+    originTrackYRatio: 1,
 
     /**
      * World coordinate origin for this layer
@@ -24,6 +27,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
         this._worldPos = pc.Point.create(0, 0);
         this._screenPos = pc.Point.create(0, 0);
         this.zIndex = pc.checked(zIndex, 0);
+        this.originTrack = null;
+        this.originTrackRatio = 0;
     },
 
     release:function ()
@@ -53,16 +58,6 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
         this.zIndex = z;
         if (this.scene)
             this.scene.sortLayers();
-    },
-
-    /**
-     * Sets the origin world point of the top left of this layer.
-     * @param p {pc.Point} the origin point to use
-     */
-    setOrigin:function (p)
-    {
-        this.origin.x = p.x;
-        this.origin.y = p.y;
     },
 
     _worldPos:null, // cached temp
@@ -101,18 +96,46 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
     },
 
     /**
-     * This method is typically called by this layer's scene. The view port is the screen
-     * coordinates relatively to the physical canvas upon which we are drawing. It is
-     * explicitly not in world coordinates -- this is a primary separation of a layer
-     * and a scene (scene's deal in screen coordinates, layer's deal in world coordinates
-     * which are relative for entities
+     * Draw the layer's scene. Use the scene's viewport and origin members to correctly position things.
+     * Typical used for simple/custom layers with no entities or tiles.
      */
     draw:function ()
     {
     },
 
+    /**
+     * Sets tracking for this origin to always follow the origin of another layer. The ratio can be used
+     * to parallax the layer.
+     * @param trackLayer Layer to track
+     * @param xRatio Ratio to track horizontally (i.e. trackLayer.origin.x * xRatio)
+     * @param yRatio Ratio to track vertically (i.e. trackLayer.origin.y * yRatio)
+     */
+    setOriginTrack:function (trackLayer, xRatio, yRatio)
+    {
+        this.originTrack = trackLayer;
+        this.originTrackXRatio = pc.checked(xRatio, 1);
+        this.originTrackYRatio = pc.checked(yRatio, 1);
+    },
+
+    /**
+     * Sets the origin world point of the top left of this layer.
+     */
+    setOrigin:function (x, y)
+    {
+        if (this.origin.x == Math.round(x) && this.origin.y == Math.round(y))
+            return false;
+        this.origin.x = Math.round(x);
+        this.origin.y = Math.round(y);
+        return true;
+    },
+
     process:function ()
     {
+        if (this.originTrack)
+        {
+            this.setOrigin(this.originTrack.origin.x * this.originTrackXRatio,
+                this.originTrack.origin.y * this.originTrackYRatio);
+        }
     },
 
     /**
@@ -193,6 +216,11 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
             this.systemManager.add(system, this.entityManager);
         },
 
+        getSystemsByComponentType: function(componentType)
+        {
+            return this.systemManager.getByComponentType(componentType);
+        },
+
         removeSystem: function(system)
         {
             this.systemManager.remove(system);
@@ -200,8 +228,17 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
 
         process:function ()
         {
+            this._super();
             this.systemManager.processAll();
             this.entityManager.cleanup();
+        },
+
+        setOrigin:function (x, y)
+        {
+            var didChange = this._super(x, y);
+            if (didChange)
+                this.systemManager.onOriginChange(x, y);
+            return didChange;
         },
 
         loadFromTMX:function (groupXML, entityFactory)
@@ -318,12 +355,18 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
          */
         clear:function (tx, ty, tw, th)
         {
-            this.setRegion(this.Class.EMPTY_TILE, tx, ty, tw, th);
+            this.paint(tx, ty, tw, th, this.Class.EMPTY_TILE);
         },
 
         setTile:function (tx, ty, tileType)
         {
             this.tiles[ty][tx] = tileType;
+        },
+
+        getTile:function(tx, ty)
+        {
+            if (!this.isOnMap(tx, ty)) return -1;
+            return this.tiles[ty][tx];
         },
 
         /**
@@ -393,58 +436,134 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
     { },
     {
         tileMap:null,
-        tileSpriteSheet:null, // the images to use for each tile
-        debugShowGrid:false, // true to show a nice grid helping with debugging
+        tileSpriteSheet:null,   // the images to use for each tile
+        debugShowGrid:false,    // true to show a nice grid helping with debugging
+        prerenders: null,       // array of prerendered images of the tiles (improves rendering speed)
+        usePrerendering: true,
+        prerenderSize: 512,
 
-        init:function (name, tileSpriteSheet, tileMap)
+        init:function (name, tileSpriteSheet, usePrerendering, tileMap)
         {
             this._super(name);
             this.tileMap = pc.checked(tileMap, new pc.TileMap());
             this.tileSpriteSheet = tileSpriteSheet;
+            this.usePrerendering = pc.checked(usePrerendering, true);
+            if (this.tileMap && this.tileMap.tileWidth > 256)
+                this.usePrerendering = false;
+        },
+
+        setTileMap: function(tileMap)
+        {
+            this.tileMap = tileMap;
+            if (this.usePrerendering)
+                this.prerender();
         },
 
         setTileSpriteSheet:function (tileSpriteSheet)
         {
             this.tileSpriteSheet = tileSpriteSheet;
+            if (this.usePrerendering)
+                this.prerender();
         },
 
-        draw:function (ctx)
+        prerender: function()
         {
-            this._super(ctx);
+            var totalWidth = this.tileMap.tilesWide * this.tileMap.tileWidth;
+            var totalHeight = this.tileMap.tilesHigh * this.tileMap.tileHeight;
 
-            if (!this.tileMap) return;
+            var prerendersWide = Math.ceil(totalWidth / this.prerenderSize);
+            var rows = Math.ceil(totalHeight / this.prerenderSize);
 
-            var vx = this.scene.viewPort.x;
-            var vy = this.scene.viewPort.y;
-            var vw = this.scene.viewPort.w;
-            var vh = this.scene.viewPort.h;
+            this.prerenders = [];
+            for (var cy = 0; cy < rows; cy++)
+            {
+                this.prerenders[cy] = [];
 
+                for (var cx = 0; cx < prerendersWide; cx++)
+                {
+                    var prw = (x == prerendersWide - 1) ? totalWidth - x * this.prerenderSize : this.prerenderSize;
+                    var prh = (y == rows - 1) ? totalHeight - y * this.prerenderSize : this.prerenderSize;
+
+                    // draw the tiles in this prerender area
+                    var tw = prw / this.tileMap.tileWidth + 1;
+                    var th = prh / this.tileMap.tileHeight + 1;
+
+                    var nx = (cx * this.prerenderSize) % this.tileMap.tileWidth,
+                        ny = (cy * this.prerenderSize) % this.tileMap.tileHeight;
+
+                    var tx = Math.floor(cx * this.prerenderSize / this.tileMap.tileWidth),
+                        ty = Math.floor(cy * this.prerenderSize / this.tileMap.tileHeight);
+
+                    var canvas = document.createElement('canvas');
+                    canvas.width = prw;
+                    canvas.height = prh;
+                    var ctx = canvas.getContext('2d');
+
+                    for (var x = 0; x < tw; x++)
+                    {
+                        for (var y = 0; y < th; y++)
+                        {
+                            if (x + tx < this.tileMap.tilesWide && y + ty < this.tileMap.tilesHigh)
+                            {
+                                var tileType = this.tileMap.getTile(x + tx, y + ty);
+                                if (tileType >= 0)  // -1 means no tile
+                                {
+                                    var tty = pc.Math.floor(tileType / this.tileSpriteSheet.framesWide);
+                                    var ttx = tileType % this.tileSpriteSheet.framesWide;
+
+                                    this.tileSpriteSheet.drawFrame(
+                                        ctx,
+                                        ttx, tty,
+                                        (x * this.tileMap.tileWidth) - nx,
+                                        (y * this.tileMap.tileHeight) - ny);
+                                }
+                            }
+                        }
+                    }
+
+                    this.prerenders[cy][cx] = canvas;
+                }
+            }
+        },
+
+        draw:function ()
+        {
+            this._super();
+            if (!this.tileMap || !this.tileMap.tilesWide) return;
+
+            if (this.usePrerendering)
+                this.drawPrerendered();
+            else
+                this.drawTiled();
+        },
+
+        drawTiled: function()
+        {
             // figure out which tiles are on screen
             var tx = Math.floor(this.origin.x / this.tileMap.tileWidth);
             if (tx < 0) tx = 0;
             var ty = Math.floor(this.origin.y / this.tileMap.tileHeight);
             if (ty < 0) ty = 0;
 
-            var tw = (Math.ceil((this.origin.x + vw) / this.tileMap.tileWidth) - tx) + 2;
+            var tw = (Math.ceil((this.origin.x + this.scene.viewPort.w) / this.tileMap.tileWidth) - tx) + 2;
             if (tx + tw >= this.tileMap.tilesWide - 1) tw = this.tileMap.tilesWide - 1 - tx;
-            var th = (Math.ceil((this.origin.y + vh) / this.tileMap.tileHeight) - ty) + 2;
+            var th = (Math.ceil((this.origin.y + this.scene.viewPort.h) / this.tileMap.tileHeight) - ty) + 2;
             if (ty + th >= this.tileMap.tilesHigh - 1) th = this.tileMap.tilesHigh - 1 - ty;
 
-            var yh = ty + th;
-            var xh = tx + tw;
-
-            for (var y = ty; y < yh + 1; y++)
+            for (var y = ty, c=ty+th; y < c + 1; y++)
             {
-                var ypos = (y * this.tileMap.tileHeight) - this.origin.y + vy;
+                var ypos = (y * this.tileMap.tileHeight) - this.origin.y + this.scene.viewPort.y;
 
-                for (var x = tx; x < xh; x++)
+                for (var x = tx, d=tx+tw; x < d; x++)
                 {
                     var tileType = this.tileMap.tiles[y][x];
-                    var tty = pc.Math.floor(tileType / this.tileSpriteSheet.framesWide);
-                    var ttx = tileType % this.tileSpriteSheet.framesWide;
                     if (tileType >= 0)  // -1 means no tile
+                    {
+                        var tty = pc.Math.floor(tileType / this.tileSpriteSheet.framesWide);
+                        var ttx = tileType % this.tileSpriteSheet.framesWide;
                         this.tileSpriteSheet.drawFrame(pc.device.ctx, ttx, tty,
-                            (x * this.tileMap.tileWidth) - this.origin.x + vx, ypos);
+                            (x * this.tileMap.tileWidth) - this.origin.x + this.scene.viewPort.x, ypos);
+                    }
 
                     if (this.debugShowGrid)
                     {
@@ -456,6 +575,27 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                     }
                 }
             }
+        },
+
+        drawPrerendered:function ()
+        {
+            if (!this.prerenders)
+                this.prerender();
+
+            var drawX = -(this.origin.x) + this.scene.viewPort.x;
+            var drawY = -(this.origin.y) + this.scene.viewPort.y;
+            var startPX = Math.max(Math.floor(this.origin.x / this.prerenderSize), 0);
+            var startPY = Math.max(Math.floor(this.origin.y / this.prerenderSize), 0);
+            var maxPX = startPX+Math.ceil((this.origin.x + this.scene.viewPort.w) / this.prerenderSize);
+            var maxPY = startPY+Math.ceil((this.origin.y + this.scene.viewPort.h) / this.prerenderSize);
+
+            maxPX = Math.min(maxPX, this.prerenders[0].length);
+            maxPY = Math.min(maxPY, this.prerenders.length);
+
+            for (var cy = startPY; cy < maxPY; cy++)
+                for (var cx = startPX; cx < maxPX; cx++)
+                    pc.device.ctx.drawImage(this.prerenders[cy % this.prerenders.length][cx % this.prerenders[0].length],
+                        drawX + (cx * this.prerenderSize), drawY + (cy * this.prerenderSize));
         },
 
         /**

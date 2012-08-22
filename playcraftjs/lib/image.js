@@ -17,6 +17,8 @@ pc.Image = pc.Base.extend('pc.Image', {},
         scaleX:1,
         scaleY:1,
         compositeOperation: null,
+        translateX: 0,
+        translateY: 0,
 
         /**
          * Loads an image from a remote (URI) resource. This will automatically
@@ -90,29 +92,48 @@ pc.Image = pc.Base.extend('pc.Image', {},
         draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
         {
             // scale testing
-            if (this.scaleX != 1 || this.scaleY != 1)
-                if (width * this.scaleX <= 0 || height * this.scaleY <=0) return;
             if (this.compositeOperation != null)
                 ctx.globalCompositeOperation = this.compositeOperation;
 
             if (arguments.length == 3)
             {
-                ctx.drawImage(this.image, sx * this.scaleX, sy * this.scaleY);
+                ctx.drawImage(this.image, sx, sy);
             }
             else
             {
                 if (pc.valid(rotationAngle))
                 {
                     ctx.save();
-                    ctx.translate(x+(width/2), y+(height/2));
+                    if (this.scaleX < 0 || this.scaleY < 0)
+                    {
+                        var yf = this.scaleY == 1 ? 0 : this.scaleY;
+                        var xf = this.scaleX == 1 ? 0 : this.scaleX;
+
+                        ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
+                    } else
+                        ctx.translate(x+(width/2), y+(height/2));
+
                     ctx.rotate(rotationAngle * (Math.PI / 180));
-                    ctx.drawImage(this.image, sx, sy, width, height, (-width/2)*this.scaleX, (-height/2)*this.scaleY, width*this.scaleX, height*this.scaleY);
+                    ctx.scale(this.scaleX, this.scaleY);
+                    ctx.drawImage(this.image, sx, sy, width, height, (-width/2), (-height/2), width, height);
                     ctx.restore();
-                } else
+                }
+                else
                 {
-                    ctx.drawImage(this.image, sx, sy,
-                        width, height,
-                        x, y, width * this.scaleX, height * this.scaleY);
+                    ctx.save();
+
+                    if (this.scaleX < 0 || this.scaleY < 0)
+                    {
+                        var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
+                        var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
+
+                        ctx.translate(x+(-(width/2)*xf2), y+(-(height/2)*yf2));
+                    } else
+                        ctx.translate(x, y);
+
+                    ctx.scale(this.scaleX, this.scaleY);
+                    ctx.drawImage(this.image, sx, sy, width, height, 0, 0, width, height);
+                    ctx.restore();
                 }
             }
 
@@ -137,6 +158,14 @@ pc.Image = pc.Base.extend('pc.Image', {},
         {
             if (this.onErrorCallback)
                 this.onErrorCallback(this);
+        },
+
+        expand: function(extraWidth, extraHeight)
+        {
+            this.image.width = this.width + extraWidth;
+            this.image.height = this.height + extraHeight;
+            this.width = this.image.width;
+            this.height = this.image.height;
         },
 
         resize:function (scaleX, scaleY)

@@ -59,7 +59,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         this.sourceX = pc.checked(options.sourceX, 0);
         this.sourceY = pc.checked(options.sourceY, 0);
         this.alpha = pc.checked(options.alpha, 1);
-        this.useRotation = pc.checked(options.useRotation, false);
+        this.useRotation = pc.checked(options.useRotation, true);
 
         this.totalFrames = this.framesWide * this.framesHigh;
         this.animations = new pc.Hashtable();
@@ -75,33 +75,74 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
 
     /**
      * Adds an animation that has multiple directions
-     * @param name A descriptive name for the animation
-     * @param frameX The starting frame X position (in frames, not pixels)
-     * @param frameY The starting frame Y position (in frames, not pixels)
-     * @param frames An array of frame numbers, note these are OFFSET by frameX and frameY. Use null
-     * to automatically sequence through all frames across the image
-     * @param directions the number of directions this animation has (assumes a row is used for each direction)
-     * @param time Seconds to loop through entire sequence
-     * @param loops Number of times to cycle through this animation, use 0 to loop infinitely
+     * @param options An object containing the following options:
+     * name A descriptive name for the animation (required)
+     * frameX - The starting frame X position (in frames, not pixels) defaults to 0
+     * frameY - The starting frame Y position (in frames, not pixels) defaults to 0
+     * frames - A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
+     * to automatically sequence through all frames across the image, or specify frame count
+     * frameCount - number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
+     * directions - the number of directions this animation has (assumes a row is used for each direction)
+     * time - Seconds to loop through entire sequence defaults to 1000
+     * loops - Number of times to cycle through this animation, use 0 to loop infinitely (defaults to 0)
      */
-    addAnimationWithDirections: function(name, frameX, frameY, frames, directions, time, loops, dirAcross)
+    addAnimation: function(options)
     {
-        var aframes = frames;
-        if (aframes == null)
+        if (!pc.valid(options.name)) throw "Animation requires a name for reference";
+
+        options.frameX = pc.checked(options.frameX, 0);
+        options.frameY = pc.checked(options.frameY, 0);
+        options.directions = pc.checked(options.directions, 1);
+        options.time = pc.checked(options.time, 1000);
+        options.loops = pc.checked(options.loops, 0);
+        options.dirAcross = pc.checked(options.dirAcross, false);
+        options.scaleX = pc.checked(options.scaleX, 1);
+        options.scaleY = pc.checked(options.scaleY, 1);
+        options.offsetX = pc.checked(options.offsetX, 0);
+        options.offsetY = pc.checked(options.offsetY, 0);
+        options.framesWide = pc.checked(options.framesWide, this.framesWide);
+        options.framesHigh = pc.checked(options.framesHigh, this.framesHigh);
+        options.frameCount = pc.checked(options.frameCount, this.framesWide*this.framesHigh);
+
+        if (options.frameCount == 0)
         {
-            aframes = [];
-            for (var i=0; i < this.framesWide; i++)
-                aframes.push( i );
+            options.frameCount = pc.checked(options.frameCount, this.framesWide * this.framesHigh);
         }
 
-        this.animations.put(name, { frameX:frameX, frameY:frameY, dirAcross: pc.checked(dirAcross, false),
-            frames:aframes, directions: directions, frameRate: (time/aframes.length), degreesPerDir: (360/directions),
-            loops: loops });
+        // no frames specified, create the frames array automagically
+        if (!pc.valid(options.frames))
+        {
+            var frameStart = options.frameX + (options.frameY*options.framesWide);
+            options.frames = [];
+            // use the frameCount and frameX, frameY
+            for (var frame=frameStart; frame < frameStart+options.frameCount; frame++)
+            {
+                options.frames.push( [frame % options.framesWide, Math.floor(frame / options.framesWide) ] );
+            }
+        }
+
+        options.frameRate = (options.time / options.frames.length);
+        options.degreesPerDir = (360 / options.directions);
+
+        this.animations.put(options.name, options);
     },
 
-    addAnimation: function(name, frameX, frameY, frames, time, loops)
+    /**
+     * Takes an existing animation sequences, rotates each frame by the by the given angle, and then adds
+     * those frames to the bottom of the spritesheet image, and finally adds a new animation given the name
+     */
+    cloneAnimation: function(name, sourceAnimation, rotation, scaleX, scaleY)
     {
-        this.addAnimationWithDirections(name, frameX, frameY, frames, 1, time, loops);
+
+        // append the new area to the bottom of the spritesheet image for our new frames to go
+        this.image.expand(0, this.frameHeight);
+
+        // draw all the frames on it using scaling and rotation
+        var animationToClone = this.get(sourceAnimation);
+
+
+        // get a drawing context for the image
+//        var ctx = this.image.
     },
 
     /**
@@ -154,7 +195,9 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
     {
         if (!this.image.loaded || state == null || !state.active) return;
 
-        this._fixScale();
+        if (this.scaleX != 1 || this.scaleY != 1)
+            this.image.setScale(this.scaleX, this.scaleY);
+
         if (this.alpha < 1) ctx.globalAlpha = this.alpha;
 
         if (this.compositeOperation != null)
@@ -162,24 +205,28 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
 
         if (state.currentAnim == null)
         {
-
-            this.image.draw(ctx, this.sourceX, this.sourceY, Math.round(x), Math.round(y), this.frameWidth, this.frameHeight, dir);
-
+            this.image.draw(ctx, this.sourceX, this.sourceY,
+                Math.round(x), Math.round(y), this.frameWidth, this.frameHeight,
+                this.useRotation ? dir : 0);
         } else
         {
             var fx = 0;
             var fy = 0;
 
+            if (state.currentAnim.scaleX != 1 || state.currentAnim.scaleY != 1 || this.scaleX != 1 || this.scaleY != 1)
+                this.image.setScale(state.currentAnim.scaleX * this.scaleX, state.currentAnim.scaleY * this.scaleY);
+
             if (this.useRotation)
             {
                 // rotation/direction drawing is done using canvas rotation (slower)
-                this.dirTmp = dir;
-
-                fx = state.currentAnim.frames[state.currentFrame];
-                fy = state.currentAnim.frameY;
+                fx = state.currentAnim.frames[state.currentFrame][0];
+                fy = state.currentAnim.frames[state.currentFrame][1];
 
                 this.image.draw(ctx,
-                    this.sourceX + this.frameXPos[fx], this.sourceY + this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y), this.frameWidth, this.frameHeight, this.dirTmp);
+                    this.sourceX + this.frameXPos[fx],
+                    this.sourceY + this.frameYPos[fy],
+                    state.currentAnim.offsetX +pc.Math.round(x),
+                    state.currentAnim.offsetY +pc.Math.round(y), this.frameWidth, this.frameHeight, dir);
             }
             else
             {
@@ -189,37 +236,44 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
 
                 if (this.dirTmp > state.currentAnim.directions-1) this.dirTmp = 0; // accommodate the edge case causing by rounding back
 
-                if (!state.currentAnim.dirAcross)
+//                if (!state.currentAnim.dirAcross)
+//                {
+//                    fx = this.dirTmp + state.currentAnim.frameX;
+//                    fy = state.currentAnim.frames[state.currentFrame][0] + state.currentAnim.frameY;
+//                } else
                 {
-                    fx = this.dirTmp + state.currentAnim.frameX;
-                    fy = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameY;
-                } else
-                {
-                    fx = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameX + this.dirTmp;
-                    fy = state.currentAnim.frameY;
+                    fx = state.currentAnim.frames[state.currentFrame][1] + this.dirTmp;
+                    fy = state.currentAnim.frames[state.currentFrame][0];
                 }
 
                 if (state.currentAnim.directions == 1)
                 {
-                    fy = state.currentAnim.frameY;
-                    fx = state.currentAnim.frames[state.currentFrame] + state.currentAnim.frameX;
+                    fy = state.currentAnim.frames[state.currentFrame][1];
+                    fx = state.currentAnim.frames[state.currentFrame][0];
                 }
 
                 this.image.draw(ctx,
-                    this.sourceX + this.frameXPos[fx], this.sourceY + this.frameYPos[fy], pc.Math.round(x), pc.Math.round(y),
+                    this.sourceX + this.frameXPos[fx], this.sourceY + this.frameYPos[fy],
+                    state.currentAnim.offsetX +pc.Math.round(x),
+                    state.currentAnim.offsetY +pc.Math.round(y),
                     this.frameWidth, this.frameHeight);
+
+                if (state.currentAnim.scaleX != 1 || state.currentAnim.scaleY != 1 || this.scaleX != 1 || this.scaleY != 1)
+                    this.image.setScale(state.currentAnim.scaleX * this.scaleX, state.currentAnim.scaleY * this.scaleY);
             }
+
         }
 
         // restore scaling (as images can be used amongst spritesheets, we need to be nice)
-        this.image.setScale(1, 1);
+        if (this.image.scaleX != 1 || this.image.scaleY != 1)
+            this.image.setScale(1, 1);
 
         // set the alpha back to normal
-        if (this.alpha < 1) ctx.globalAlpha = 1;
+        if (this.alpha < 1)
+            ctx.globalAlpha = 1;
 
         if (this.compositeOperation != null)
             this.image.setCompositeOperation('source-over');
-
 
     },
 
@@ -228,14 +282,19 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         if (!this.image.loaded) return;
         if (this.alpha < 1) ctx.globalAlpha = this.alpha;
 
-        this._fixScale();
+        if (this.scaleX != 1 || this.scaleY != 1)
+            this.image.setScale(this.scaleX, this.scaleY);
+
         if (this.compositeOperation != null)
             this.image.setCompositeOperation(this.compositeOperation);
 
         this.image.draw(ctx,
-            this.sourceX + this.frameXPos[frameX], this.sourceY + this.frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
+            this.sourceX + this.frameXPos[frameX],
+            this.sourceY + this.frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
             this.frameWidth, this.frameHeight, angle);
 
+        if (this.image.scaleX != 1 || this.image.scaleY != 1)
+            this.image.setScale(1, 1);
         if (this.alpha < 1) ctx.globalAlpha = 1;
         if (this.compositeOperation != null)
             this.image.setCompositeOperation('source-over');
@@ -255,12 +314,6 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
                 this.drawFrame(ctx, fx, fy, x+(fx*this.frameWidth), y+(fy*this.frameHeight));
     },
 
-    _fixScale: function()
-    {
-        if (this.scaleX != 1 || this.scaleY != 1)
-            this.image.setScale(this.scaleX, this.scaleY);
-    },
-
     update: function(state, delta)
     {
         if (state.currentAnim == null || !state.active) return;
@@ -271,7 +324,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         if (state.acDelta > (state.currentAnim.frameRate + state.animSpeedOffset))
         {
             state.currentFrame++;
-            if (state.currentFrame >= state.currentAnim.frames.length-1)
+            if (state.currentFrame >= state.currentAnim.frames.length)
             {
                 state.loopCount++;
                 // checked if we have looped the animation enough times

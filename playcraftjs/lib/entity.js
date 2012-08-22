@@ -61,7 +61,7 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
         hasTag: function(tag)
         {
             for (var i=0; i < this.tags.length; i++)
-                if (this.tags[i] === tag) return true;
+                if (this.tags[i].toLowerCase() === tag.toLowerCase()) return true;
             return false;
         },
 

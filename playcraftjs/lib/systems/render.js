@@ -33,13 +33,30 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                     {
                         var ctx = pc.device.ctx;
 
-                        var sprite = entity.getComponent('sprite');
-                        if (sprite)
+                        var shifter = entity.getComponent('originshifter');
+                        if (shifter)
                         {
-                            sprite.sprite.update(pc.device.elapsed);
+                            // if it has a shifter on it, adjust the position of the entity based on a ratio to
+                            // the layer's origin
+
+                            // reverse any changes we've made so far
+                            var origX = spatial.pos.x - shifter._offsetX;
+                            var origY = spatial.pos.y - shifter._offsetY;
+
+                            shifter._offsetX = (this.layer.origin.x * shifter.ratio);
+                            shifter._offsetY = (this.layer.origin.y * shifter.ratio);
+
+                            spatial.pos.x = origX + shifter._offsetX;
+                            spatial.pos.y = origY + shifter._offsetY;
+                        }
+
+                        var spriteComponent = entity.getComponent('sprite');
+                        if (spriteComponent)
+                        {
+                            spriteComponent.sprite.update(pc.device.elapsed);
                             if (alpha)
-                                sprite.sprite.alpha = alpha.level;
-                            sprite.sprite.draw(ctx, drawX, drawY, spatial.dir);
+                                spriteComponent.sprite.alpha = alpha.level;
+                            spriteComponent.sprite.draw(ctx, drawX+ spriteComponent.offset.x, drawY+ spriteComponent.offset.y, spatial.dir);
                         }
 
                         var overlay = entity.getComponent('overlay');
@@ -59,12 +76,12 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                         var rect = next.obj.getComponent('rect');
                         if (rect)
                         {
+                            ctx.save();
                             ctx.lineWidth = rect.lineWidth;
                             ctx.fillStyle = rect.color.color;
                             if (alpha) ctx.globalAlpha = alpha.level;
                             if (rect.strokeColor && rect.lineWidth) ctx.strokeStyle = rect.strokeColor.color;
 
-                            ctx.save();
                             ctx.translate(drawX+(spatial.dim.x/2), drawY+(spatial.dim.y/2));
                             ctx.rotate( spatial.dir * (Math.PI/180));
 
@@ -91,15 +108,15 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                                     ctx.strokeRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
                             }
 
-                            ctx.restore();
-
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
+                            ctx.restore();
                             pc.device.elementsDrawn++;
                         }
 
                         var text = entity.getComponent('text');
                         if (text)
                         {
+                            ctx.save();
                             var yAdd=0;
                             if (alpha) ctx.globalAlpha = alpha.level;
                             ctx.font = text._fontCache;
@@ -122,14 +139,17 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                             }
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
                             pc.device.elementsDrawn++;
+                            ctx.restore();
                         }
 
                         // draw debug info if required
                         var debuginfo = next.obj.getComponent('debuginfo');
                         if (debuginfo)
                         {
-                            pc.device.ctx.strokeStyle='#5f5';
-                            pc.device.ctx.strokeRect(drawX, drawY, spatial.dim.x, spatial.dim.y);
+                            ctx.save();
+                            ctx.strokeStyle='#5f5';
+                            ctx.strokeRect(drawX, drawY, spatial.dim.x, spatial.dim.y);
+                            ctx.restore();
                         }
                     }
                 }

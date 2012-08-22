@@ -61,9 +61,9 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
 
             this.active = pc.checked(options.active, true);
             this.emitting = pc.checked(options.emitting, true);
-            this.scaleXMin = pc.checked(options.scaleXMin, 1);
+            this.scaleXMin = pc.checked(options.scaleXMin, 0);
             this.scaleXMax = pc.checked(options.scaleXMax, this.scaleXMin);
-            this.scaleYMin = pc.checked(options.scaleYMin, 1);
+            this.scaleYMin = pc.checked(options.scaleYMin, 0);
             this.scaleYMax = pc.checked(options.scaleYMax, this.scaleYMin);
             this.compositeOperation = pc.checked(options.compositeOperation, null);
             this.alphaMin = pc.checked(options.alphaMin, 1);
