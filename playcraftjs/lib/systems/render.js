@@ -23,6 +23,7 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                 {
                     var spatial = entity.getComponent('spatial');
                     var alpha = entity.getComponent('alpha');
+                    var clip = entity.getComponent('clip');
 
                     // accommodate scene viewport and layering offset positions
                     var drawX = spatial.pos.x - entity.layer.origin.x - entity.layer.scene.viewPort.x;
@@ -32,6 +33,27 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                     if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y,0, spatial.dir))
                     {
                         var ctx = pc.device.ctx;
+
+                        if (clip)
+                        {
+                            ctx.save();
+                            ctx.beginPath();
+                            if (clip.entity)
+                            {
+                                var sp = clip.entity.getComponent('spatial');
+                                ctx.rect(
+                                    sp.pos.x - entity.layer.origin.x + clip.x,
+                                    sp.pos.y - entity.layer.origin.y + clip.y, sp.dim.x+clip.w, sp.dim.y+clip.h);
+                            } else
+                            {
+                                // just plain rectangle clipping
+                                ctx.rect(
+                                    spatial.pos.x - entity.layer.origin.x + clip.x,
+                                    spatial.pos.y - entity.layer.origin.y + clip.y, clip.w, clip.h);
+                            }
+                            ctx.closePath();
+                            ctx.clip();
+                        }
 
                         var shifter = entity.getComponent('originshifter');
                         if (shifter)
@@ -151,6 +173,9 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                             ctx.strokeRect(drawX, drawY, spatial.dim.x, spatial.dim.y);
                             ctx.restore();
                         }
+
+                        if (clip)
+                            ctx.restore();
                     }
                 }
                 next = next.next();

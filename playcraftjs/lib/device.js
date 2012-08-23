@@ -168,6 +168,13 @@ pc.Device = pc.Base.extend('pc.Device',
 
         onReady:function ()
         {
+
+            if (this.isiPad)
+            {
+                this.showDebug = false;
+                this.soundEnabled = false;
+            }
+
             if (this.started) return; // check we haven't already started
             this.game = eval('new ' + this.gameClass + '()');
             if (!this.game)
@@ -189,7 +196,8 @@ pc.Device = pc.Base.extend('pc.Device',
             // this.ctx = this.canvas.getContext('webgl-2d');
 
             // init the debug panel
-            this.debugPanel.onReady();
+            if (this.showDebug)
+                this.debugPanel.onReady();
 
             // start the editor
             //if (this.editor)

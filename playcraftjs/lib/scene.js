@@ -121,6 +121,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.activeLayers.sort(
                 function(a, b)
                 {
+                    console.log('comparing ' + a.name + '(' + a.zIndex + ' to ' + b.name + '(' + b.zIndex + ')');
                     return a.zIndex > b.zIndex;
                 });
         },

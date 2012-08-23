@@ -135,6 +135,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('components/debuginfo.js');
     loader.add('components/spatial.js');
     loader.add('components/overlay.js');
+    loader.add('components/clip.js');
     loader.add('components/fade.js');
     loader.add('components/drawing.js');
     loader.add('components/sprite.js');

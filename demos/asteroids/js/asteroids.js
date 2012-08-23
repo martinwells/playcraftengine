@@ -294,7 +294,7 @@ GameScene = pc.Scene.extend('GameScene',
                         {
                             maxSpeed:{x:50, y:50},
                             linearDamping:0.1,
-                            mass:10,
+                            mass:20,
                             shapes:[
                                 {
                                     shape:pc.CollisionShape.CIRCLE
