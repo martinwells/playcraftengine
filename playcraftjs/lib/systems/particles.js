@@ -1,4 +1,4 @@
-pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
+pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
     { },
     {
         init:function ()
@@ -10,6 +10,8 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
 
         process:function (entity)
         {
+            if (!entity.active) return;
+
             var em = entity.getComponent('emitter');
             var sp = entity.getComponent('spatial');
             if (!sp)
@@ -129,12 +131,18 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
                     if (!p.sprite.currentAnim)
                     {
                         p.sprite.drawFrame(pc.device.ctx, p.frame % em.spriteSheet.framesWide,
-                            Math.floor(p.frame / em.spriteSheet.framesWide), p.x, p.y, em.rotateSprite ? p.rotation : p.dir);
+                            Math.floor(p.frame / em.spriteSheet.framesWide),
+                            p.x - entity.layer.origin.x - entity.layer.scene.viewPort.x,
+                            p.y - entity.layer.origin.y - entity.layer.scene.viewPort.y,
+                            em.rotateSprite ? p.rotation : p.dir);
                         pc.device.lastDrawMS += (Date.now() - this.drawStartTime);
                     }
                     else
                     {
-                        p.sprite.draw(pc.device.ctx, p.x, p.y, p.dir);
+                        p.sprite.draw(pc.device.ctx,
+                            p.x - entity.layer.origin.x - entity.layer.scene.viewPort.x,
+                            p.y - entity.layer.origin.y - entity.layer.scene.viewPort.y,
+                            p.dir);
                         pc.device.lastDrawMS += (Date.now() - this.drawStartTime);
                         p.sprite.update(pc.device.elapsed);
                     }
@@ -154,7 +162,7 @@ pc.systems.Particles = pc.EntitySystem.extend('pc.systems.Particles',
                 if (em.shots != 0)
                 {
                     if (em._particles.first == null && em._shotCount >= em.shots)
-                       entity.removeComponent(em);
+                       em.active = false;
                 }
 
             }

@@ -3,7 +3,7 @@
 /**
  * Manages the layout of entities
  */
-pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
+pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
     {},
     {
         margin: null,
@@ -64,16 +64,13 @@ pc.systems.Layout = pc.EntitySystem.extend('pc.systems.Layout',
             while (next)
             {
                 var entity = next.obj;
-                if (entity.active)
-                {
-                    var spatial = entity.getComponent('spatial');
-                    var layout = entity.getComponent('layout');
+                var spatial = entity.getComponent('spatial');
+                var layout = entity.getComponent('layout');
 
-                    // add entities to the layout sides; this just sorts them
-                    var al = this.getAnchorLocation(layout.horizontal, layout.vertical);
-                    layouts.add(al, next.obj);
-                    //console.log(' adding: ' + next.obj.toString() + ' to anchor group: ' + al);
-                }
+                // add entities to the layout sides; this just sorts them
+                var al = this.getAnchorLocation(layout.horizontal, layout.vertical);
+                layouts.add(al, next.obj);
+                //console.log(' adding: ' + next.obj.toString() + ' to anchor group: ' + al);
                 next = next.next();
             }
 

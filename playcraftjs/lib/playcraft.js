@@ -136,6 +136,8 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('components/spatial.js');
     loader.add('components/overlay.js');
     loader.add('components/clip.js');
+    loader.add('components/activator.js');
+    loader.add('components/input.js');
     loader.add('components/fade.js');
     loader.add('components/drawing.js');
     loader.add('components/sprite.js');
@@ -148,7 +150,9 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('systems/physics.js');
     loader.add('systems/effects.js');
     loader.add('systems/particles.js');
+    loader.add('systems/input.js');
     loader.add('systems/expiry.js');
+    loader.add('systems/activation.js');
     loader.add('systems/render.js');
     loader.add('systems/layout.js');
 

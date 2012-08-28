@@ -16,6 +16,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
         onErrorCallback:null,
         scaleX:1,
         scaleY:1,
+        alpha:1,
         compositeOperation: null,
         translateX: 0,
         translateY: 0,
@@ -44,6 +45,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
             this.image.onerror = this.onError.bind(this);
             this.scaleX = 1;
             this.scaleY = 1;
+            this.alpha = 1;
 
             if (pc.device.loader.started) // load now if the loader has already been started
                 this.load();
@@ -104,6 +106,9 @@ pc.Image = pc.Base.extend('pc.Image', {},
                 if (pc.valid(rotationAngle))
                 {
                     ctx.save();
+
+                    if (this.alpha != 1)
+                        ctx.globalAlpha = this.alpha;
                     if (this.scaleX < 0 || this.scaleY < 0)
                     {
                         var yf = this.scaleY == 1 ? 0 : this.scaleY;
@@ -122,6 +127,8 @@ pc.Image = pc.Base.extend('pc.Image', {},
                 {
                     ctx.save();
 
+                    if (this.alpha != 1)
+                        ctx.globalAlpha = this.alpha;
                     if (this.scaleX < 0 || this.scaleY < 0)
                     {
                         var yf2 = this.scaleY == 1 ? 0 : this.scaleY;

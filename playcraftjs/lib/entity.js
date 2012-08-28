@@ -7,6 +7,7 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
         create: function(layer)
         {
             var n = this._super();
+            pc.assert(layer, 'Entity requires a valid layer to be placed on');
             n.config(layer);
             return n;
         }

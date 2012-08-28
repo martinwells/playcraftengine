@@ -171,8 +171,12 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             var next = this.systems.first;
             while(next)
             {
-                // get a list of entities with the components that match this one
-                next.obj.processAll();
+                if (next.obj.delay == 0 || (pc.device.now - next.obj._lastRun > next.obj.delay))
+                {
+                    next.obj.processAll();
+                    if (next.obj.delay != 0)
+                        next.obj._lastRun = pc.device.now;
+                }
                 next = next.next();
             }
         },

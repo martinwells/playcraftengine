@@ -54,6 +54,12 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
                 this.config(options);
         },
 
+        reset: function()
+        {
+            this._shotCount = 0;
+            this._lastEmitTime = 0;
+        },
+
         config:function (options)
         {
             this._lastEmitTime = 0;

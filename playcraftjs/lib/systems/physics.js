@@ -15,7 +15,7 @@ pc.BodyType = {
     TILE: 1
 };
 
-pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
+pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
     {
         SCALE:0.1,
 
@@ -121,6 +121,8 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
 
         process:function (entity)
         {
+            if (!entity.active) return;
+
             var sp = entity.getComponent('spatial');
             var ph = entity.getComponent('physics');
             var at = entity.getComponent('joint');
@@ -195,8 +197,6 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
 
                             // the body is positioned relative to the center in physics,
                             // so we have to figure out the correct position of the center
-
-                            // top left = shape.offset.x - hw
                             points.push(Box2D.Common.Math.b2Vec2.Get(-(hw)+hx, -(hh)+hy));   // top left
                             points.push(Box2D.Common.Math.b2Vec2.Get(hw, -(hh)+hy));    // top right
                             points.push(Box2D.Common.Math.b2Vec2.Get(hw, hh));    // bottom right
@@ -207,9 +207,9 @@ pc.systems.Physics = pc.EntitySystem.extend('pc.systems.Physics',
                     }
 
                     // set the collision filters
-                    fixDef.filter.groupIndex = ph.collisionGroup;
-                    fixDef.filter.categoryBits = ph.collisionCategory;
-                    fixDef.filter.maskBits = ph.collisionMask;
+                    fixDef.filter.groupIndex = shape.collisionGroup;
+                    fixDef.filter.categoryBits = shape.collisionCategory;
+                    fixDef.filter.maskBits = shape.collisionMask;
                     fixDef.isSensor = shape.sensorOnly;
 
                     var f = ph._body.CreateFixture(fixDef);

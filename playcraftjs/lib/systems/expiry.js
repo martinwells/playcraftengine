@@ -1,6 +1,6 @@
 
 
-pc.systems.Expiration = pc.EntitySystem.extend('pc.systems.Expiration',
+pc.systems.Expiration = pc.systems.EntitySystem.extend('pc.systems.Expiration',
     {},
     {
         init: function()

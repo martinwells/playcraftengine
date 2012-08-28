@@ -7,13 +7,17 @@ pc.systems.System = pc.Base.extend('pc.System',
         layer: null,
         componentTypes: null,
         systemManager: null, // injected by system manager when a system is added
+        delay: 0, // optional delay for running this system, default is 0 (which means run every cycle)
+
+        _lastRun: 0,
 
         /**
          * Constructor for a system
          */
-        init: function(componentTypes)
+        init: function(componentTypes, delay)
         {
             this._super();
+            this.delay = pc.checked(delay, 0);
             if (!componentTypes instanceof Array)
                 throw "Invalid component types array";
             this.componentTypes = componentTypes;

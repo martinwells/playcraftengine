@@ -28,7 +28,13 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
         this._screenPos = pc.Point.create(0, 0);
         this.zIndex = pc.checked(zIndex, 0);
         this.originTrack = null;
-        this.originTrackRatio = 0;
+        this.originTrackXRatio = 0;
+        this.originTrackYRatio = 0;
+    },
+
+    toString: function()
+    {
+        return '' + this.name + ' (origin: ' + this.origin + ', zIndex: ' + this.zIndex + ')';
     },
 
     release:function ()
@@ -286,6 +292,49 @@ pc.EntityLayer = pc.Layer('pc.Layer', {},
 
     });
 
+
+pc.TileSet = pc.Base.extend('pc.TileSet',
+    {},
+    {
+        tileSpriteSheet: null,
+        props: null,
+
+        init: function(spriteSheet)
+        {
+            this.tileSpriteSheet = spriteSheet;
+            this.props = new Array(spriteSheet.totalFrames);
+            for (var i=0; i < this.props.length; i++)
+            {
+                this.props[i] = new pc.Hashmap();
+            }
+        },
+
+        drawTile: function(ctx, tileNumber, x, y)
+        {
+            this.tileSpriteSheet.drawFrame(
+                ctx,
+                tileNumber % this.tileSpriteSheet.framesWide,
+                pc.Math.floor(tileNumber / this.tileSpriteSheet.framesWide),
+                x, y);
+        },
+
+        addProperty: function(tileNumber, key, value)
+        {
+            this.props[tileNumber].put(key, value);
+        },
+
+        hasProperty: function(tileNumber, key)
+        {
+            return this.props[tileNumber].hasKey(key);
+        },
+
+        getProperties: function(tileNumber)
+        {
+            return this.props[tileNumber];
+        }
+
+    });
+
 /**
  * A map of tiles, typically used to generate physics, or render tiles on a TileLayer
  */
@@ -299,15 +348,33 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
         tilesHigh:0, // number of tiles high the map is
         tileWidth:0, // width of a tile
         tileHeight:0, // height of a tile
+        tileSet: null,
 
-        init:function (tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
+        init:function (tileSet, tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
         {
             this.tiles = tiles;
             this.tileWidth = pc.Math.round(tileWidth);
             this.tileHeight = pc.Math.round(tileHeight);
             this.tilesWide = pc.Math.round(tilesWide);
             this.tilesHigh = pc.Math.round(tilesHigh);
+            this.tileSet = tileSet;
         },
+
+        /**
+         * Checks against this tilemap's tileset to see if the tile at a given location has a property set
+         * @param tileX
+         * @param tileY
+         * @param property
+         */
+        tileHasProperty:function (tileX, tileY, property)
+        {
+            // get the number of the tile at tileX, tileY
+            var tileNumber = this.getTile(tileX, tileY);
+            if (tileNumber >= 0)
+                return this.tileSet.hasProperty(tileNumber, property);
+            return false;
+        },
+
 
         /**
          * Generate a new tile map, optionally populating with a given tile type
@@ -436,17 +503,16 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
     { },
     {
         tileMap:null,
-        tileSpriteSheet:null,   // the images to use for each tile
         debugShowGrid:false,    // true to show a nice grid helping with debugging
         prerenders: null,       // array of prerendered images of the tiles (improves rendering speed)
         usePrerendering: true,
         prerenderSize: 512,
 
-        init:function (name, tileSpriteSheet, usePrerendering, tileMap)
+        init:function (name, tileSet, usePrerendering, tileMap)
         {
             this._super(name);
-            this.tileMap = pc.checked(tileMap, new pc.TileMap());
-            this.tileSpriteSheet = tileSpriteSheet;
+            this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSet));
+
             this.usePrerendering = pc.checked(usePrerendering, true);
             if (this.tileMap && this.tileMap.tileWidth > 256)
                 this.usePrerendering = false;
@@ -455,13 +521,6 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
         setTileMap: function(tileMap)
         {
             this.tileMap = tileMap;
-            if (this.usePrerendering)
-                this.prerender();
-        },
-
-        setTileSpriteSheet:function (tileSpriteSheet)
-        {
-            this.tileSpriteSheet = tileSpriteSheet;
             if (this.usePrerendering)
                 this.prerender();
         },
@@ -508,12 +567,9 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                                 var tileType = this.tileMap.getTile(x + tx, y + ty);
                                 if (tileType >= 0)  // -1 means no tile
                                 {
-                                    var tty = pc.Math.floor(tileType / this.tileSpriteSheet.framesWide);
-                                    var ttx = tileType % this.tileSpriteSheet.framesWide;
-
-                                    this.tileSpriteSheet.drawFrame(
+                                    this.tileMap.tileSet.drawTile(
                                         ctx,
-                                        ttx, tty,
+                                        tileType,
                                         (x * this.tileMap.tileWidth) - nx,
                                         (y * this.tileMap.tileHeight) - ny);
                                 }
@@ -559,9 +615,8 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                     var tileType = this.tileMap.tiles[y][x];
                     if (tileType >= 0)  // -1 means no tile
                     {
-                        var tty = pc.Math.floor(tileType / this.tileSpriteSheet.framesWide);
-                        var ttx = tileType % this.tileSpriteSheet.framesWide;
-                        this.tileSpriteSheet.drawFrame(pc.device.ctx, ttx, tty,
+                        this.tileMap.tileSet.drawTile(
+                            pc.device.ctx, tileType,
                             (x * this.tileMap.tileWidth) - this.origin.x + this.scene.viewPort.x, ypos);
                     }
 

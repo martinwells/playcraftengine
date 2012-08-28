@@ -86,7 +86,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
 
         draw:function (ctx, x, y, dir)
         {
-            if (this.alpha < 1)
+            if (this.alpha != 1)
                 this.spriteSheet.alpha = this.alpha;
             if (this.compositeOperation != null)
                 this.spriteSheet.setCompositeOperation(this.compositeOperation);
@@ -95,7 +95,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
             this.spriteSheet.draw(ctx, this, x, y, dir);
             if (this.scaleX != 1 || this.scaleY != 1)
                 this.spriteSheet.setScale(1, 1);
-            if (this.alpha < 1)
+            if (this.alpha != 1)
                 this.spriteSheet.alpha = 1;
             if (this.compositeOperation != null)
                 this.spriteSheet.setCompositeOperation('source-over');
@@ -103,7 +103,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
 
         drawFrame: function(ctx, frameX, frameY, x, y, angle)
         {
-            if (this.alpha < 1)
+            if (this.alpha != 1)
                 this.spriteSheet.alpha = this.alpha;
             if (this.scaleX != 1 || this.scaleY != 1)
                 this.spriteSheet.setScale(this.scaleX, this.scaleY);
@@ -112,7 +112,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
             this.spriteSheet.drawFrame(ctx, frameX, frameY, x, y, angle);
             if (this.scaleX != 1 || this.scaleY != 1)
                 this.spriteSheet.setScale(1, 1);
-            if (this.alpha < 1)
+            if (this.alpha != 1)
                 this.spriteSheet.alpha = 1;
             if (this.compositeOperation != null)
                 this.spriteSheet.setCompositeOperation('source-over');
@@ -146,6 +146,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
             this.currentFrame = 0;
             this.loopCount = 0;
             this.active = true;
+            this.held = false;
             this.animSpeedOffset = pc.checked(speedOffset, 0);
             this.currentAnimName = name;
         },

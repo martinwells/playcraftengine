@@ -453,11 +453,13 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
         this.ctx.drawImage(this.graphCanvas, this.x + this.graphX, this.y + this.graphY);
 
         // draw the message over the top, if there is one
-        this.ctx.font = '13px sans-serif';
-        this.ctx.fillStyle = '#333';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(this.message, this.x + this.width/2, this.y + this.height/2 - 9);
-
+        if (this.message)
+        {
+            this.ctx.font = '13px sans-serif';
+            this.ctx.fillStyle = '#333';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(this.message, this.x + this.width/2, this.y + this.height/2 - 9);
+        }
         this.ctx.restore();
     }
 

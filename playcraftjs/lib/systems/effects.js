@@ -1,6 +1,6 @@
 
 
-pc.systems.Effects = pc.EntitySystem.extend('pc.systems.Effects',
+pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
     {
         FadeState:
         {
@@ -110,16 +110,15 @@ pc.systems.Effects = pc.EntitySystem.extend('pc.systems.Effects',
                     }
                     break;
                 case this.Class.FadeState.HOLDING:
-                    // do nothing whilst holding
                     if (timeSinceStart > fader.timeLimit)
                     {
                         fader.timeLimit = fader.fadeOutTime;
                         fader.startTime = pc.device.now;
                         fader.state = this.Class.FadeState.FADING_OUT;
                     }
+                    // do nothing whilst holding
                     break;
                 case this.Class.FadeState.FADING_OUT:
-                    // reverse the alpha fade
                     if (timeSinceStart > fader.timeLimit)
                     {
                         fader.loopsSoFar++;
@@ -140,7 +139,9 @@ pc.systems.Effects = pc.EntitySystem.extend('pc.systems.Effects',
                            return false;
                         }
                     } else
+                    {
                         alpha.subAlpha((pc.device.elapsed * (100 / fader.timeLimit)) / 100);
+                    }
 
                     break;
             }

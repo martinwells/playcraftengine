@@ -133,7 +133,7 @@ pc.Input = pc.Base('pc.Input',
             for (var i = 0; i < bindingSet.length; i++)
             {
                 var binding = bindingSet[i];
-                if (binding.object.isActive())
+                if (!binding.object.isActive || binding.object.isActive())
                 {
                     if (pc.InputType.isPositional(eventCode))
                     {
@@ -145,9 +145,9 @@ pc.Input = pc.Base('pc.Input',
                         if (pc.valid(binding.uiTarget))
                             er = binding.uiTarget.getScreenRect();
                         else
-                            er = binding.object.getScreenRect();
+                            er = binding.object.getScreenRect ? binding.object.getScreenRect() : null;
 
-                        if (er.containsPoint(pos))
+                        if (er && er.containsPoint(pos))
                         {
                             var state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
                             state.on = stateOn;
@@ -215,9 +215,9 @@ pc.Input = pc.Base('pc.Input',
                 if (pc.valid(next.uiTarget))
                     er = next.uiTarget.getScreenRect();
                 else
-                    er = next.object.getScreenRect();
+                    er = next.object.getScreenRect ? next.object.getScreenRect() : null;
 
-                if (!er.containsPoint(pos))
+                if (er && !er.containsPoint(pos))
                 {
                     // no longer in the right position, turn state off
                     var state = this.states.get(next.object.uniqueId + '\\\\' + next.stateName);
@@ -268,7 +268,8 @@ pc.Input = pc.Base('pc.Input',
          * <p>
          * For positional events (such as a mouse or touch input) the action will only fire if the position
          * of the event is within the bounds of the object (based on a call to getScreenRect). You can optionally
-         * provide a uiTarget object to provide a different bounding rectangle.
+         * provide a uiTarget object to provide a different bounding rectangle. If the object provides no getScreenRect
+         * method, then no bounding check will be carried out.
          * <p><code>
          * For example:
          * var menuLayer = new Layer();                     // a menu layer
@@ -277,10 +278,10 @@ pc.Input = pc.Base('pc.Input',
          * // trigger the 'new game' action for the menuLayer, when a mouse click occurs within the menuOption element
          * pc.device.input.bindAction(menuLayer, 'new game', 'MOUSE_LEFT_BUTTON', menuOption);
          * </code><p>
-         * Note: If the uiTarget element is not provided, the bounding rectangle of the obj is used
+         * Note: If the uiTarget element is not provided, the bounding rectangle of the obj is used (as long as
+         * the object provides a getScreenRect() method, otherwise there is no checking
          *
-         * @param obj The entity, layer or scene to bind this action to (must implement onAction, and getScreenRect
-         * (unless a uiTarget is provided)
+         * @param obj The entity, layer or scene to bind this action to (must implement onAction)
          * @param actionName The name of the action, e.g. 'FIRE' or 'JUMP'
          * @param input The input code as a string
          * @param uiTarget An optional element to limit the input to only within the bounds of the element (must
@@ -318,7 +319,7 @@ pc.Input = pc.Base('pc.Input',
             {
                 var binding = bindingSet[i];
                 var obj = bindingSet[i].object;
-                if (obj.isActive())
+                if (!obj.isActive || obj.isActive())
                 {
                     // if it's a positional event type (like a mouse down or move, then we only
                     // fire events to objects where the event is within its spatial bounds
@@ -329,13 +330,13 @@ pc.Input = pc.Base('pc.Input',
                         if (pc.valid(binding.uiTarget))
                             er = binding.uiTarget.getScreenRect();
                         else
-                            er = obj.getScreenRect();
+                            er = obj.getScreenRect ? obj.getScreenRect(): null;
 
                         // debug
 //                        alert('binding: ' + binding.actionName + ' uiTarget: ' + binding.uiTarget + ' pos: ' + pos +
 //                            ' er: ' + er);
 
-                        if (er.containsPoint(pos))
+                        if (er && er.containsPoint(pos))
                             obj.onAction(binding.actionName, event, pos, binding.uiTarget);
                     } else
                         obj.onAction(binding.actionName);

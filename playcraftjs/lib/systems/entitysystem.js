@@ -3,7 +3,7 @@
  * that contain the componentTypes specified in the constructor.
  */
 
-pc.EntitySystem = pc.systems.System.extend('pc.EntitySystem',
+pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
     {},
     {
         componentTypes: null,
@@ -15,9 +15,9 @@ pc.EntitySystem = pc.systems.System.extend('pc.EntitySystem',
          * @param componentTypes An array of component types this system is interested in. Any entity with
          * a component matching this type will be sent to this system for processing
          */
-        init: function(componentTypes)
+        init: function(componentTypes, delay)
         {
-            this._super(componentTypes);
+            this._super(componentTypes, delay);
             this.entities = new pc.LinkedList();
             this.suicides = new pc.LinkedList();
         },
@@ -74,18 +74,15 @@ pc.EntitySystem = pc.systems.System.extend('pc.EntitySystem',
             this.remove(entity);
         },
 
-        processAll: function(elapsed)
+        processAll: function()
         {
             var next = this.entities.first;
             while (next)
             {
-                if (next.obj.active)
-                    this.process(next.obj);
+                this.process(next.obj);
                 next = next.next();
             }
 
-            // clear suicides
-            // todo: is this needed?
             next = this.suicides.first;
             while (next)
             {

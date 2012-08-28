@@ -82,19 +82,19 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
         addTag: function(entity, tag)
         {
-            this.entitiesByTag.add(tag, entity);
-            entity.tags.push(tag);
+            this.entitiesByTag.add(tag.toLowerCase(), entity);
+            entity.tags.push(tag.toLowerCase());
         },
 
         removeTag: function(entity, tag)
         {
-            this.entitiesByTag.remove(tag, entity);
-            entity.tags.remove(tag);
+            this.entitiesByTag.remove(tag.toLowerCase(), entity);
+            entity.tags.remove(tag.toLowerCase());
         },
 
         getTagged: function(tag)
         {
-            return this.entitiesByTag.get(tag);
+            return this.entitiesByTag.get(tag.toLowerCase());
         },
 
         /**
@@ -119,15 +119,6 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
             // mark as inactive
             entity.active = false;
-        },
-
-        /**
-         * @param tag Entity tag, such as 'enemies', or 'powerups'
-         * @return {pc.LinkedList} List of all the entities that have this tag string
-         */
-        getEntitiesWithTag: function(tag)
-        {
-            return this.entitiesByTag.get(tag);
         },
 
         _doRemoveEntity: function(entity)
@@ -194,6 +185,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         //
         _addToComponentMap: function(entity, component)
         {
+            // Seeing a getType error here? Likely, you didn't call .create on your component? just maybe? hint hint
             if (this.componentsByEntityPlusType.get(entity.objectId + ':' + component.getType()))
             {
                 // multiple components of the same type are not supported due to performance reasons

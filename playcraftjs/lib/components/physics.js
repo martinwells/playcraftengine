@@ -41,6 +41,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          */
         collisionMask:0,
 
+        sensorOnly: false, // is a sensor only; no collisions -- default for all shapes
         /**
          * Whether the object can move in space (true gives it infinite mass)
          */
@@ -84,6 +85,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             else
                 this._fixtures = [];
 
+            this.collisionGroup = pc.checked(options.collisionGroup, 0);
+            this.collisionCategory = pc.checked(options.collisionCategory, 0);
+            this.collisionMask = pc.checked(options.collisionMask, 0);
+            this.sensorOnly = pc.checked(options.sensorOnly, false);
+
             // no shape supplied, create a default one
             if (!pc.valid(options.shapes) && !Array.isArray(options.shapes))
             {
@@ -106,7 +112,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
 
                 shape.type = pc.checked(shape.type, 0);
                 shape.shape = pc.checked(shape.shape, pc.CollisionShape.RECT);
-                shape.sensorOnly = pc.checked(shape.sensorOnly, false);
+                shape.sensorOnly = pc.checked(shape.sensorOnly, this.sensorOnly);
+                shape.collisionGroup = pc.checked(shape.collisionGroup, this.collisionGroup);
+                shape.collisionCategory = pc.checked(shape.collisionCategory, this.collisionCategory);
+                shape.collisionMask = pc.checked(shape.collisionMask, this.collisionMask);
             }
 
             this.shapes = options.shapes;
@@ -130,9 +139,6 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this.faceVel = pc.checked(options.faceVel, 0);
             this.shape = pc.checked(options.shape, pc.CollisionShape.RECT);
 
-            this.collisionGroup = pc.checked(options.collisionGroup, 0);
-            this.collisionCategory = pc.checked(options.collisionCategory, 0);
-            this.collisionMask = pc.checked(options.collisionMask, 0);
             this.immovable = pc.checked(options.immovable, false);
 
             this.density = pc.checked(options.density, 1);
@@ -276,6 +282,15 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             if (this._body)
                 this._body.SetAngularVelocity(a);
         },
+
+        /*
+        getCollisions: function()
+        {
+             // tbd - return a list of current colliding entities
+             var contactList = this._body.GetContactList();
+            return ;
+        },
+        */
 
         setCollisionCategory:function (c)
         {

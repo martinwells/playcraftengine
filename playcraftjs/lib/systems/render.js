@@ -3,7 +3,7 @@
 /**
  * Renders all entities that have drawable components
  */
-pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
+pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
     {},
     {
         init: function()
@@ -76,7 +76,7 @@ pc.systems.Render = pc.EntitySystem.extend('pc.systems.Render',
                         if (spriteComponent)
                         {
                             spriteComponent.sprite.update(pc.device.elapsed);
-                            if (alpha)
+                            if (alpha && alpha.level != 1 && alpha.level != 0)
                                 spriteComponent.sprite.alpha = alpha.level;
                             spriteComponent.sprite.draw(ctx, drawX+ spriteComponent.offset.x, drawY+ spriteComponent.offset.y, spatial.dir);
                         }

@@ -95,6 +95,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         options.directions = pc.checked(options.directions, 1);
         options.time = pc.checked(options.time, 1000);
         options.loops = pc.checked(options.loops, 0);
+        options.holdOnEnd = pc.checked(options.holdOnEnd, false);
         options.dirAcross = pc.checked(options.dirAcross, false);
         options.scaleX = pc.checked(options.scaleX, 1);
         options.scaleY = pc.checked(options.scaleY, 1);
@@ -128,24 +129,6 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
     },
 
     /**
-     * Takes an existing animation sequences, rotates each frame by the by the given angle, and then adds
-     * those frames to the bottom of the spritesheet image, and finally adds a new animation given the name
-     */
-    cloneAnimation: function(name, sourceAnimation, rotation, scaleX, scaleY)
-    {
-
-        // append the new area to the bottom of the spritesheet image for our new frames to go
-        this.image.expand(0, this.frameHeight);
-
-        // draw all the frames on it using scaling and rotation
-        var animationToClone = this.get(sourceAnimation);
-
-
-        // get a drawing context for the image
-//        var ctx = this.image.
-    },
-
-    /**
      * Change this sprites animation. Animation frames always start from 0 again.
      * @param name Key name of the animation to switch to.
      */
@@ -155,6 +138,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         if (state.currentAnim == null)
             this.warn('attempt to set unknown animation [' + name + ']');
         state.currentFrame = 0;
+        state.held = false;
         state.animSpeedOffset = pc.checked(speedOffset,0);
     },
 
@@ -198,7 +182,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
         if (this.scaleX != 1 || this.scaleY != 1)
             this.image.setScale(this.scaleX, this.scaleY);
 
-        if (this.alpha < 1) ctx.globalAlpha = this.alpha;
+        if (state.alpha != 1)
+            this.image.alpha = state.alpha;
 
         if (this.compositeOperation != null)
             this.image.setCompositeOperation(this.compositeOperation);
@@ -269,8 +254,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
             this.image.setScale(1, 1);
 
         // set the alpha back to normal
-        if (this.alpha < 1)
-            ctx.globalAlpha = 1;
+        if (state.alpha != 1)
+            this.image.alpha = 1;
 
         if (this.compositeOperation != null)
             this.image.setCompositeOperation('source-over');
@@ -316,7 +301,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
 
     update: function(state, delta)
     {
-        if (state.currentAnim == null || !state.active) return;
+        if (state.currentAnim == null || !state.active || state.held) return;
 
         // see if enough time has past to increment the frame count
         if (state.currentAnim.frames.length <= 1) return;
@@ -330,9 +315,17 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
                 // checked if we have looped the animation enough times
                 if (state.currentAnim.loops) // 0 means loop forever
                     if (state.loopCount >= state.currentAnim.loops)
-                        state.active = false;
+                    {
+                        if (state.currentAnim.holdOnEnd)
+                        {
+                            state.held = true;
+                            if (state.currentFrame) state.currentFrame--;
+                        }
+                        else
+                            state.active = false;
+                    }
 
-                state.currentFrame = 0; // take it from the top
+                if (!state.held) state.currentFrame = 0; // take it from the top
             }
             state.acDelta -= state.currentAnim.frameRate;
         } else

@@ -121,8 +121,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.activeLayers.sort(
                 function(a, b)
                 {
-                    console.log('comparing ' + a.name + '(' + a.zIndex + ' to ' + b.name + '(' + b.zIndex + ')');
-                    return a.zIndex > b.zIndex;
+                    return a.zIndex - b.zIndex;
                 });
         },
 
@@ -175,7 +174,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.activeLayers.add(layer);
             this.sortLayers();
             layer.active = true;
-
         },
 
         setLayerInactive:function (layer)
@@ -296,15 +294,39 @@ pc.Scene = pc.Base.extend('pc.Scene',
             //
             // TILESET
             //
-            var tileSet = xmlDoc.getElementsByTagName('tileset')[0];
-            var tsName = tileSet.getAttribute('name');
-            var tsImageWidth = tileSet.getAttribute('width');
-            var tsImageHeight = tileSet.getAttribute('height');
+            var tileSetXML = xmlDoc.getElementsByTagName('tileset')[0];
+            var tsName = tileSetXML.getAttribute('name');
+            var tsImageWidth = tileSetXML.getAttribute('width');
+            var tsImageHeight = tileSetXML.getAttribute('height');
             var tileSheet = pc.device.loader.get(tsName);
             pc.assert(tileSheet, 'Unable to locate tile image resource: ' + tsName + '. It must match the tileset name in tiled.');
 
             var tsImageResource = pc.device.loader.get(tsName).resource;
             var tsSpriteSheet = new pc.SpriteSheet({ image:tsImageResource, frameWidth:tileWidth, frameHeight:tileHeight });
+
+            // create a tileset object which marries (one or more spritesheet's) and contains tileproperty data
+            // pulled from tiled
+
+            var tileSet = new pc.TileSet(tsSpriteSheet);
+
+            // load all the tile properties
+            var tiles = xmlDoc.getElementsByTagName('tile');
+            for (var p = 0; p < tiles.length; p++)
+            {
+                var tile = tiles[p];
+                var tileId = parseInt(tile.getAttribute('id'))+1;
+
+                var pr = tile.getElementsByTagName('properties')[0];
+                var props = pr.getElementsByTagName('property');
+
+                for (var b = 0; b < props.length; b++)
+                {
+                    var prop = props[b];
+                    var name = prop.getAttribute('name');
+                    var value = prop.getAttribute('value');
+                    tileSet.addProperty(tileId, name, value);
+                }
+            }
 
             //
             // LAYERS
@@ -313,7 +335,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             for (var m = 0; m < layers.length; m++)
             {
                 // partial construction
-                var newLayer = new pc.TileLayer(null, tsSpriteSheet, true);
+                var newLayer = new pc.TileLayer(null, tileSet, true);
                 // fill in the rest using the data from the TMX file
                 newLayer.loadFromTMX(layers[m], tileWidth, tileHeight);
                 this.addLayer(newLayer);
