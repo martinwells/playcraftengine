@@ -8,16 +8,16 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         }
     },
     {
-        maxSpeed:null,
-        bounce:0.5,
-        faceVel:false,
-        density:0,
-        mass:-1,
-        friction:0,
-        linearDamping:0, // rate at which an object will slow down movement
+        maxSpeed:      null,
+        bounce:        0.5,
+        faceVel:       false,
+        density:       0,
+        mass:          -1,
+        friction:      0,
+        linearDamping: 0, // rate at which an object will slow down movement
         angularDamping:0, // rate at which ab object will slow down its rate of spin
-        fixedRotation:false, // allow the object to rotate
-        bullet:false, // tell the physics engine to expect this object to move fast (slows things down
+        fixedRotation: false, // allow the object to rotate
+        bullet:        false, // tell the physics engine to expect this object to move fast (slows things down
         // so only enable if collisions are not being handled well (enables CCD between dynamic
         // entities)
 
@@ -41,13 +41,18 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          */
         collisionMask:0,
 
-        sensorOnly: false, // is a sensor only; no collisions -- default for all shapes
+        sensorOnly:false, // is a sensor only; no collisions -- default for all shapes
         /**
          * Whether the object can move in space (true gives it infinite mass)
          */
-        immovable:false,
+        immovable: false,
 
         centerOfMass:null,
+
+        /**
+         * Custom gravity (x an y properties)
+         */
+        gravity:null,
 
         /**
          * Shapes - an array of shapes that make up this physics body
@@ -61,11 +66,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          */
         shapes:null,
 
-        _body:null, // set by the physics system, if this is attached to a physics body
+        _body:    null, // set by the physics system, if this is attached to a physics body
         _fixtures:null, // array of fixtures attached to the body
-        force:0, // force to apply
-        turn:0, // turn to apply (through angular velocity)
-        torque:0, // torque to apply
+        force:    0, // force to apply
+        turn:     0, // turn to apply (through angular velocity)
+        torque:   0, // torque to apply
 
         init:function (options)
         {
@@ -75,6 +80,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             if (pc.valid(options))
                 this.config(options);
             this._velReturn = pc.Dim.create(0, 0);
+            this.gravity = {};
         },
 
         config:function (options)
@@ -93,7 +99,9 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             // no shape supplied, create a default one
             if (!pc.valid(options.shapes) && !Array.isArray(options.shapes))
             {
-                options.shapes = [{}];
+                options.shapes = [
+                    {}
+                ];
                 options.shapes[0].shape = pc.CollisionShape.RECT;
             }
 
@@ -129,6 +137,16 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             {
                 this.maxSpeed.x = 0;
                 this.maxSpeed.y = 0;
+            }
+
+            if (options.gravity)
+            {
+                this.gravity.x = options.gravity.x;
+                this.gravity.y = options.gravity.y;
+            } else
+            {
+                this.gravity.x = undefined;
+                this.gravity.y = undefined;
             }
 
             this.mass = pc.checked(options.mass, -1);
@@ -172,6 +190,33 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this._body.SetAwake(true);
             } else
                 this._pendingDir = d;
+        },
+
+        /**
+         * Clears any custom gravity
+         */
+        clearGravity: function()
+        {
+            this.setGravity();
+        },
+
+        /**
+         * Changes gravity for this entity only: useful for swimming through water, climbing ladder or
+         * balloons.
+         * @param gravityX Gravity value (0 for no gravity)
+         * @param gravityY Gravity value (0 for no gravity)
+         */
+        setGravity:function (gravityX, gravityY)
+        {
+            this.gravity.x = gravityX;
+            this.gravity.y = gravityY;
+            if (this._body)
+            {
+                if (this.gravity.x != undefined || this._body._pc_gravityX != undefined)
+                    this._body._pc_gravityX = this.gravity.x;
+                if (this.gravity.y != undefined || this._body._pc_gravityY != undefined)
+                    this._body._pc_gravityY = this.gravity.y;
+            }
         },
 
         setDir:function (d)
@@ -260,16 +305,16 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this._body.SetLinearVelocity(Box2D.Common.Math.b2Vec2.Get(x * pc.systems.Physics.SCALE, y * pc.systems.Physics.SCALE));
         },
 
-        _velReturn: null,
+        _velReturn:null,
 
         getLinearVelocity:function ()
         {
             if (this._body)
             {
                 var v = this._body.GetLinearVelocity();
-                return this._velReturn.setXY(pc.systems.Physics.fromP(v.x), pc.systems.Physics.fromP(v.y));
+                this._velReturn.setXY(pc.systems.Physics.fromP(v.x), pc.systems.Physics.fromP(v.y));
             }
-            return pc.Dim.create(0, 0);
+            return this._velReturn;
         },
 
         getVelocityAngle:function ()
@@ -284,13 +329,13 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         },
 
         /*
-        getCollisions: function()
-        {
-             // tbd - return a list of current colliding entities
-             var contactList = this._body.GetContactList();
-            return ;
-        },
-        */
+         getCollisions: function()
+         {
+         // tbd - return a list of current colliding entities
+         var contactList = this._body.GetContactList();
+         return ;
+         },
+         */
 
         setCollisionCategory:function (c)
         {

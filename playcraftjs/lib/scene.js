@@ -335,7 +335,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             for (var m = 0; m < layers.length; m++)
             {
                 // partial construction
-                var newLayer = new pc.TileLayer(null, tileSet, true);
+                var newLayer = new pc.TileLayer(null, true, null, tileSet);
                 // fill in the rest using the data from the TMX file
                 newLayer.loadFromTMX(layers[m], tileWidth, tileHeight);
                 this.addLayer(newLayer);

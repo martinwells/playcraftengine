@@ -4,11 +4,11 @@
 
 CollisionType =
 {
-    NONE:0x0000, // BIT MAP
-    BULLETS:0x0001, // 0000001
-    ENEMY:0x0002, // 0000010
+    NONE:    0x0000, // BIT MAP
+    BULLETS: 0x0001, // 0000001
+    ENEMY:   0x0002, // 0000010
     FRIENDLY:0x0004, // 0000100
-    WALL:0x0008
+    WALL:    0x0008
 };
 
 Health = pc.components.Component('Health',
@@ -49,15 +49,15 @@ Health = pc.components.Component('Health',
 Brain = pc.components.Component('Brain',
     {
         State:{
-            NONE:0,
-            STANDING:1,
-            WALKING:2,
+            NONE:     0,
+            STANDING: 1,
+            WALKING:  2,
             ATTACKING:4,
-            DYING:5,
+            DYING:    5,
             RECOILING:6,
-            JUMPING:7,
-            BLOCKING:8,
-            CLIMBING:9
+            JUMPING:  7,
+            BLOCKING: 8,
+            CLIMBING: 9
         },
 
         create:function ()
@@ -96,16 +96,18 @@ Brain = pc.components.Component('Brain',
     },
     {
         stateChangeDelay:0,
-        stateStartTime:0,
-        facingRight:false,
-        tookHit:false,
-        collidedWith:null,
-        startingJump:false,
-        wantsToWalk:false,
-        state:0,
-        onGround:false,
-        attacked:false, // whether we've attacked this attacking cycle yet
-        blocking:false,
+        stateStartTime:  0,
+        facingRight:     false,
+        tookHit:         false,
+        collidedWith:    null,
+        startingJump:    false,
+        wantsToWalk:     false,
+        state:           0,
+        onGround:        false,
+        attacked:        false, // whether we've attacked this attacking cycle yet
+        blocking:        false,
+        wantsToClimbUp:  false,
+        wantsToClimbDown:false,
 
         init:function ()
         {
@@ -145,8 +147,19 @@ Brain = pc.components.Component('Brain',
 
             this.state = newState;
             if (this.state != Brain.State.NONE)
-                sprite.sprite.setAnimation(Brain.getStateName(this.state) + ' ' +
-                    (this.facingRight ? 'right' : 'left'), 0, false);
+            {
+                if (this.state == Brain.State.CLIMBING)
+                {
+                    // climbing has no left/right to it
+                    sprite.sprite.setAnimation(Brain.getStateName(this.state), 0, false);
+                }
+                else
+                {
+                    sprite.sprite.setAnimation(Brain.getStateName(this.state) + ' ' +
+                        (this.facingRight ? 'right' : 'left'), 0, false);
+                }
+            }
+
             return true;
         }
 
@@ -302,6 +315,12 @@ BrainSystem = pc.systems.EntitySystem.extend('BrainSystem',
                 if (brain.wantsToWalk && brain.state != Brain.State.BLOCKING)
                     physics.applyImpulse(entity.hasTag('zombie') ? 0.2 : 1, brain.facingRight ? 0 : 180);
 
+//                if (brain.wantsToClimbUp)
+//                    physics.applyImpulse(1.1, 270);
+//
+//                if (brain.wantsToClimbDown)
+//                    physics.applyImpulse(1.1, 90);
+
                 // if we are attacking, then change states once the animation is done
                 if (brain.state == Brain.State.ATTACKING)
                 {
@@ -316,17 +335,19 @@ BrainSystem = pc.systems.EntitySystem.extend('BrainSystem',
                         bullet.addTag('bullet');
 
                         brain.attacked = true;
-                        bullet.addComponent(pc.components.Spatial.create({x:sp.pos.x + (sp.dim.x / 2) - 15, y:sp.pos.y + 10, dir:brain.facingRight ? 0 : 180, w:10, h:10}));
+                        bullet.addComponent(pc.components.Spatial.create(
+                            {x:sp.pos.x + (sp.dim.x / 2) - 15, y:sp.pos.y + 10, dir:brain.facingRight ? 0 : 180, w:10, h:10}));
                         bullet.addComponent(pc.components.Physics.create(
                             {
-                                maxSpeed:{x:60, y:60},
-                                force:entity.hasTag('player') ? 350 : 280,
-                                isBullet:true,
-                                bounce:0,
-                                sensorOnly:true,
+                                maxSpeed:         {x:60, y:60},
+                                force:            entity.hasTag('player') ? 350 : 280,
+                                isBullet:         true,
+                                bounce:           0,
+                                sensorOnly:       true,
                                 collisionCategory:entity.hasTag('enemy') ? CollisionType.ENEMY : CollisionType.FRIENDLY,
-                                collisionMask:entity.hasTag('enemy') ? CollisionType.FRIENDLY : CollisionType.ENEMY
+                                collisionMask:    entity.hasTag('enemy') ? CollisionType.FRIENDLY : CollisionType.ENEMY
                             }));
+
                         // very short life, since we are simulating a sword hit
                         bullet.addComponent(pc.components.Expiry.create({lifetime:200}));
                     }
@@ -337,7 +358,7 @@ BrainSystem = pc.systems.EntitySystem.extend('BrainSystem',
                         brain.attacked = false;
                     }
 
-                } else if (brain.state != Brain.State.DYING && brain.state != Brain.State.BLOCKING)
+                } else if (brain.state != Brain.State.DYING && brain.state != Brain.State.BLOCKING && brain.state != Brain.State.CLIMBING)
                 {
                     var xVel = physics.getLinearVelocity().x;
                     var yVel = physics.getLinearVelocity().y;
@@ -384,81 +405,105 @@ PlayerControlSystem = pc.systems.Input.extend('PlayerControlSystem',
                 return; // no input if you're dead -- todo: add a way to disable input - set input component to inactive?
 
             brain.wantsToWalk = false;
+            brain.wantsToClimbUp = false;
+            brain.wantsToClimbDown = false;
 
-            if (this.isInputState(entity, 'attacking'))
+
+            if (brain.state != Brain.State.CLIMBING)
             {
-                var sprite = entity.getComponent('sprite');
-                brain.changeState(sprite, Brain.State.ATTACKING);
-            }
-
-            if (this.isInputState(entity, 'moving left') && brain.state != Brain.State.BLOCKING)
-            {
-                sprite = entity.getComponent('sprite');
-                brain.facingRight = false;
-                if (brain.state != Brain.State.JUMPING && brain.state != Brain.State.ATTACKING)
-                    brain.changeState(sprite, Brain.State.WALKING);
-
-                if (!brain.wantsToWalk)// && brain.state != Brain.State.JUMPING)
-                    brain.wantsToWalk = true;
-            }
-
-            if (this.isInputState(entity, 'moving right') && brain.state != Brain.State.BLOCKING)
-            {
-                sprite = entity.getComponent('sprite');
-                brain.facingRight = true;
-                if (brain.state != Brain.State.JUMPING && brain.state != Brain.State.ATTACKING)
-                    brain.changeState(sprite, Brain.State.WALKING, true);
-
-                if (!brain.wantsToWalk)// && brain.state != Brain.State.JUMPING)
-                    brain.wantsToWalk = true;
-            }
-
-            if (this.isInputState(entity, 'jumping'))
-            {
-                // are we in a climbable area?
-                // get the tile from the background layer
-                var spatial = entity.getComponent('spatial');
-                var overlayTiles = entity.layer.scene.overlayLayer;
-
-                var tileX = Math.round(spatial.getCenterPos().x / overlayTiles.tileMap.tileWidth);
-                var tileY = Math.round(spatial.getCenterPos().y / overlayTiles.tileMap.tileHeight);
-
-                if (overlayTiles.tileMap.tileHasProperty(tileX, tileY, 'climbable'))
+                if (this.isInputState(entity, 'attacking'))
                 {
-                    // climb!
-                    brain.changeState(Brain.State.CLIMBING);
-                    brain.wantsToClimbUp = true;
+                    var sprite = entity.getComponent('sprite');
+                    brain.changeState(sprite, Brain.State.ATTACKING);
+                }
 
-                } else
+                if (this.isInputState(entity, 'moving left') && brain.state != Brain.State.BLOCKING)
                 {
-                    brain = entity.getComponent('brain');
-                    if (brain.state != Brain.State.JUMPING && brain.onGround && !brain.startingJump)
-                        brain.startingJump = true;
+                    sprite = entity.getComponent('sprite');
+                    brain.facingRight = false;
+                    if (brain.state != Brain.State.JUMPING && brain.state != Brain.State.ATTACKING)
+                        brain.changeState(sprite, Brain.State.WALKING);
+
+                    if (!brain.wantsToWalk)// && brain.state != Brain.State.JUMPING)
+                        brain.wantsToWalk = true;
+                }
+
+                if (this.isInputState(entity, 'moving right') && brain.state != Brain.State.BLOCKING)
+                {
+                    sprite = entity.getComponent('sprite');
+                    brain.facingRight = true;
+                    if (brain.state != Brain.State.JUMPING && brain.state != Brain.State.ATTACKING)
+                        brain.changeState(sprite, Brain.State.WALKING, true);
+
+                    if (!brain.wantsToWalk)// && brain.state != Brain.State.JUMPING)
+                        brain.wantsToWalk = true;
+                }
+
+                if (this.isInputState(entity, 'jumping'))
+                {
+                    // are we in a climbable area?
+                    // get the tile from the background layer
+                    if (this.onClimbableTile(entity))
+                    {
+                        if (brain.state != Brain.State.CLIMBING)
+                        {
+                            // climb!
+                            brain.changeState(entity.getComponent('sprite'), Brain.State.CLIMBING);
+                            brain.wantsToClimbUp = true;
+                            entity.getComponent('physics').setGravity(0, 0);
+                            entity.getComponent('physics').applyImpulse(1.1, 270);
+                        }
+                    } else
+                    {
+                        brain = entity.getComponent('brain');
+                        if (brain.state != Brain.State.JUMPING && brain.onGround && !brain.startingJump)
+                            brain.startingJump = true;
+                    }
+                }
+
+                if (this.isInputState(entity, 'blocking'))
+                {
+                    if (this.onClimbableTile(entity))
+                    {
+                        if (brain.state != Brain.State.CLIMBING)
+                        {
+                            // climb!
+                            brain.changeState(entity.getComponent('sprite'), Brain.State.CLIMBING);
+                            entity.getComponent('physics').setGravity(0, 0);
+                            brain.wantsToClimbUp = true;
+                            entity.getComponent('physics').applyImpulse(1.1, 90);
+                        }
+
+                    } else
+                        brain.blocking = true;
+                    brain.wantsToWalk = false;
+
+                } else if (brain.blocking)
+                {
+                    brain.blocking = false;
+                    brain.changeState(entity.getComponent('sprite'), Brain.State.STANDING);
                 }
             }
 
-            if (this.isInputState(entity, 'blocking'))
+            // Climbing - if we are climbing, check that we are still on a climbable tile, if not, then
+            // drop back to walking
+            if (brain.state == Brain.State.CLIMBING)
             {
-                var tileX = Math.round(spatial.getCenterPos().x / overlayTiles.tileMap.tileWidth);
-                var tileY = Math.round(spatial.getCenterPos().y / overlayTiles.tileMap.tileHeight);
-
-                if (overlayTiles.tileMap.tileHasProperty(tileX, tileY, 'climbable'))
+                if (!this.onClimbableTile(entity))
                 {
-                    // climb!
-                    brain.changeState(Brain.State.CLIMBING);
-                    brain.wantsToClimbUp = true;
-
-                } else
-                    brain.blocking = true;
-                brain.wantsToWalk = false;
-
-            } else if (brain.blocking)
-            {
-                brain.blocking = false;
-                brain.changeState(entity.getComponent('sprite'), Brain.State.STANDING);
+                    entity.getComponent('physics').clearGravity();
+                    brain.changeState(entity.getComponent('sprite'), Brain.State.STANDING);
+                }
             }
 
+        },
 
+        onClimbableTile:function (entity)
+        {
+            var spatial = entity.getComponent('spatial');
+            var tileX = Math.round(spatial.getCenterPos().x / entity.layer.scene.overlayLayer.tileMap.tileWidth);
+            var tileY = Math.round(spatial.getCenterPos().y / entity.layer.scene.overlayLayer.tileMap.tileHeight);
+            return (entity.layer.scene.overlayLayer.tileMap.tileHasProperty(tileX, tileY, 'climbable'));
         }
     });
 
@@ -535,15 +580,15 @@ GameScene = pc.Scene.extend('GameScene',
     { },
     {
         backgroundLayer:null,
-        gameLayer:null,
-        bgLayer:null,
-        tileLayer:null,
-        overlayLayer:null,
-        level:1,
-        entityFactory:null,
-        player:null,
-        playerSpatial:null,
-        music:null,
+        gameLayer:      null,
+        bgLayer:        null,
+        tileLayer:      null,
+        overlayLayer:   null,
+        level:          1,
+        entityFactory:  null,
+        player:         null,
+        playerSpatial:  null,
+        music:          null,
 
         init:function ()
         {
@@ -587,12 +632,12 @@ GameScene = pc.Scene.extend('GameScene',
             // fire up the systems we need for the game layer
             this.gameLayer.addSystem(new GamePhysics(
                 {
-                    gravity:{ x:0, y:70 },
-                    debug:false,
+                    gravity:         { x:0, y:70 },
+                    debug:           false,
                     tileCollisionMap:{
-                        tileMap:this.tileLayer.tileMap,
+                        tileMap:          this.tileLayer.tileMap,
                         collisionCategory:CollisionType.WALL,
-                        collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY
+                        collisionMask:    CollisionType.FRIENDLY | CollisionType.ENEMY
                     }
                 }));
 
@@ -652,7 +697,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
             this.playerSheet.addAnimation({ name:'jumping left', frameCount:1, frameX:3, frameY:3, offsetX:25, offsetY:-11, scaleX:-1, time:300 });
 
             this.playerSheet.addAnimation({ name:'attacking right',
-                frames:[
+                frames:                          [
                     [0, 2],
                     [1, 2],
                     [2, 2],
@@ -667,9 +712,9 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     [0, 8],
                     [1, 8]
                 ],
-                offsetX:10, offsetY:-11, time:500, loops:1 });
+                offsetX:                         10, offsetY:-11, time:500, loops:1 });
             this.playerSheet.addAnimation({ name:'attacking left',
-                frames:[
+                frames:                          [
                     [0, 2],
                     [1, 2],
                     [2, 2],
@@ -684,7 +729,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     [0, 8],
                     [1, 8]
                 ],
-                frameY:2, scaleX:-1, offsetX:25, offsetY:-11, time:500, loops:1 });
+                frameY:                          2, scaleX:-1, offsetX:25, offsetY:-11, time:500, loops:1 });
             this.playerSheet.addAnimation({ name:'blocking right', frameCount:1, frameX:4, frameY:3, offsetX:10, offsetY:-11, time:500, loops:0 });
             this.playerSheet.addAnimation({ name:'blocking left', frameCount:1, frameX:4, frameY:3, offsetX:25, offsetY:-11, time:500, scaleX:-1, loops:0 });
 
@@ -693,17 +738,17 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                 [0, 0],
                 [0, 0],
                 [0, 0]
-            ], frameX:4, frameY:3, offsetX:10, offsetY:-11, time:500, loops:1 });
+            ], frameX:                           4, frameY:3, offsetX:10, offsetY:-11, time:500, loops:1 });
             this.playerSheet.addAnimation({ name:'recoiling left', frames:[
                 [0, 0],
                 [0, 0],
                 [0, 0],
                 [0, 0]
-            ], frameX:4, frameY:3, offsetX:25, offsetY:-11, time:500, scaleX:-1, loops:1 });
+            ], frameX:                           4, frameY:3, offsetX:25, offsetY:-11, time:500, scaleX:-1, loops:1 });
 
             this.playerSheet.addAnimation({ name:'dying right', frameCount:16, frameX:0, frameY:6, offsetX:10, offsetY:-11, holdOnEnd:true, time:3000, loops:1 });
             this.playerSheet.addAnimation({ name:'dying left', frameCount:16, frameX:0, frameY:6, offsetX:25, offsetY:-11, holdOnEnd:true, time:3000, scaleX:-1, loops:1 });
-            this.playerSheet.addAnimation({ name:'climbing', frameCount:4, frameX:5, frameY:3, offsetX:10, offsetY:-11, time:400 });
+            this.playerSheet.addAnimation({ name:'climbing', frameCount:4, frameX:5, frameY:3, offsetX:10, offsetY:-11, time:1000 });
 
             //
             // ZOMBIE
@@ -737,22 +782,22 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
 
                     e.addComponent(pc.components.Sprite.create(
                         {
-                            spriteSheet:this.playerSheet,
+                            spriteSheet:   this.playerSheet,
                             animationStart:'standing right'
                         }));
                     e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0,
-                        w:this.playerSheet.frameWidth, h:this.playerSheet.frameHeight}));
+                        w:                                         this.playerSheet.frameWidth, h:this.playerSheet.frameHeight}));
                     e.addComponent(Health.create(100));
                     e.addComponent(Brain.create());
 
                     e.addComponent(pc.components.Physics.create(
                         {
-                            maxSpeed:{x:24, y:150},
-                            friction:0.1,
+                            maxSpeed:     {x:24, y:150},
+                            friction:     0.1,
                             fixedRotation:true,
-                            bounce:0,
-                            mass:1.8,
-                            shapes:[
+                            bounce:       0,
+                            mass:         1.8,
+                            shapes:       [
                                 // upper torso/head
                                 { type:0, offset:{y:-20, w:-60}, shape:pc.CollisionShape.CIRCLE },
                                 // middle torso
@@ -764,7 +809,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                             ],
 
                             collisionCategory:CollisionType.FRIENDLY,
-                            collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY | CollisionType.WALL
+                            collisionMask:    CollisionType.FRIENDLY | CollisionType.ENEMY | CollisionType.WALL
                         }));
 
                     // input control
@@ -787,27 +832,27 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
 
                     e.addComponent(pc.components.Sprite.create(
                         {
-                            spriteSheet:this.zombieSheet,
-                            animationStart:'standing left',
+                            spriteSheet:        this.zombieSheet,
+                            animationStart:     'standing left',
                             animationStartDelay:pc.Math.rand(0, 300)
 
                         }));
                     e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0,
-                        w:this.zombieSheet.frameWidth, h:this.zombieSheet.frameHeight}));
+                        w:                                         this.zombieSheet.frameWidth, h:this.zombieSheet.frameHeight}));
                     e.addComponent(pc.components.Activator.create({ tag:'player', range:1000 }));
 
                     e.addComponent(pc.components.Physics.create(
                         {
-                            maxSpeed:{x:3, y:150},
-                            friction:0.1,
-                            fixedRotation:true,
-                            bounce:0,
-                            mass:1.8,
-                            shapes:[
+                            maxSpeed:         {x:3, y:150},
+                            friction:         0.1,
+                            fixedRotation:    true,
+                            bounce:           0,
+                            mass:             1.8,
+                            shapes:           [
                                 { shape:pc.CollisionShape.RECT, offset:{x:6, y:-10, w:-62, h:-30} }
                             ],
                             collisionCategory:CollisionType.ENEMY,
-                            collisionMask:CollisionType.FRIENDLY | CollisionType.WALL
+                            collisionMask:    CollisionType.FRIENDLY | CollisionType.WALL
                         }));
 
                     var bloodSheet = new pc.SpriteSheet(
@@ -815,19 +860,19 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
 
                     e.addComponent(pc.components.ParticleEmitter.create(
                         {
-                            active:false,
-                            spriteSheet:bloodSheet,
-                            burst:5,
-                            delay:20,
-                            shots:10,
-                            thrustMin:7, thrustTime:300,
-                            maxVelX:15, maxVelY:15,
-                            angleMin:-60, angleMax:60,
-                            lifeMin:400,
-                            alphaMin:0, alphaMax:1, alphaDelay:50,
-                            gravityY:0.07,
-                            offsetX:40,
-                            offsetY:20,
+                            active:      false,
+                            spriteSheet: bloodSheet,
+                            burst:       5,
+                            delay:       20,
+                            shots:       10,
+                            thrustMin:   7, thrustTime:300,
+                            maxVelX:     15, maxVelY:15,
+                            angleMin:    -60, angleMax:60,
+                            lifeMin:     400,
+                            alphaMin:    0, alphaMax:1, alphaDelay:50,
+                            gravityY:    0.07,
+                            offsetX:     40,
+                            offsetY:     20,
                             rotateSprite:true
                         }));
 
@@ -843,13 +888,13 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     var backdropSheet = new pc.SpriteSheet({ image:pc.device.loader.get('cavern-backdrop').resource });
                     backdrop.addComponent(pc.components.Sprite.create({ spriteSheet:backdropSheet }));
                     backdrop.addComponent(pc.components.Spatial.create({ dir:0, x:x - 200, y:y - 100,
-                        w:backdropSheet.frameWidth, h:backdropSheet.frameHeight }));
+                        w:                                                   backdropSheet.frameWidth, h:backdropSheet.frameHeight }));
                     backdrop.addComponent(pc.components.OriginShifter.create({ ratio:0.2 }));
 
                     var backdrop2 = pc.Entity.create(layer);
                     backdrop2.addComponent(pc.components.Sprite.create({ spriteSheet:backdropSheet }));
                     backdrop2.addComponent(pc.components.Spatial.create({ dir:0, x:x + (backdropSheet.frameWidth - 201), y:y - 100,
-                        w:backdropSheet.frameWidth, h:backdropSheet.frameHeight }));
+                        w:                                                    backdropSheet.frameWidth, h:backdropSheet.frameHeight }));
                     backdrop2.addComponent(pc.components.OriginShifter.create({ ratio:0.2 }));
 
                     // window
@@ -857,7 +902,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     var backdropWindowSheet = new pc.SpriteSheet({ image:pc.device.loader.get('cavern-window').resource });
                     e.addComponent(pc.components.Sprite.create({ spriteSheet:backdropWindowSheet }));
                     e.addComponent(pc.components.Spatial.create({ dir:0, x:x, y:y,
-                        w:backdropWindowSheet.frameWidth, h:backdropWindowSheet.frameHeight }));
+                        w:                                            backdropWindowSheet.frameWidth, h:backdropWindowSheet.frameHeight }));
                     e.addComponent(pc.components.OriginShifter.create({ ratio:0.1 }));
 
                     // make the backdrop clip to within the boundary of the window
@@ -873,7 +918,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     var lightraysSheet = new pc.SpriteSheet({ image:pc.device.loader.get('lightrays').resource });
                     e.addComponent(pc.components.Sprite.create({ spriteSheet:lightraysSheet }));
                     e.addComponent(pc.components.Spatial.create({ dir:0, x:x, y:y,
-                        w:lightraysSheet.frameWidth, h:lightraysSheet.frameHeight }));
+                        w:                                            lightraysSheet.frameWidth, h:lightraysSheet.frameHeight }));
             }
         }
     });

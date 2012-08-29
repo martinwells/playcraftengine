@@ -25,6 +25,7 @@ pc.Device = pc.Base.extend('pc.Device',
         // debug related
         debugPanel:null,
         showDebug:true,
+        devMode: true,
         debugCollisions:false,
         enablePooling:true,
         soundEnabled:true,

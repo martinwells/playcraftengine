@@ -5,8 +5,6 @@
 
 pc.Game = pc.Base.extend('pc.Game', {},
 {
-    systemManager: null,
-    entityManager: null,
     scenes: null,
     activeScenes: null,
     paused: false,
@@ -15,11 +13,15 @@ pc.Game = pc.Base.extend('pc.Game', {},
     {
         this._super();
 
-        this.systemManager = new pc.SystemManager(this);
-        this.entityManager = new pc.EntityManager(this, this.systemManager);
-
         this.scenes = new pc.LinkedList();
         this.activeScenes = new pc.LinkedList();
+
+        if (pc.device.devMode)
+        {
+            // bind some special keys for general debugging use
+            pc.device.input.bindAction(this, 'physics debug', 'F');
+            pc.device.input.bindAction(this, 'pool dump', 'G');
+        }
     },
 
     process: function()
@@ -33,6 +35,43 @@ pc.Game = pc.Base.extend('pc.Game', {},
         }
 
         return true; // return false to quit the update loop
+    },
+
+    onAction:function (actionName)
+    {
+        if (actionName === 'pool dump')
+        {
+            console.log(pc.Pool.getStats());
+            gamecore.Pool.getPool(pc.Point).startTracing();
+        }
+
+        if (actionName === 'physics debug')
+        {
+            // find all physics systems, and toggle debug
+            var sceneNode = this.getFirstScene();
+            while (sceneNode)
+            {
+                var layerNode = sceneNode.object().getFirstActiveLayer();
+                while (layerNode)
+                {
+                    var layer = layerNode.object();
+                    if (layer.Class.isA('pc.EntityLayer'))
+                    {
+                        var systemNode = layer.systemManager.systems.first;
+                        while (systemNode)
+                        {
+                            var system = systemNode.object();
+                            if (system.Class.isA('pc.systems.Physics'))
+                                system.setDebug(!system.debug);
+                            systemNode = systemNode.next();
+                        }
+                    }
+                    layerNode = layerNode.next();
+                }
+                sceneNode = sceneNode.next();
+            }
+
+        }
     },
 
     //

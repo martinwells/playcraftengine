@@ -153,11 +153,13 @@ GameScene = pc.Scene.extend('GameScene',
             // stars layer
             //-----------------------------------------------------------------------------
             this.starSheet = new pc.SpriteSheet({  image:pc.device.loader.get('stars').resource, frameWidth:512, frameHeight:512 });
-            var tileMap = new pc.TileMap(2 + (pc.device.canvasWidth / this.starSheet.frameWidth), 2 + (pc.device.canvasHeight / this.starSheet.frameHeight),
+            var tileMap = new pc.TileMap(new pc.TileSet(this.starSheet),
+                2 + (pc.device.canvasWidth / this.starSheet.frameWidth),
+                2 + (pc.device.canvasHeight / this.starSheet.frameHeight),
                 this.starSheet.frameHeight, this.starSheet.frameHeight);
             tileMap.generate(0);
             tileMap.setTile(1, 0, 1);
-            this.starsLayer = this.addLayer(new pc.TileLayer('star layer', this.starSheet, false, tileMap));
+            this.starsLayer = this.addLayer(new pc.TileLayer('star layer', false, tileMap));
 
             //-----------------------------------------------------------------------------
             // game layer

@@ -146,6 +146,15 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 ph._body.SetUserData(entity);
                 ph._body._pc_bodyType = pc.BodyType.ENTITY;
 
+                // custom gravity for the body (optional)
+                if (ph.gravity)
+                {
+                    if (ph.gravity.x)
+                        ph._body._pc_gravityX = ph.gravity.x;
+                    if (ph.gravity.y)
+                        ph._body._pc_gravityY = ph.gravity.y;
+                }
+
                 //
                 // Fixtures
                 //
@@ -335,6 +344,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             }
 
             var p = ph._body.GetPosition();
+
             sp.pos.x = this.Class.fromP(p.x) - (sp.dim.x / 2);
             sp.pos.y = this.Class.fromP(p.y) - (sp.dim.y / 2);
             sp.dir = pc.Math.radToDeg(ph._body.GetAngle());
@@ -474,9 +484,6 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                         // set the starting x position for the next rectangle
                         x = ((tx+1) * tileMap.tileWidth);
                     }
-
-
-
                 }
             }
         },

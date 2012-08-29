@@ -113,8 +113,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
      * Sets tracking for this origin to always follow the origin of another layer. The ratio can be used
      * to parallax the layer.
      * @param trackLayer Layer to track
-     * @param xRatio Ratio to track horizontally (i.e. trackLayer.origin.x * xRatio)
-     * @param yRatio Ratio to track vertically (i.e. trackLayer.origin.y * yRatio)
+     * @param [xRatio] Ratio to track horizontally (i.e. trackLayer.origin.x * xRatio)
+     * @param [yRatio] Ratio to track vertically (i.e. trackLayer.origin.y * yRatio)
      */
     setOriginTrack:function (trackLayer, xRatio, yRatio)
     {
@@ -190,7 +190,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {}, {
 /**
  * @class pc.EntityLayer - a controllable layer that contains entities
  */
-pc.EntityLayer = pc.Layer('pc.Layer', {},
+pc.EntityLayer = pc.Layer('pc.EntityLayer',
+    {},
     {
         entityManager:null,
         systemManager:null,
@@ -508,7 +509,7 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
         usePrerendering: true,
         prerenderSize: 512,
 
-        init:function (name, tileSet, usePrerendering, tileMap)
+        init:function (name, usePrerendering, tileMap, tileSet)
         {
             this._super(name);
             this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSet));

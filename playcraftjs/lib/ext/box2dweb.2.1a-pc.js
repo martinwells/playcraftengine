@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
+/*
+ * Original Box2D created by Erin Catto
+ * http://www.gphysics.com
+ * http://box2d.org/
+ *
+ * Box2D was converted to Flash by Boris the Brave, Matt Bush, and John Nesky as Box2DFlash
+ * http://www.box2dflash.org/
+ *
+ * Box2DFlash was converted from Flash to Javascript by Uli Hecht as box2Dweb
+ * http://code.google.com/p/box2dweb/
+ *
+ * box2Dweb was modified to utilize Google Closure, as well as other bug fixes, optimizations, and tweaks by Illandril
+ * https://github.com/illandril/box2dweb-closure
+ *
+ * Playcraft additions:
+ * - various bug fixes
+ * - debug positioning supports the notion of an origin
+ *
+ */
+
 goog = {inherits:function (a, b)
 {
     function c()
@@ -5776,13 +5813,21 @@ Box2D.Dynamics.b2Island.prototype.Solve = function (a, b, c)
     this.Report(this.m_contactSolver.m_constraints);
     c && this._SleepIfTired(a)
 };
-Box2D.Dynamics.b2Island.prototype._InitializeVelocities = function (a, b)
+Box2D.Dynamics.b2Island.prototype._InitializeVelocities = function (a, gravity)
 {
+    // playcraft/pc -- modified to allow for each body to have it's own overriding gravity
     for (var c = 0; c < this.m_dynamicBodies.length; c++)
     {
         var d = this.m_dynamicBodies[c];
-        d.m_linearVelocity.x += a.dt * (b.x + d.m_invMass * d.m_force.x);
-        d.m_linearVelocity.y += a.dt * (b.y + d.m_invMass * d.m_force.y);
+        var gx = gravity.x;
+        var gy = gravity.y;
+        if (d._pc_gravityX != undefined)
+            gx = d._pc_gravityX;
+        if (d._pc_gravityY != undefined)
+            gy = d._pc_gravityY;
+
+        d.m_linearVelocity.x += a.dt * (gx + d.m_invMass * d.m_force.x);
+        d.m_linearVelocity.y += a.dt * (gy + d.m_invMass * d.m_force.y);
         d.m_angularVelocity += a.dt * d.m_invI * d.m_torque;
         d.m_linearVelocity.Multiply(Box2D.Common.Math.b2Math.Clamp(1 - a.dt * d.m_linearDamping, 0, 1));
         d.m_angularVelocity *= Box2D.Common.Math.b2Math.Clamp(1 - a.dt * d.m_angularDamping, 0, 1)
@@ -7883,6 +7928,7 @@ Box2D.Dynamics.b2World.prototype.Solve = function (a)
                     }
                 }
             }
+
             b.Solve(a, this.m_gravity, this.m_allowSleep)
         }
     }
