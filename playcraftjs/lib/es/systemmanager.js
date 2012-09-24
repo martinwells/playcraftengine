@@ -19,6 +19,10 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
 
             this.systems.add(system);
 
+            if (!pc.valid(system.componentTypes))
+                throw 'Invalid component types: it can be empty, but not undefined. Did you forget to ' +
+                    'add an init method to your system and/or not call this._super(componentTypes)';
+
             for (var i=0; i < system.componentTypes.length; i++)
             {
                 var ctype = system.componentTypes[i].toLowerCase();

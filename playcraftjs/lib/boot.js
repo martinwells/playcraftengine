@@ -1,11 +1,66 @@
 
 // first playcraft script loaded -- used to init anything before the rest of the engine is loaded
 pc.Hashtable = gamecore.Hashtable;
-pc.Base = gamecore.Base('pc.Base', {}, {});
-pc.Pool = gamecore.Pool.extend('pc.Pool', {}, {});
-pc.Pooled = gamecore.Pooled.extend('pc.Pooled', {}, {});
-pc.LinkedList = gamecore.LinkedList.extend('pc.LinkedList', {}, {});
-pc.HashList = gamecore.HashList.extend('pc.HashList', {}, {});
+
+/**
+ * @class pc.Base
+ * @augments gamecore.Base
+ */
+pc.Base = gamecore.Base('pc.Base',
+    /** @lends gamecore.Base */
+    {},
+    /** @lends gamecore.Base.prototype */
+    {});
+
+/**
+ * @class pc.Pool
+ * @augments gamecore.Pool
+ */
+pc.Pool = gamecore.Pool.extend('pc.Pool',
+    /** @lends gamecore.Pool */
+    {},
+    /** @lends gamecore.Pool.prototype */
+    {});
+
+/**
+ * @class pc.Pooled
+ * @augments gamecore.Pooled
+ */
+pc.Pooled = gamecore.Pooled.extend('pc.Pooled',
+    /** @lends pc.Pooled */
+    {},
+    /** @lends pc.Pooled.prototype */
+    {});
+
+/**
+ * @class pc.LinkedList
+ * @augments gamecore.LinkedList
+ */
+pc.LinkedList = gamecore.LinkedList.extend('pc.LinkedList',
+    /** @lends pc.LinkedList */
+    {},
+    /** @lends gamecore.LinkedList.prototype */
+    {});
+
+/**
+ * @class pc.LinkedListNode
+ * @augments gamecore.LinkedListNode
+ */
+pc.LinkedListNode = gamecore.LinkedListNode.extend('pc.LinkedListNode',
+    /** @lends gamecore.LinkedListNode */
+    {},
+    /** @lends gamecore.LinkedListNode.prototype */
+    {});
+
+/**
+ * @class pc.HashList
+ * @augments gamecore.HashList
+ */
+pc.HashList = gamecore.HashList.extend('pc.HashList',
+    /** @lends gamecore.HashList */
+    {},
+    /** @lends gamecore.HashList.prototype */
+    {});
 
 if (!Function.prototype.bind)
 {

@@ -8,6 +8,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
     {
         smokeSheet:null,
         explosionSound:null,
+        encouragements: null,
 
         init:function (options)
         {
@@ -22,6 +23,10 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                 this.explosionSound = pc.device.loader.get('explosion').resource;
                 this.explosionSound.setVolume(0.8);
             }
+
+            this.encouragements =
+                ['Nice job!', 'Wow', "I wouldn't want to be an asteroid right now", 'Kapingo!',
+                'Boom! Roidshot!', "SMASH!", 'Another one bites the moondust', 'YUM!', 'Do you ever miss?'];
         },
 
         onCollision:function (objAType, objBType, entityA, entityB, force)
@@ -71,6 +76,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                 }
 
                 entityA.layer.scene.leftCounter.getComponent('text').text[0] = 'Asteroids Left: ' + entityA.layer.scene.asteroidsLeft;
+                entityA.layer.scene.displayText(this.encouragements[pc.Math.rand(0, this.encouragements.length-1)]);
             }
         },
 
@@ -125,8 +131,8 @@ GameScene = pc.Scene.extend('GameScene',
                 this.fireSound = pc.device.loader.get('fire').resource;
                 this.fireSound.setVolume(0.2);
                 this.music = pc.device.loader.get('music1').resource;
-                this.music.setVolume(0.5);
-                this.music.play(true);
+                this.music.setVolume(0.2);
+//                this.music.play(true);
                 this.musicPlaying = true;
             }
 
@@ -208,6 +214,16 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindState(this, 'firing', 'SPACE');
             pc.device.input.bindAction(this, 'toggle debug', 'F');
             pc.device.input.bindAction(this, 'toggle music', 'M');
+        },
+
+        displayText:function (s)
+        {
+            var e = pc.Entity.create(this.gameLayer);
+            e.addComponent(pc.components.Fade.create({ fadeInTime:1000, holdTime:1000, fadeOutTime:1500 }));
+            e.addComponent(pc.components.Text.create({ color:'#e65cba', text:[s], fontHeight:20 }));
+            e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
+            e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:20 }));
+            e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{left:30 }}));
         },
 
         createEntity:function (type, layer, x, y, dir, attachTo)
@@ -358,14 +374,16 @@ GameScene = pc.Scene.extend('GameScene',
                     e = pc.Entity.create(layer);
                     e.addComponent(pc.components.Rect.create({ color:'#222222', lineColor:'#888888', lineWidth:3 }));
                     e.addComponent(pc.components.Fade.create({ startDelay:1000, fadeInTime:3500, holdTime:3000, fadeOutTime:1500 }));
-                    e.addComponent(pc.components.Text.create({ text:['Arrow keys=move', 'Space=fire', 'F=toggle debug', 'M=toggle music'], lineWidth:0,
+                    e.addComponent(pc.components.Text.create({ text:['Arrow keys=move', 'Space=fire', 'F9=toggle debug', 'F11=toggle music'], lineWidth:0,
                         fontHeight:14, offset:{x:25, y:-65} }));
                     e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
                     e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:85 }));
-                    e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{ left:80 } }));
+                    e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'right', margin:{ right:80 } }));
 
                     return e;
             }
+
+            return null;
         },
 
         createWall:function (layer, x, y, w, h)
@@ -507,7 +525,6 @@ TheGame = pc.Game.extend('TheGame',
             this._super();
 
             // load resources
-            pc.device.loader.setBaseUrl('/demos/asteroids/');
             pc.device.loader.setDisableCache();
             pc.device.loader.add(new pc.Image('player-ship', 'images/ship1.png'));
             pc.device.loader.add(new pc.Image('stars', 'images/stars.png'));

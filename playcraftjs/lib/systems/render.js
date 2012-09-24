@@ -26,8 +26,8 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                     var clip = entity.getComponent('clip');
 
                     // accommodate scene viewport and layering offset positions
-                    var drawX = spatial.pos.x - entity.layer.origin.x - entity.layer.scene.viewPort.x;
-                    var drawY = spatial.pos.y - entity.layer.origin.y - entity.layer.scene.viewPort.y;
+                    var drawX = entity.layer.screenX(spatial.pos.x);
+                    var drawY = entity.layer.screenY(spatial.pos.y);
 
                     // is it onscreen?
                     if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y,0, spatial.dir))
@@ -42,14 +42,14 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             {
                                 var sp = clip.entity.getComponent('spatial');
                                 ctx.rect(
-                                    sp.pos.x - entity.layer.origin.x + clip.x,
-                                    sp.pos.y - entity.layer.origin.y + clip.y, sp.dim.x+clip.w, sp.dim.y+clip.h);
+                                    entity.layer.screenX(sp.pos.x) + clip.x, entity.layer.screenY(sp.pos.y) + clip.y,
+                                    sp.dim.x+clip.w, sp.dim.y+clip.h);
                             } else
                             {
                                 // just plain rectangle clipping
                                 ctx.rect(
-                                    spatial.pos.x - entity.layer.origin.x + clip.x,
-                                    spatial.pos.y - entity.layer.origin.y + clip.y, clip.w, clip.h);
+                                    entity.layer.screenX(spatial.pos.x) + clip.x,
+                                    entity.layer.screenY(spatial.pos.y) + clip.y, clip.w, clip.h);
                             }
                             ctx.closePath();
                             ctx.clip();

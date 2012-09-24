@@ -118,6 +118,7 @@ GameScene = pc.Scene.extend('GameScene',
 
         backgroundLayer:null,
         gameLayer:null,
+        foregroundLayer: null,
 
         cannonBaseSheet: null,
         cannonBarrelSheet: null,
@@ -260,6 +261,9 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindState(this, 'aim downwards', 'S');
             pc.device.input.bindState(this, 'aim downwards', 'DOWN');
             pc.device.input.bindAction(this, 'make crate', 'C');
+            pc.device.input.bindAction(this, 'toggle layer 1', '1');
+            pc.device.input.bindAction(this, 'toggle layer 2', '2');
+            pc.device.input.bindAction(this, 'toggle layer 3', '3');
             pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
             pc.device.input.bindState(this, 'firing', 'TOUCH');
             pc.device.input.bindState(this, 'firing', 'SPACE');
@@ -270,7 +274,7 @@ GameScene = pc.Scene.extend('GameScene',
         {
             // bottom row of our pyramid stack
             var placeY = this.floorY - 60;
-            var placeX = pc.device.canvasWidth - (48*8);
+            var placeX = pc.device.canvasWidth - 180 - (48*8);
             for (var i=0; i < 5; i++)
                 this.createCrate(placeX+(i*48),
                     placeY - this.crate1Sheet.frameHeight-2);
@@ -356,7 +360,7 @@ GameScene = pc.Scene.extend('GameScene',
             e.addComponent(pc.components.Physics.create(
                 {
                     maxSpeed:{x:80, y:80},
-                    force:120,
+                    force:140,
                     bounce:0.1,
                     collisionCategory:CollisionType.FRIENDLY,
                     collisionMask:CollisionType.FRIENDLY|CollisionType.ENEMY
@@ -449,9 +453,13 @@ GameScene = pc.Scene.extend('GameScene',
 
         onAction:function (actionName, event, pos)
         {
+            if (actionName === 'toggle layer 1') this.toggleLayerActive(this.backgroundLayer);
+            if (actionName === 'toggle layer 2') this.toggleLayerActive(this.gameLayer);
+            if (actionName === 'toggle layer 3') this.toggleLayerActive(this.foregroundLayer);
+
             if (actionName === 'make crate')
             {
-                var crateX = pc.Math.rand(pc.device.canvasWidth - (48 * 6), pc.device.canvasWidth - (48 * 3));
+                var crateX = pc.Math.rand(pc.device.canvasWidth - 250 - (48 * 6), pc.device.canvasWidth - 250 -  (48 * 3));
                 var crateY = this.floorY - 360;
                 this.createCrate(crateX, crateY);
             }
@@ -470,7 +478,6 @@ TheGame = pc.Game.extend('TheGame',
             this._super();
 
             // load resources
-            pc.device.loader.setBaseUrl('/demos/angrycannons/');
             pc.device.loader.setDisableCache();
             pc.device.loader.add(new pc.Image('explosions', 'images/explosions.png'));
             pc.device.loader.add(new pc.Image('cannon-ball', 'images/cannon_ball.png'));

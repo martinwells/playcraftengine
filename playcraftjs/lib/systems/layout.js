@@ -1,3 +1,7 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
 
 /**
@@ -49,6 +53,8 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
                 if (vertically === 'middle') return 'middle-right';
                 if (vertically === 'bottom') return 'bottom-right';
             }
+
+            return null;
         },
 
         /**
@@ -65,6 +71,9 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
             {
                 var entity = next.obj;
                 var spatial = entity.getComponent('spatial');
+                if (!spatial)
+                    entity.addComponent( pc.components.Spatial({}) );
+
                 var layout = entity.getComponent('layout');
 
                 // add entities to the layout sides; this just sorts them

@@ -29,8 +29,15 @@ pc.systems.Activation = pc.systems.EntitySystem.extend('pc.systems.Activation',
             var a = entity.getComponent('activator');
 
             if (entity.active && a.stayActive) return;
+            if (!a._cacheLayer)
+            {
+                if (a.layer)
+                    a._cacheLayer = entity.layer.scene.get(a.layer);
+                else
+                    a._cacheLayer = entity.layer;
+            }
 
-            var entities = entity.layer.getEntityManager().getTagged(a.tag);
+            var entities = a._cacheLayer.getEntityManager().getTagged(a.tag);
 
             if (!entities) return;
 

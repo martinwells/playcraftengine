@@ -99,9 +99,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             // no shape supplied, create a default one
             if (!pc.valid(options.shapes) && !Array.isArray(options.shapes))
             {
-                options.shapes = [
-                    {}
-                ];
+                options.shapes = [ {} ];
                 options.shapes[0].shape = pc.CollisionShape.RECT;
             }
 

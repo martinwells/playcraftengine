@@ -1,7 +1,6 @@
 /**
- * PlayCraft Engine
- * Tools: A placeholder for useful tools
- * @class pc.Tools
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  *
  * xmlToJSON function:
  * This work is licensed under Creative Commons GNU LGPL License.
@@ -11,13 +10,30 @@
  * Web:     http://goessner.net/
  */
 
+/**
+ * @class pc.Tools
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * A collection of useful tools. This is a static class, so you can just call methods directly, i.e.
+ * <p><pre><code>
+ * var cleanValue = pc.Tools.checked(value, 'default');
+ * </code></pre>
+ * There are shortcuts for the following common tools functions to make like a little easier:
+ * <p><pre><code>
+ * pc.valid = pc.Tools.isValid;
+ * pc.checked = pc.Tools.checked;
+ * pc.assert = pc.Tools.assert;
+ * </code></pre>
+ */
 pc.Tools = pc.Base.extend('pc.Tools',
+    /** @lends pc.Tools */
     {
         /**
          * Checks if a param is valid (null or undefined) in which case the default value will be returned
-         * @param p Parameter to check
-         * @param def Default value to return if p is either null or undefined
-         * @return p if valid, otherwise def (default)
+         * @param {*} p Parameter to check
+         * @param {*} def Default value to return if p is either null or undefined
+         * @return {*} p if valid, otherwise def (default)
          */
         checked:function (p, def)
         {
@@ -28,7 +44,7 @@ pc.Tools = pc.Base.extend('pc.Tools',
 
         /**
          * Check if a value is valid (not null or undefined)
-         * @param p A value
+         * @param {*} p A value
          * @return {Boolean} true if the value is not undefined and not null
          */
         isValid:function (p)
@@ -36,11 +52,21 @@ pc.Tools = pc.Base.extend('pc.Tools',
             return !(p == null || typeof p === 'undefined');
         },
 
+        /**
+         * Tests a boolean evaluation and throws an exception with the error string.
+         * @param {Boolean} test A boolean result test
+         * @param {String} error A string to throw with the exception
+         */
         assert:function (test, error)
         {
             if (!test) throw error;
         },
 
+        /**
+         * Removes an element from an array
+         * @param {Array} array The array to remove the element from
+         * @param {*} e The element to remove
+         */
         arrayRemove:function (array, e)
         {
             for (var i = 0; i < array.length; i++)
@@ -51,7 +77,7 @@ pc.Tools = pc.Base.extend('pc.Tools',
         },
 
         /**
-         * adds an element to an array, but only if it isn't already there
+         * Adds an element to an array, but only if it isn't already there
          * @param array the array to add to
          * @param e the element to add
          */
@@ -61,6 +87,12 @@ pc.Tools = pc.Base.extend('pc.Tools',
                 array.push(e);
         },
 
+        /**
+         * Convers XML to a json string
+         * @param {String} xml XML source data as a string
+         * @param {String} tab String to use for tabulation
+         * @return {String} JSON string form of the XML
+         */
         xmlToJson:function (xml, tab)
         {
             var X = {

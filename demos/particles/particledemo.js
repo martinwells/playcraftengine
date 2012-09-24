@@ -399,7 +399,6 @@ TheGame = pc.Game.extend('TheGame',
             this._super();
 
             // Load up all the resources we need
-            pc.device.loader.setBaseUrl('/demos/particles/');
             pc.device.loader.setDisableCache();
             pc.device.loader.add(new pc.Image('stars', 'stars.png'));
             pc.device.loader.add(new pc.Image('smoke', 'smoke1.png'));

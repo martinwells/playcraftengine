@@ -30,6 +30,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
         scaleX: 1,
         scaleY: 1,
         active:true,
+        hold: false, // pauses the animation cycling, but the sprite will still be drawn
         loopCount:0,
         compositeOperation: null,
 
@@ -54,6 +55,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
             this.scaleX = 1;
             this.scaleY = 1;
             this.active = true;
+            this.hold = false;
             if (this.spriteSheet.animations.size() > 0)
             {
                 this.currentAnim = this.spriteSheet.animations.get(this.spriteSheet.animations.keys()[0]);
@@ -76,7 +78,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
         },
 
         /**
-         * Sets the componsite drawing operation for this sprite. Set to null to clear it back to the default.
+         * Sets the composite drawing operation for this sprite. Set to null to clear it back to the default.
          * @param o
          */
         setCompositeOperation: function(o)
@@ -120,9 +122,9 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
 
         update:function (elapsed)
         {
-            if (this.currentAnim == null || !this.active) return;
+            if (this.currentAnim == null || !this.active || this.hold) return;
 
-            // call the spritesheet class to actually to a sprite update, keep in mind though that the spritesheet
+            // call the spritesheet class to actually do a sprite update, keep in mind though that the spritesheet
             // doesn't retain any present state, it just sets the state object, which in this case is passed in as the
             // this param -- this is so spritesheets (and the underlying image) may be used by more than one sprite
             // at the same time

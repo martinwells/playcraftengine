@@ -19,7 +19,7 @@ pc.systems.System = pc.Base.extend('pc.System',
             this._super();
             this.delay = pc.checked(delay, 0);
             if (!componentTypes instanceof Array)
-                throw "Invalid component types array";
+                throw "Invalid component types array. Use a blank array ([]) if there are no components handled by the system.";
             this.componentTypes = componentTypes;
         },
 

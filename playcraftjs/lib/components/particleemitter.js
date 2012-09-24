@@ -14,10 +14,14 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
     {
         active: true,
         emitting: true,         // true if the emitter should be creating new emissions
-        scaleXMin: 0,           // minimum amount to grow particles at (negative values shrink) x-axis
-        scaleXMax: 0,           // maximum amount to grow particles at (negative values shrink) x-axis
-        scaleYMin: 0,           // minimum amount to grow particles at (negative values shrink) y-axis
-        scaleYMax: 0,           // maximum amount to grow particles at (negative values shrink) y-axis
+        growXMin:0,             // minimum amount to grow particles at (negative values shrink) x-axis
+        growXMax:0,             // maximum amount to grow particles at (negative values shrink) x-axis
+        growYMin:0,             // minimum amount to grow particles at (negative values shrink) y-axis
+        growYMax:0,             // maximum amount to grow particles at (negative values shrink) y-axis
+        scaleXMin: 0,           // starting scale X
+        scaleXMax: 0,           //
+        scaleYMin: 0,           // starting scale Y
+        scaleYMax: 0,           //
         fadeInTime: 0,          // time to spend fading in the particle
         fadeOutTime: 0,         // time spent fading out the particle
         angleMin: 0,            // minimum angle (direction) to fire a particle in
@@ -38,6 +42,7 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
         offsetX: null,           // x and y position offset (from the position of the entity)
         offsetY: null,
         compositeOperation: null,
+        relativeAngle: true,    // whether particle angles should be relative to the entity I'm attached to
         shots: 0,               // number of shots fired by the emitter (self destructs after this). 0=repeat continuously
         alphaMin: 1,            // minimum range of alpha to randomly change opacity/alpha
         alphaMax: 1,
@@ -67,15 +72,20 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
 
             this.active = pc.checked(options.active, true);
             this.emitting = pc.checked(options.emitting, true);
-            this.scaleXMin = pc.checked(options.scaleXMin, 0);
-            this.scaleXMax = pc.checked(options.scaleXMax, this.scaleXMin);
-            this.scaleYMin = pc.checked(options.scaleYMin, 0);
-            this.scaleYMax = pc.checked(options.scaleYMax, this.scaleYMin);
+            this.growXMin = pc.checked(options.growXMin, 0);
+            this.growXMax = pc.checked(options.growXMax, this.growXMin);
+            this.growYMin = pc.checked(options.growYMin, 0);
+            this.growYMax = pc.checked(options.growYMax, this.growYMin);
+            this.scaleXMin = pc.checked(options.scaleXMin, 1);
+            this.scaleYMin = pc.checked(options.scaleYMin, 1);
+            this.scaleXMax = pc.checked(options.scaleXMax, 1);
+            this.scaleYMax = pc.checked(options.scaleYMax, 1);
             this.compositeOperation = pc.checked(options.compositeOperation, null);
             this.alphaMin = pc.checked(options.alphaMin, 1);
             this.alphaMax = pc.checked(options.alphaMax, this.alphaMin);
             this.alphaDelay = pc.checked(options.alphaDelay, 50);
             this.shots = pc.checked(options.shots, 0);
+            this.relativeAngle = pc.checked(options.relativeAngle, true);
 
             this.rangeX = pc.checked(options.rangeX, 1);
             this.rangeY = pc.checked(options.rangeY, 1);

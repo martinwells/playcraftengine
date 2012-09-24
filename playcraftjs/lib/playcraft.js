@@ -60,7 +60,7 @@ pc.JSLoader = function()
     {
         var src = this.resources[this.current];
         var script = document.createElement("script");
-        script.type = "text/javascript";
+        script.type = "application/javascript";
         script.src = src;
 
         script.onload = this.checkAllDone.bind(this);
@@ -117,6 +117,10 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts)
     loader.add('device.js');
     loader.add('sound.js');
     loader.add('layer.js');
+    loader.add('entitylayer.js');
+    loader.add('tileset.js');
+    loader.add('tilemap.js');
+    loader.add('tilelayer.js');
     loader.add('entity.js');
     loader.add('sprite.js');
     loader.add('spritesheet.js');

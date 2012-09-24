@@ -190,6 +190,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet', {},
 
         if (state.currentAnim == null)
         {
+            if (this.scaleX != 1 || this.scaleY != 1)
+                this.image.setScale(this.scaleX, this.scaleY);
             this.image.draw(ctx, this.sourceX, this.sourceY,
                 Math.round(x), Math.round(y), this.frameWidth, this.frameHeight,
                 this.useRotation ? dir : 0);

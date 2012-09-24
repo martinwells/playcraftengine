@@ -1,3 +1,7 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
 pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
     {

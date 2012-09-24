@@ -148,12 +148,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
 
                 // custom gravity for the body (optional)
                 if (ph.gravity)
-                {
-                    if (ph.gravity.x)
-                        ph._body._pc_gravityX = ph.gravity.x;
-                    if (ph.gravity.y)
-                        ph._body._pc_gravityY = ph.gravity.y;
-                }
+                    ph.setGravity(ph.gravity.x, ph.gravity.y);
 
                 //
                 // Fixtures
@@ -521,6 +516,18 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
         {
         },
 
+        /**
+         * Continuously called when in a collision state -- note that sensors will not be reported as constantly
+         * colliding, they will only be reported as collision start and end events.
+         * @param aType
+         * @param bType
+         * @param entityA
+         * @param entityB
+         * @param force
+         * @param fixtureAType
+         * @param fixtureBType
+         * @param contact
+         */
         onCollision:function (aType, bType, entityA, entityB, force, fixtureAType, fixtureBType, contact)
         {
         },

@@ -1,4 +1,9 @@
 /**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
+/**
  * Lays out an element on a layer
  */
 pc.components.Layout = pc.components.Component.extend('pc.components.Layout',

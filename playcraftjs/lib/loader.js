@@ -4,6 +4,9 @@
  *
  * The Loader takes care of loading resources (downloading) and then notifying you when everything
  * is ready.
+ *
+ * if (pc.device.devMode)
+ *  disbale caching
  */
 
 
@@ -72,6 +75,36 @@ pc.Loader = pc.Base.extend('pc.Loader', {},
         if (!res)
             this.warn("Attempting to get a resource that hasn't been added: " + name);
         return res;
+    },
+
+    getAllSounds: function()
+    {
+        var sounds = [];
+        var keys = this.resources.keys();
+
+        for (var i = 0; i < keys.length; i++)
+        {
+            var res = this.resources.get(keys[i]).resource;
+            if (res.Class.isA('pc.Sound'))
+                sounds.push(res);
+        }
+
+        return sounds;
+    },
+
+    getAllImages:function ()
+    {
+        var images = [];
+        var keys = this.resources.keys();
+
+        for (var i = 0; i < keys.length; i++)
+        {
+            var res = this.resources.get(keys[i]);
+            if (res.isA(pc.Image))
+                images.push(res);
+        }
+
+        return images;
     },
 
     start: function(loadingListener, loadedListener)

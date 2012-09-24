@@ -17,7 +17,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         entities: null,                     // all the entities (todo: is this still required?)
         entitySuicides: null,               // entities to be removed at the end of processing
         systemManager: null,
-        layer: null,                        // the layer this entitymanager is within (set by the layer)
+        layer: null,                        // the layer this entitymanager is within (set by the layer class)
 
         init: function(systemManager)
         {
@@ -82,6 +82,8 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
         addTag: function(entity, tag)
         {
+            if (entity.tags.indexOf(tag.toLowerCase()) != -1) return;
+
             this.entitiesByTag.add(tag.toLowerCase(), entity);
             entity.tags.push(tag.toLowerCase());
         },

@@ -4,8 +4,49 @@
 
 /**
  * @class pc.Scene
- * Scene - a scene is comprised of one or more layers. It also manages and contains distinct systems by
- * containing a pc.SystemsManager.
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * A game is primarily a container for various "scenes", with each scene containing one or more layers. You can
+ * construct a scene, and use addScene to add it to the game. This is typically done once all the queued resources
+ * have been loaded:
+ * <pre><code>
+ * onLoaded:function ()
+ * {
+ *    // construct the game scene
+ *    this.gameScene = new GameScene();
+ *
+ *    // add it to the game
+ *    this.addScene(this.gameScene);
+ * }
+ * </code></pre>
+ * Active scenes will be updated and drawn by the system, inactive ones will not. Adding a scene makes it active by
+ * default.
+ * <p>
+ * To activate a scene (such as displaying a menu scene):
+ * <pre><code>
+ * myGame.activateScene(myMenuScene);
+ * </code></pre>
+ * You can likewise deactivate a scene (it will no longer be rendered or processed):
+ * <pre><code>
+ * myGame.deactivateScene(myMenuScene);
+ * </code></pre>
+ * Upon activating a scene, the game's onSceneActivated is called passing in the scene that became active. Likewise
+ * onSceneDeactivated will be called when a scene is deactivated.
+ * <p>
+ * You can access scenes by calling getFirstScene or getFirstActiveScene which will return a pc.LinkedListNode you can
+ * use to loop through the list of scenes:
+ * <pre><code>
+ * var sceneNode = myGame.getFirstScene();
+ * while (sceneNode)
+ * {
+ *    var scene = sceneNode.object();
+ *    // scene.doSomething();
+ *
+ *    // move to the next one (will be null if done)
+ *    sceneNode = sceneNode.next();
+ * }
+ * </code></pre>
  */
 pc.Scene = pc.Base.extend('pc.Scene',
     {},
@@ -18,7 +59,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
         active:true,
         viewPort: null,
         viewPortCenter: null, // readonly, changes when you call setViewPort
-        offset:null,           // a flexible origin you can apply to all layers (nice for camera shaking etc)
 
         init:function (name)
         {
@@ -27,8 +67,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
             this.layersByName = new pc.Hashtable();
             this.layers = new pc.LinkedList();
             this.activeLayers = new pc.LinkedList();
-            this.systemManager = new pc.SystemManager();
-            this.offset = pc.Point.create(0,0);
 
             this.viewPort = pc.Rect.create(0, 0, 0, 0); // set by setViewPort below
             this.viewPortCenter = pc.Point.create(0, 0);
@@ -182,6 +220,14 @@ pc.Scene = pc.Base.extend('pc.Scene',
             layer.active = false;
         },
 
+        toggleLayerActive: function(layer)
+        {
+            if (layer.active)
+                this.setLayerInactive(layer);
+            else
+                this.setLayerActive(layer);
+        },
+
         getFirstActiveLayer:function ()
         {
             return this.activeLayers.first;
@@ -261,7 +307,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
          * @param x the screen x position
          * @param y the screen y position
          */
-        // todo: fix this with a linked list result
         entitiesUnderXY:function (x, y)
         {
             var found = [];
@@ -314,7 +359,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             for (var p = 0; p < tiles.length; p++)
             {
                 var tile = tiles[p];
-                var tileId = parseInt(tile.getAttribute('id'))+1;
+                var tileId = parseInt(tile.getAttribute('id'));
 
                 var pr = tile.getElementsByTagName('properties')[0];
                 var props = pr.getElementsByTagName('property');
@@ -334,11 +379,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
             var layers = xmlDoc.getElementsByTagName('layer');
             for (var m = 0; m < layers.length; m++)
             {
-                // partial construction
-                var newLayer = new pc.TileLayer(null, true, null, tileSet);
-                // fill in the rest using the data from the TMX file
-                newLayer.loadFromTMX(layers[m], tileWidth, tileHeight);
-                this.addLayer(newLayer);
+                pc.TileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
             }
 
             // load entity layers
@@ -346,11 +387,9 @@ pc.Scene = pc.Base.extend('pc.Scene',
             for (var i = 0; i < objectGroups.length; i++)
             {
                 // partial construction
-                var n = new pc.EntityLayer(null);
 
                 // fill in the rest using the data from the TMX file
-                n.loadFromTMX(objectGroups[i], entityFactory);
-                this.addLayer(n);
+                pc.EntityLayer.loadFromTMX(this, objectGroups[i], entityFactory);
             }
 
         }

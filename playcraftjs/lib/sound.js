@@ -1,30 +1,88 @@
 /**
- * PlayCraft Engine
- * Sound: a basic sound resource
- * @class
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
+/**
+ * @class pc.Sound
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * A sound resource can be loaded from a URI and played, including support for managing multichannel sound
+ * (playing multiple sounds at once) and different formats used by different browsers.
+ * <p>
+ * In order to support all modern browsers, sounds need to be provided in both 'ogg' and 'mp3' formats. This is
+ * becuase IE supports mp3 (but not ogg), chrome supports ogg and mp3, but safari and firefox only supports ogg. You
+ * will need to create sound files into both ogg and mp3 to support all browsers.
+ * <p>
+ * To play a sound, you first need to load it from a URI:
+ * <p><pre><code>
+ * // check if sound is enabled
+ * if (pc.device.soundEnabled)
+ * {
+ *    // add the sound to the resource loader
+ *    pc.device.loader.add(
+ *       // construct a new sound named shotgun, loading formats for
+ *       // ogg and mp3 (shotgun.mp3 and shotgun.ogg)
+ *       // and setup to play up to 5 of these sounds simultaneously
+ *       new pc.Sound('shotgun', 'sounds/shotgun', ['ogg', 'mp3'], 5));
+ * }
+ * </code></pre>
+ * <p>
+ * Once you have the sound loaded you can play it:
+ * <pre><code>
+ * // grab the sound resource from the resource loader
+ * var shotgunSound = pc.device.loader.get('shotgun').resource;
+ * // play the sound (without looping)
+ * shotgunSound.play(false);
+ * </code></pre>
+ * <p>
+ * If the sound is looping, or it's a long sound you can stop it:
+ * <pre><code>
+ * shotgunSound.stop();
+ * </code></pre>
+ * You can adjust the volume of a sound:
+ * <pre><code>
+ * // set the volume to 50%
+ * shotgunSound.setVolume(0.5);
+ * </code></pre>
+ * <p>
+ * You can also change the starting position of sound or music using setPlayPosition:
+ * <pre><code>
+ * // start half way through
+ * shotgunSound.setPlayPosition( shotgunSound.getDuration() / 2 );
+ * </code></pre>
  */
 
 pc.Sound = pc.Base.extend('pc.Sound', {},
+    /** @lends pc.Sound.prototype */
     {
+        /** Array of the sound elements -- multichannel sound requires multiple element copies to play */
         sounds: [],
+        /** Source URI for the sound resource */
         src:null,
+        /** String name for the sound */
         name: null,
+        /** Number of sounds loaded */
         numLoaded: 0,
+        /** Whether the sound is loaded */
         loaded:false,
+        /** Whether an error occured loading the sound */
         errored:false,
+        /** Number of channels for the sound. No more than this number can be played at once */
         channels:1,
+        /** Optional call back once the sound is loaded */
         onLoadCallback:null,
+        /** Optional call back if the sound errors whilst loading */
         onErrorCallback:null,
 
         /**
-         * Loads an sound from a remote (URI) resource. This will automatically
-         * add this sound into the resource manager if the game is still in an init
-         * phase.
-         * @param name Resource name (tag) you want to use
-         * @param src URI for the sound
-         * @param channels Number of channels this sound can play at once
-         * @param onLoadCallback Function to be called once the sound has been loaded (including all channels)
-         * @param onErrorCallback Function to be called if the sound fails to load (on first error)
+         * Construct a new sound, if the resource loader has already start the sound will be immediately loaded.
+         * @param {String} name Resource name (tag) you want to use
+         * @param {String} src URI for the sound
+         * @param {Number} channels Number of channels this sound can play at once
+         * @param {Function} [onLoadCallback] Function to be called once the sound has been loaded (including all channels)
+         * @param {Function} [onErrorCallback] Function to be called if the sound fails to load (on first error)
          */
         init:function (name, src, formats, channels, onLoadCallback, onErrorCallback)
         {
@@ -53,7 +111,7 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
         },
 
         /**
-         * Pauses the sound
+         * Pauses the sound (on all channels)
          */
         pause: function()
         {
@@ -63,7 +121,7 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
         },
 
         /**
-         * Stop playing a sound (including all channels) -- actually just a synonym for pause
+         * Stop playing a sound (on all channels) -- actually just a synonym for pause
          */
         stop: function()
         {
@@ -73,7 +131,7 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
 
         /**
          * Volume to play the sound at
-         * @param volume Volume as a range from 0 to 1 (0.5 is half volume)
+         * @param {Number} volume Volume as a range from 0 to 1 (0.5 is half volume)
          */
         setVolume: function(volume)
         {
@@ -83,8 +141,31 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
         },
 
         /**
+         * Gets the duration of the sound in seconds
+         * @return {Number} The duration in seconds
+         */
+        getDuration: function()
+        {
+            if (!this.canPlay()) return -1;
+            return this.sounds[0].duration;
+        },
+
+        /**
+         * Sets the playback rate of the sound where 0 is not playing and 2 is double speed. Negative values cause
+         * the sound to play backwards.
+         * WARNING: Only currently supported by Safari and Chrome.
+         * @param {Number} r The speed to play the sound at
+         */
+        setPlaybackRate:function (r)
+        {
+            if (!this.canPlay()) return;
+            for (var i = 0, len = this.sounds.length; i < len; i++)
+                this.sounds[i].playbackRate = r;
+        },
+
+        /**
          * Start playing the sound at the specified time (instead of 0)
-         * @param time time (in milliseconds to start at)
+         * @param {Number} time time (in seconds to start at)
          */
         setPlayPosition: function(time)
         {
@@ -96,6 +177,8 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
         /**
          * Load a sound. If the game hasn't started then the sound resource
          * will be added to the resource manager's queue.
+         * @param {Function} onLoadCallback function to call once the sound is loaded
+         * @param {Function} onLoadCallback function to call if the sound errors
          */
         load:function (onLoadCallback, onErrorCallback)
         {
@@ -116,10 +199,8 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
 
                 // setup event handlers for this class -- we'll call the callbacks from there
                 n.addEventListener("canplaythrough", this.onLoad.bind(this), false);
-//                n.addEventListener("onload", this.onLoad.bind(this), false);
                 n.addEventListener("error", this.onError.bind(this), false);
                 n.onerror = this.onError.bind(this);
-//                n.onLoad = this.onLoad.bind(this);
                 n.src = this.src;
                 this.sounds.push(n);
 
@@ -127,7 +208,6 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                     // force an onload for appmodi -- since it wont create one and the load is almost instant
                     this.onLoad(null);
             }
-
         },
 
         /**
@@ -167,11 +247,12 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
 
         /**
          * Plays a sound
-         * @param loop True if you want the sound to just keep looking.
+         * @param {Boolean} loop True if you want the sound to just keep looking.
+         * @return {Object} Sound element that was played
          */
         play:function(loop)
         {
-            if (!this.canPlay()) return;
+            if (!this.canPlay()) return null;
 
             // find a free channel and play the sound (if there is one free)
             for (var i=0, len=this.sounds.length; i < len; i++)
@@ -187,10 +268,11 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
 
             // no sounds were free, so we just do nothing
             this.warn(this.name + ' - all channels are in use');
+            return null;
         },
 
         /**
-         * @return true if the sound can be played
+         * @return {Boolean} true if the sound can be played
          */
         canPlay: function()
         {

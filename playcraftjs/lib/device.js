@@ -3,54 +3,97 @@
  * System - the interface between the device (the real world) and the game
  */
 
+/**
+ * @class pc.Device
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * pc.Device is the primary interface between your game and the underlying hardware. It's a singleton instance
+ * that will be constructed automatically and is globally accessible at all times as pc.device
+ * <p>
+ * pc.device will automatically be setup once pc.JSLoader has completed loading all required javascipt through a call
+ * to pc.device.boot passing in the Id of the canvas element for your game as well as the name of the game class
+ * which pc.device will then dynamically construct. Typically you do not need to construct your own pc.Device, pc.start
+ * will take care of it for you.
+ */
 pc.Device = pc.Base.extend('pc.Device',
     { },
+    /** @lends pc.Device.prototype */
     {
+        /** element Id of the game canvas */
         canvasId:null,
+        /** canvas element upon which all drawing will occur */
         canvas:null,
+        /** width of the current canvas */
         canvasWidth:0,
+        /** height of the current canvas */
         canvasHeight:0,
+        /** resource loader */
         loader:null,
+
         timer:null,
+        /** current 2D draw context */
         ctx:null,
         started:false,
+        /** current requested frame rate */
         fps:0,
+        /** last cycle frame rate */
         currentFPS:0,
         tick:0, // ms per cycle (just 1000/fps for convenience)
-        requestAnim:null, // the cross-browser compatible animation function
+
+        /** whether the device is running */
         running:true,
+
+        /** global render scale */
         scale:1,
         xmlParser:null,
 
         // debug related
         debugPanel:null,
+        /** whether the debug panel should be updated/drawn */
         showDebug:true,
+        /** whether the game is running in development mode; false = production */
         devMode: true,
-        debugCollisions:false,
         enablePooling:true,
+        /** whether sound is enabled */
         soundEnabled:true,
 
+        /** number of elements drawn in the last cycle */
         elementsDrawn:0,
+        /** how long in ms the last process cycle took */
         lastProcessMS:0,
+        /** how long in ms the last draw cycle took */
         lastDrawMS:0,
 
         // device information
+        /** pc.Rect of the current screen dimensions */
         screen:null, // the device's screen dimensions (i.e. the display)
+        /** pixel ratio of the screen -- typically 1 unless on a retina display where it's 2 */
         pixelRatio:1,
+        /** is this device an iPhone */
         isiPhone:false,
+        /** is this device an iPhone 4 */
         isiPhone4:false,
+        /** is this device an iPad*/
         isiPad:false,
+        /** is this device an Android*/
         isAndroid:false,
-        isAppMobi:false,
+        /** is this a touch device */
         isTouch:false,
 
         requestAnimFrame:null,
+        /** pc.Input handler global instance */
         input:null,
+        /** the name of the game class that was constructed */
         gameClass: null,
+        /** the game object constructed at startup */
+        game: null, // the currently running instance of the gameClass
 
-        // temps
-        elapsed:0, // delta time between frames
-        lastFrame:0, // time of the previous frame
+        /** amount of time the last cycle took in ms */
+        elapsed:0,
+        /** time the last frame cycle was started */
+        lastFrame:0,
+        /** the time now */
         now:Date.now(),
 
         /**
@@ -59,7 +102,8 @@ pc.Device = pc.Base.extend('pc.Device',
          */
         boot:function (canvasId, gameClass)
         {
-            this.info('Playcraft Engine v' + pc.VERSION + ' starting.');
+            if (this.devMode)
+                this.info('Playcraft Engine v' + pc.VERSION + ' starting.');
             this.canvasId = canvasId;
             this.gameClass = gameClass;
             this.fps = 60;
@@ -99,33 +143,18 @@ pc.Device = pc.Base.extend('pc.Device',
                 };
             })();
 
-//            if (!this.isAppMobi)
-//                document.addEventListener("DOMContentLoaded", this.onReady.bind(this), false);
-//            else
-//                document.addEventListener("appMobi.device.ready", this.onReadyAppMobi.bind(this), false);
-
             window.onresize = this.onResize();
             this.onReady();
         },
 
+        /**
+         * Indicates whether a sound format is playable on the current device
+         * @param {String} format Sound format to test: 'mp3', 'ogg' or 'wav'
+         * @return {Boolean} True is the format can be played
+         */
         canPlay: function(format)
         {
             return gamecore.Device.canPlay(format);
-        },
-
-        onReadyAppMobi:function ()
-        {
-            AppMobi.display.useViewport(document.body.offsetWidth, document.body.offsetHeight);
-
-            //lock orientation
-            AppMobi.device.setRotateOrientation("landscape");
-            AppMobi.device.setAutoRotate(false);
-
-            //manage power
-            AppMobi.device.managePower(true, false);
-            AppMobi.device.hideSplashScreen();
-
-            this.onReady();
         },
 
         _calcScreenSize:function ()
@@ -167,9 +196,11 @@ pc.Device = pc.Base.extend('pc.Device',
             }
         },
 
+        /**
+         * Automatically called once the device is ready
+         */
         onReady:function ()
         {
-
             if (this.isiPad)
             {
                 this.showDebug = false;
@@ -185,7 +216,7 @@ pc.Device = pc.Base.extend('pc.Device',
             if (!this.canvas)
                 throw 'Abort! Could not attach to a canvas element using the id [' + this.canvasId + ']. ' +
                     'Add a canvas element to your HTML, such as <canvas id="pcGameCanvas"></canvas>';
-            this.input.onReady();
+            this.input._onReady();
             this.ctx = this.canvas.getContext('2d');
 
             // automatically resize to match my parent container
@@ -219,6 +250,10 @@ pc.Device = pc.Base.extend('pc.Device',
 
         startTime:0,
 
+        /**
+         * Called once per game cycle
+         * @param time System time in ms
+         */
         cycle:function (time)
         {
             if (this.running !== false)
@@ -250,6 +285,11 @@ pc.Device = pc.Base.extend('pc.Device',
 
         },
 
+        /**
+         * Requests a resize of the canvas based on the supplied dimensions
+         * @param {Number} w Width of the canvas
+         * @param {Number} h Hight of the canvas
+         */
         resize:function (w, h)
         {
             this.canvas.width = w;
@@ -312,7 +352,14 @@ pc.Device = pc.Base.extend('pc.Device',
             this.debugPanel.onResize();
         },
 
-        // Helpers
+        /**
+         * Test whether a given rectangle overlaps any part of the device screen
+         * @param {Number} x x position of the top left of the rectangle to test
+         * @param {Number} y y position of the top left of the rectangle to test
+         * @param {Number} w width of the rectangle
+         * @param {Number} h height of the rectangle
+         * @return {Boolean} true is it's on screen
+         */
         isOnScreen:function (x, y, w, h)
         {
             return pc.Math.isRectColliding(x, y, w, h, 0, 0, this.canvasWidth, this.canvasHeight);

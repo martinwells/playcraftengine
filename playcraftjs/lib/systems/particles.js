@@ -36,10 +36,12 @@ pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
                             pc._Particle.create(
                                 sp.pos.x + em.offsetX + pc.Math.rand(-(em.rangeX/2), em.rangeX/2),
                                 sp.pos.y + em.offsetY + pc.Math.rand(-(em.rangeY/2), em.rangeY/2),
-                                pc.Math.rotate(sp.dir, pc.Math.rand(em.angleMin, em.angleMax)),
+                                pc.Math.rotate(em.relativeAngle ? sp.dir : 0, pc.Math.rand(em.angleMin, em.angleMax)),
                                 pc.Math.randFloat(em.thrustMin, em.thrustMax),
                                 pc.Math.randFloat(em.lifeMin, em.lifeMax),
                                 pc.Math.randFloat(em.spinMin, em.spinMax),
+                                pc.Math.randFloat(em.growXMin, em.growXMax),
+                                pc.Math.randFloat(em.growYMin, em.growYMax),
                                 pc.Math.randFloat(em.scaleXMin, em.scaleXMax),
                                 pc.Math.randFloat(em.scaleYMin, em.scaleYMax),
                                 em.fadeInTime, em.fadeOutTime,
@@ -77,10 +79,10 @@ pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
                     // render aspects (spin, grow, fade etc)
                     if (p.spin)
                         p.rotation = pc.Math.rotate(p.rotation, p.spin * (pc.device.elapsed/1000));
-                    if (p.scaleXRate != 0 || p.scaleYRate != 0)
+                    if (p.growXRate != 0 || p.growYRate != 0)
                     {
-                        p.scaleX += p.scaleXRate * (pc.device.elapsed/1000);
-                        p.scaleY += p.scaleYRate * (pc.device.elapsed/1000);
+                        p.scaleX += p.growXRate * (pc.device.elapsed/1000);
+                        p.scaleY += p.growYRate * (pc.device.elapsed/1000);
                     }
 
                     if (p.fadeState == 0) // fading in
@@ -147,6 +149,9 @@ pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
                         p.sprite.update(pc.device.elapsed);
                     }
 
+                    if (p.scaleX != 1 || p.scaleY != 1)
+                        em.spriteSheet.setScale(1, 1);
+
                     // assign next before we (maybe) remove this one
                     next = next.next();
 
@@ -174,7 +179,7 @@ pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
 
 pc._Particle = pc.Pooled.extend('pc._Particle',
     {
-        create:function (x, y, dir, thrust, lifetime, spin, scaleXRate, scaleYRate,
+        create:function (x, y, dir, thrust, lifetime, spin, growXRate, growYRate, scaleX, scaleY,
                          fadeInTime, fadeOutTime, alphaMin, alphaMax, spriteSheet, compositeOperation, frame)
         {
             var n = this._super();
@@ -185,8 +190,10 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
             n.frame = frame;
             n.lifetime = lifetime;
             n.spin = spin;
-            n.scaleXRate = scaleXRate;
-            n.scaleYRate = scaleYRate;
+            n.growXRate = growXRate;
+            n.growYRate = growYRate;
+            n.scaleX = scaleX;
+            n.scaleY = scaleY;
             if (n.sprite == null)
                 n.sprite = pc.Sprite.create(spriteSheet);
             else
@@ -199,10 +206,8 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
             n.alphaMin = alphaMin;
             n.alphaMax = alphaMax;
             n.lastAlpha = pc.device.now;
-            n.scaleX = 1;
             n.fadeInTime = fadeInTime;
             n.fadeOutTime = fadeOutTime;
-            n.scaleY = 1;
             n.holdTime = n.lifetime - (n.fadeInTime + n.fadeOutTime);
             if (compositeOperation)
                 n.sprite.setCompositeOperation(compositeOperation);
@@ -234,8 +239,8 @@ pc._Particle = pc.Pooled.extend('pc._Particle',
         velX: 0,
         velY: 0,
         spin: 0,
-        scaleXRate: 0,
-        scaleYRate: 0,
+        growXRate: 0,
+        growYRate: 0,
         scaleX: 1,
         scaleY: 1,
         fadeInTime: 0,

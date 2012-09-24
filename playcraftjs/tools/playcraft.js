@@ -12195,20 +12195,20 @@ pc.Input = pc.Base('pc.Input',
         onReady:function ()
         {
             // touch input
-            pc.system.canvas.addEventListener('touchstart', this.touchStart.bind(this), true);
-            pc.system.canvas.addEventListener('touchend', this.touchEnd.bind(this), true);
-            pc.system.canvas.addEventListener('touchmove', this.touchMove.bind(this), true);
+            pc.system.canvas.addEventListener('touchstart', this._touchStart.bind(this), true);
+            pc.system.canvas.addEventListener('touchend', this._touchEnd.bind(this), true);
+            pc.system.canvas.addEventListener('touchmove', this._touchMove.bind(this), true);
 
             // mouse input
-            pc.system.canvas.addEventListener('mouseup', this.mouseUp.bind(this), true);
-            pc.system.canvas.addEventListener('mousedown', this.mouseDown.bind(this), true);
-            pc.system.canvas.addEventListener('mousemove', this.mouseMove.bind(this), true);
-            pc.system.canvas.addEventListener('mousewheel', this.mouseWheel.bind(this), true);
-            pc.system.canvas.addEventListener('contextmenu', this.contextMenu.bind(this), true);
+            pc.system.canvas.addEventListener('mouseup', this._mouseUp.bind(this), true);
+            pc.system.canvas.addEventListener('mousedown', this._mouseDown.bind(this), true);
+            pc.system.canvas.addEventListener('mousemove', this._mouseMove.bind(this), true);
+            pc.system.canvas.addEventListener('mousewheel', this._mouseWheel.bind(this), true);
+            pc.system.canvas.addEventListener('contextmenu', this._contextMenu.bind(this), true);
 
             // key input
-            window.addEventListener('keydown', this.keyDown.bind(this), true);
-            window.addEventListener('keyup', this.keyUp.bind(this), true);
+            window.addEventListener('keydown', this._keyDown.bind(this), true);
+            window.addEventListener('keyup', this._keyUp.bind(this), true);
         },
 
         /**
@@ -12247,7 +12247,7 @@ pc.Input = pc.Base('pc.Input',
 
         // todo: rate limit the input
 
-        changeState:function (eventCode, stateOn, event)
+        _changeState:function (eventCode, stateOn, event)
         {
             // grab all the bindings to this event code
             var keyName = pc.InputType.getName(eventCode);
@@ -12453,9 +12453,9 @@ pc.Input = pc.Base('pc.Input',
         //
         ///////////////////////////////////////////////////////////////////////////////////
 
-        keyDown:function (event)
+        _keyDown:function (event)
         {
-            if (this.changeState(event.keyCode, true, event))
+            if (this._changeState(event.keyCode, true, event))
                 event.preventDefault();
 
             if (this.fireAction(event.keyCode, event))
@@ -12463,33 +12463,33 @@ pc.Input = pc.Base('pc.Input',
 
         },
 
-        keyUp:function (event)
+        _keyUp:function (event)
         {
-            if (this.changeState(event.keyCode, false, event))
+            if (this._changeState(event.keyCode, false, event))
                 event.preventDefault();
         },
 
-        touchStart:function (event)
+        _touchStart:function (event)
         {
             for(var i=0, len=event.touches.length; i < len; i++)
             {
-                this.changeState(pc.InputType.TOUCH, true, event.touches[i]);
+                this._changeState(pc.InputType.TOUCH, true, event.touches[i]);
                 this.fireAction(pc.InputType.TOUCH, event.touches[i]);
             }
             event.preventDefault();
         },
 
-        touchEnd:function (event)
+        _touchEnd:function (event)
         {
             this._tracks.length = 0;
             for(var i=0, len=event.changedTouches.length; i < len; i++)
             {
-                this.changeState(pc.InputType.TOUCH, false, event.changedTouches[i]);
+                this._changeState(pc.InputType.TOUCH, false, event.changedTouches[i]);
             }
             event.preventDefault();
         },
 
-        touchMove:function (event)
+        _touchMove:function (event)
         {
             for(var i=0, len=event.touches.length; i < len; i++)
             {
@@ -12498,36 +12498,36 @@ pc.Input = pc.Base('pc.Input',
             event.preventDefault();
         },
 
-        mouseUp:function (event)
+        _mouseUp:function (event)
         {
             // kill all the mouse tracks (mouse is up)
             // todo: need separate tracks for different buttons
             this._tracks.length = 0;
             // turn off specific states
-            this.changeState(pc.InputType.MOUSE_LEFT_BUTTON, false, event);
+            this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, false, event);
             event.preventDefault();
         },
 
-        mouseDown:function (event)
+        _mouseDown:function (event)
         {
-            this.changeState(pc.InputType.MOUSE_LEFT_BUTTON, true, event);
+            this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, true, event);
             this.fireAction(pc.InputType.MOUSE_LEFT_BUTTON, event);
             event.preventDefault();
         },
 
-        mouseMove:function (event)
+        _mouseMove:function (event)
         {
             this._checkState(event);
             this.fireAction(pc.InputType.MOUSE_MOVE, event);
             event.preventDefault();
         },
 
-        mouseWheel:function (event)
+        _mouseWheel:function (event)
         {
             event.preventDefault();
         },
 
-        contextMenu:function (event)
+        _contextMenu:function (event)
         {
         }
 
