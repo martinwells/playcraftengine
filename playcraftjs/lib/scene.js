@@ -128,6 +128,8 @@ pc.Scene = pc.Base.extend('pc.Scene',
          */
         onResize:function (width, height)
         {
+            this.setViewPort(this.viewPort.x, this.viewPort.y, width, height);
+
             var next = this.layers.first;
             while (next)
             {

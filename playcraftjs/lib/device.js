@@ -103,7 +103,7 @@ pc.Device = pc.Base.extend('pc.Device',
         boot:function (canvasId, gameClass)
         {
             if (this.devMode)
-                this.info('Playcraft Engine v' + pc.VERSION + ' starting.');
+                this.info('Playcraft Engine v' + pc.VERSION + ' starting');
             this.canvasId = canvasId;
             this.gameClass = gameClass;
             this.fps = 60;
@@ -143,7 +143,7 @@ pc.Device = pc.Base.extend('pc.Device',
                 };
             })();
 
-            window.onresize = this.onResize();
+            window.onresize = this.onResize.bind(this);
             this.onReady();
         },
 
@@ -310,20 +310,8 @@ pc.Device = pc.Base.extend('pc.Device',
 
             this._calcScreenSize();
 
-            if (this.isiPhone || this.isiPad)
-            {
-                //                this.canvas.width = this.screen.w;
-                //                this.canvas.height = this.screen.h;
-            }
-
             var flip = false;
             if (typeof window.orientation !== 'undefined' && window.orientation != 0)
-                flip = true;
-
-            if (typeof AppMobi !== 'undefined' && AppMobi.device.orientation != '0')
-                flip = true;
-
-            if (this.isiPad)
                 flip = true;
 
             if (flip)
@@ -334,19 +322,8 @@ pc.Device = pc.Base.extend('pc.Device',
                 this.canvas.height = w;
             }
 
-/*  iPad 3/4s retina fixing; not done yet
-            if (this.pixelRatio == 2)
-            {
-                this.canvas.setAttribute('height', window.innerHeight * 2);
-                this.canvas.setAttribute('width', window.innerWidth * 2);
-//                this.ctx.scale(2, 2);
-            } else
- */           {
-                this.canvasWidth = this.canvas.width;
-                this.canvasHeight = this.canvas.height;
-            }
-            // debugging screen size on devices
-            //alert('size: ' + this.canvasWidth + ' x ' + this.canvasHeight+ ' is:' + this.isiPad + ' pr: ' + this.pixelRatio);
+            this.canvasWidth = this.canvas.width;
+            this.canvasHeight = this.canvas.height;
 
             this.game.onResize(this.canvasWidth, this.canvasHeight);
             this.debugPanel.onResize();
