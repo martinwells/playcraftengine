@@ -27,9 +27,9 @@ pc.Pool = gamecore.Pool.extend('pc.Pool',
  * @augments gamecore.Pooled
  */
 pc.Pooled = gamecore.Pooled.extend('pc.Pooled',
-    /** @lends pc.Pooled */
+    /** @lends gamecore.Pooled */
     {},
-    /** @lends pc.Pooled.prototype */
+    /** @lends gamecore.Pooled.prototype */
     {});
 
 /**
@@ -37,7 +37,7 @@ pc.Pooled = gamecore.Pooled.extend('pc.Pooled',
  * @augments gamecore.LinkedList
  */
 pc.LinkedList = gamecore.LinkedList.extend('pc.LinkedList',
-    /** @lends pc.LinkedList */
+    /** @lends gamecore.LinkedList */
     {},
     /** @lends gamecore.LinkedList.prototype */
     {});

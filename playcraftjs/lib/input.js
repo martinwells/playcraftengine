@@ -384,25 +384,33 @@ pc.Input = pc.Base('pc.Input',
                         else
                             er = binding.object.getScreenRect ? binding.object.getScreenRect() : null;
 
-                        if (er && er.containsPoint(pos))
+                        if (er)
                         {
-                            var state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
+                            if (er.containsPoint(pos))
+                            {
+                                var state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
+                                state.on = stateOn;
+                                state.event = event;
+
+                                // start tracking the movement for this element
+                                if (state.on)
+                                    this._tracks.push(binding);
+                                else
+                                    pc.Tools.arrayRemove(this._tracks, binding);
+                            }
+                        } else
+                        {
+                            // positional, but no uiTarget
+                            state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
                             state.on = stateOn;
                             state.event = event;
-
-                            // start tracking the movement for this element
-                            if (state.on)
-                                this._tracks.push(binding);
-                            else
-                            // todo: array too slow?
-                                pc.Tools.arrayRemove(this._tracks, binding);
                         }
                     }
                     else
                     {
-                        var state2 = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
-                        state2.on = stateOn;
-                        state2.event = event;
+                        state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
+                        state.on = stateOn;
+                        state.event = event;
                     }
                 }
             }

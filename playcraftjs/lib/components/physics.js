@@ -1,5 +1,79 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
+/**
+ * @class pc.components.Physics
+ * @description
+ * [Extends <a href='pc.components.Component'>pc.components.Component</a>]<BR>
+ * [Used in <a href='pc.systems.Physics'>pc.systems.Physics</a>]
+ * <p>
+ * Adds 2D physics to an entity. See the <a href='/develop/guides/physics'>physics</a> and
+ * <a href='/develop/guides/collisions'>collision</a> guides for more information.
+ *
+ * <h5>Shapes</h5>
+ * You can define physics shapes by providing an array of settings, one for each shape. The available options for
+ * each shape are:
+ * - shape: shape type (pc.CollisionShape.RECT | pc.CollisionShape.CIRCLE | pc.CollisionShape.POLY)
+ * - offset: (x, y, w, h) of the shape to the entity's spatial (all default to 0)
+ * - type: user-set type which will be passed on in collisions
+ * - sensorOnly: boolean, use true to not react to collisions, just report them
+ * - collisionGroup: same as component collision group, but applies to only this fixture shape.
+ * - collisionMask: same as component collision mask, but applies to only this fixture shape.
+ * - collisionCategory: same as component collision category, but applies to only this fixture shape.
+ *
+ * Here's an example of a complex configuration of shapes (from the Scrollia player entity):
+ * <pre><code>
+ * e.addComponent(pc.components.Physics.create(
+ * {
+ *   ...
+ *
+ *     shapes:[
+ *         // upper torso/head
+ *         { type:0, offset:{y:-20, w:-60}, shape:pc.CollisionShape.CIRCLE },
+ *         // middle torso
+ *         { type:0, offset:{y:-3, w:-60}, shape:pc.CollisionShape.CIRCLE },
+ *         // leg area
+ *         { type:0, offset:{y:12, w:-60}, shape:pc.CollisionShape.CIRCLE },
+ *         // feet
+ *         { type:1, sensorOnly:true, shape:pc.CollisionShape.CIRCLE, offset:{y:20, w:-68} }
+ *     ],
+ *
+ *     ...
+ * }));
+ * </code></pre>
+ */
+
 pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
+    /** @lends pc.components.Physics */
     {
+        /**
+         * Creates (or acquires) a new physics component using the provided options
+         * @param {Number} [options.collisionGroup] Collision group to assign (default: 0)
+         * @param {Number} [options.collisionCategory] Collision category to assign (default: 0)
+         * @param {Number} [options.collisionMask] Collision mask to assign (default: 0)
+         * @param {Boolean} [options.sensorOnly] Don't react to collisions, just sense them (default: false)
+         * @param {Array} [options.shapes] An array of shapes representing the fixtures (default: entity's spatial rectangle)
+         * @param {pc.Dim} [options.maxSpeed] Maxium velocity to allow the entity to go (as an x, y vector)
+         * @param {pc.Dim} [options.gravity] Gravity override for the entity only (x, y vector)
+         * @param {Number} [options.mass] Amount of relative mass to assign to the entity
+         * @param {Boolean} [options.fixedRotation] True if the object is not allow to turn (default: false)
+         * @param {Number} [options.thrust] Initial thrust to apply
+         * @param {Number} [options.bounce] Amount of bounciness (2=200% reverse velocity on impact)
+         * @param {Boolean} [options.faceVel] Use true to have the entity always face the direction it's heading
+         * @param {pc.CollisionShape} [options.shape] Collision shape default (if shapes array not set)
+         * @param {Boolean} [options.immovable] Makes the object immovable (by any force)
+         * @param {Number} [options.density] How dense the entity is
+         * @param {Number} [options.friction] Amount of friction to apply
+         * @param {Number} [options.linearDamping] How fast to slow down velocity (less = more slide)
+         * @param {Number} [options.angularDamping] How fast to slow down spin (less = better bearings)
+         * @param {Boolean} [options.bullet] Special case handling of high-speed objects (enabled CCD)
+         * @param {Number} [options.torque] Amount of torque to apply (generate spin)
+         * @param {Number} [options.impulse] Amount of impulse force to apply initially
+         * @param {Number} [options.turn] Amount of initial spin to apply
+         * @param {pc.Dim} [options.centerOfMass] Where to position the entities centerOfMass (x, y)
+         */
         create:function (options)
         {
             var n = this._super();
@@ -7,71 +81,65 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             return n;
         }
     },
+    /** @lends pc.components.Physics.prototype */
     {
-        maxSpeed:      null,
-        bounce:        0.5,
-        faceVel:       false,
-        density:       0,
-        mass:          -1,
-        friction:      0,
-        linearDamping: 0, // rate at which an object will slow down movement
-        angularDamping:0, // rate at which ab object will slow down its rate of spin
-        fixedRotation: false, // allow the object to rotate
-        bullet:        false, // tell the physics engine to expect this object to move fast (slows things down
-        // so only enable if collisions are not being handled well (enables CCD between dynamic
-        // entities)
-
+        /** maximum speed the entity can move at (pc.Dim|pc.Point) */
+        maxSpeed:null,
+        /** bounciness (2 = bounce back at twice the impact speed) */
+        bounce:0.5,
+        /** causes the entity's direction to always match the velocity angle */
+        faceVel:false,
+        /** the density of the object */
+        density:0,
+        /** mass */
+        mass:-1,
+        /** level of friction (rubbing) of the surface */
+        friction:0,
+        /** rate at which an object will slow down movement */
+        linearDamping:0,
+        /** rate at which ab object will slow down its rate of spin */
+        angularDamping:0,
+        /** stop the entity from rotating */
+        fixedRotation:false,
+        /** tell the physics engine to expect this object to move fast (slows things down */
+        bullet:false,
         /**
          * A designated collision index, anything in the same index won't collide
          * a negative value will cause collisions with other objects, but not others of the same index
          * a positive number will cause collisions between objects of this group as well
-         * @default 0
          */
         collisionGroup:0,
-
-        /**
-         * Advanced collisions using a bit mask. Use this to set bits on/off.
-         * @default 0
-         */
+        /** Advanced collisions using a bit mask. Use this to set bits on/off. */
         collisionCategory:0,
-
-        /**
-         * Collision mask to apply to the entities
-         * @default 0
-         */
+        /** Collision mask to apply to the entities */
         collisionMask:0,
-
-        sensorOnly:false, // is a sensor only; no collisions -- default for all shapes
-        /**
-         * Whether the object can move in space (true gives it infinite mass)
-         */
-        immovable: false,
-
+        /** Senses collisions only; there will be no reaction to the collision (like pushing back) */
+        sensorOnly:false,
+        /** Whether the object can move in space (true gives it infinite mass) */
+        immovable:false,
+        /** Changes the center of mass from the default center (pc.Dim) */
         centerOfMass:null,
-
         /**
          * Custom gravity (x an y properties)
          */
         gravity:null,
 
-        /**
-         * Shapes - an array of shapes that make up this physics body
-         *
-         * Each shape defintion can contain:
-         *
-         * sensorOnly - {boolean} Collisions will be reported, but actual collision will occur in physics, i.e. a
-         * poison cloud which damages the player, but they don't collide with it physically. Default fault
-         * shape - {pc.CollisionShape} Shape of the collisions (rectangle, polygon or circle)
-         * offset - x, y, w, h offset of this shape to the physics body's position and dimension
-         */
+        /** Shapes - an array of shapes that make up this physics body */
         shapes:null,
 
-        _body:    null, // set by the physics system, if this is attached to a physics body
-        _fixtures:null, // array of fixtures attached to the body
-        force:    0, // force to apply
-        turn:     0, // turn to apply (through angular velocity)
-        torque:   0, // torque to apply
+        /** force to apply on adding the component */
+        force:0,
+        /** turn (spin) to apply on adding the component */
+        turn:0,
+        /** torque energy to apply on adding the component */
+        torque:0, // torque to apply
 
+        _body:null, // set by the physics system, if this is attached to a physics body
+        _fixtures:null, // array of fixtures attached to the body
+
+        /**
+         * Constructs and configures a new physics component (see create for details of options)
+         */
         init:function (options)
         {
             this._super(this.Class.shortName);
@@ -83,6 +151,9 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this.gravity = {};
         },
 
+        /**
+         * Configures the physics component (see create for details of options)
+         */
         config:function (options)
         {
             this._body = null;
@@ -99,7 +170,9 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             // no shape supplied, create a default one
             if (!pc.valid(options.shapes) && !Array.isArray(options.shapes))
             {
-                options.shapes = [ {} ];
+                options.shapes = [
+                    {}
+                ];
                 options.shapes[0].shape = pc.CollisionShape.RECT;
             }
 
@@ -174,12 +247,6 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
-        setPos:function (x, y)
-        {
-            if (this._body)
-                this._body.SetPosition({x:pc.systems.Physics.toP(x), y:pc.systems.Physics.toP(y)});
-        },
-
         applyTurn:function (d)
         {
             if (this._body)
@@ -193,7 +260,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         /**
          * Clears any custom gravity
          */
-        clearGravity: function()
+        clearGravity:function ()
         {
             this.setGravity();
         },
@@ -217,6 +284,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Force a direction change
+         * @param {Number} d Direction to change to
+         */
         setDir:function (d)
         {
             if (this._body)
@@ -227,6 +298,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.dir = d;
         },
 
+        /**
+         * Retrieves the current direction
+         * @return {Number} Current direction
+         */
         getDir:function ()
         {
             if (this._body)
@@ -236,6 +311,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             return 0;
         },
 
+        /**
+         * Applies force to the entity at a given angle
+         * @param {Number} f Amount of force to apply
+         * @param {Number} a Angle to apply the force at
+         */
         applyForce:function (f, a)
         {
             if (this._body)
@@ -252,6 +332,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.force = f;
         },
 
+        /**
+         * Applies immediate force to the entity at a given angle
+         * @param {Number} f Amount of force to apply
+         * @param {Number} a Direction to apply it at
+         */
         applyImpulse:function (f, a)
         {
             if (this._body)
@@ -267,6 +352,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.impulse = f;
         },
 
+        /**
+         * Applies angular force (torque/spin) to an object to rotate it
+         * @param {Number} a Amount of angular force
+         */
         applyTorque:function (a)
         {
             if (this._body)
@@ -276,6 +365,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
                 this.torque = a;
         },
 
+        /**
+         * Change the center of masss
+         * @param {Number} x x-position relative to the origin of the entity
+         * @param {Number} y y-position relative to the origin of the entity
+         */
         setCenterOfMass:function (x, y)
         {
             if (this._body)
@@ -290,6 +384,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Returns the current speed in linear velocity
+         * @return {Number} Current linear velocity (the length of the speed vector)
+         */
         getSpeed:function ()
         {
             if (this._body)
@@ -297,6 +395,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             return 0;
         },
 
+        /**
+         * Force change the speed of the entity
+         * @param {Number} x x-component of a speed vector
+         * @param {Number} y y-component of a speed vector
+         */
         setLinearVelocity:function (x, y)
         {
             if (this._body)
@@ -305,6 +408,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
 
         _velReturn:null,
 
+        /**
+         * Current linear velocity vector
+         * @return {pc.Dim} Current velocity as a 2d vector
+         */
         getLinearVelocity:function ()
         {
             if (this._body)
@@ -315,11 +422,19 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             return this._velReturn;
         },
 
+        /**
+         * Gets the angle based on the current velocity vector
+         * @return {Number} Angle
+         */
         getVelocityAngle:function ()
         {
             return pc.Math.angleFromVector(this._body.GetLinearVelocity().x, this._body.GetLinearVelocity().y);
         },
 
+        /**
+         * Forces an angular velocity (spin) change
+         * @param {Number} a Amount of angular force to apply
+         */
         setAngularVelocity:function (a)
         {
             if (this._body)
@@ -335,6 +450,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          },
          */
 
+        /**
+         * Change the collision category (changes all shapes)
+         * @param {Number} c Category to change to
+         */
         setCollisionCategory:function (c)
         {
             if (!this._fixtures.length) return;
@@ -350,6 +469,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Change the collision group (changes all shapes)
+         * @param {Number} g Group to change to
+         */
         setCollisionGroup:function (g)
         {
             if (!this._fixtures.length) return;
@@ -363,6 +486,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Change the collision mask (changes all shapes)
+         * @param {Number} m Mask to change to
+         */
         setCollisionMask:function (m)
         {
             if (!this._fixtures.length) return;
@@ -376,6 +503,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Change the sensor only status of a given shape
+         * @param {Boolean} s True if this is only a sensor
+         * @param {Number} shapeIndex Index of the shape to change
+         */
         setIsSensor:function (s, shapeIndex)
         {
             if (!this._fixtures.length) return;

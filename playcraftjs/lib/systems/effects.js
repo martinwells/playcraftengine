@@ -1,6 +1,17 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
-
+/**
+ * @class pc.systems.Effects
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
+ * A effects system that drives effects like fade.
+ */
 pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
+    /** @lends pc.systems.Effects */
     {
         FadeState:
         {
@@ -12,12 +23,19 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
             DONE: 5
         }
     },
+    /** @lends pc.systems.Effects.prototype */
     {
+        /**
+         * Constructs a new systems with options.
+         */
         init: function()
         {
             this._super( [ 'fade' ] );
         },
 
+        /**
+         * Processes all the entities with effect components
+         */
         processAll: function()
         {
             var next = this.entities.first;
@@ -35,7 +53,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
 
                         if (fade.state != this.Class.FadeState.DONE)
                         {
-                            if (!this.fade(alpha, fade))
+                            if (!this._fade(alpha, fade))
                                 entity.removeComponent(fade);
                         }
                     }
@@ -51,12 +69,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
             }
         },
 
-        /**
-         * Fades the target alpha component, returns false if done
-         * @param alpha
-         * @param fader
-         */
-        fade: function(alpha, fader)
+        _fade: function(alpha, fader)
         {
             var timeSinceStart = pc.device.now - fader.startTime;
 

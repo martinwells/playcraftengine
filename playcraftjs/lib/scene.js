@@ -49,17 +49,31 @@
  * </code></pre>
  */
 pc.Scene = pc.Base.extend('pc.Scene',
+    /** @lends pc.Scene */
     {},
+    /** @lends pc.Scene.prototype */
     {
+        /** Name of the scene */
         name:null,
+        /** An index of layers by name */
         layersByName:null,
+        /** Linked list of all layers in the scene */
         layers:null,
+        /** Linked list of all active layers */
         activeLayers:null,
+        /** Whether the scene is currently paused (read-only) */
         paused:false,
+        /** Whether the scene is active (read-only) */
         active:true,
+        /** pc.Rect of the current viewport */
         viewPort: null,
+
         viewPortCenter: null, // readonly, changes when you call setViewPort
 
+        /**
+         * Constructs a new scene with the given name
+         * @param {String} name Name of the scene, i.e. 'menu'
+         */
         init:function (name)
         {
             this._super();
@@ -79,6 +93,9 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 this.onReady();
         },
 
+        /**
+         * Called when the device is ready
+         */
         onReady:function ()
         {
             // signal all the layers that we're ready
@@ -106,8 +123,8 @@ pc.Scene = pc.Base.extend('pc.Scene',
 
         /**
          * Event notifier when the underlying game canvas is being resized
-         * @param width New width of the game canvas
-         * @param height New height of the game canvas
+         * @param {Number} width New width of the game canvas
+         * @param {Number} height New height of the game canvas
          */
         onResize:function (width, height)
         {
@@ -125,10 +142,10 @@ pc.Scene = pc.Base.extend('pc.Scene',
          * associated canvas. Use the view port dimensions to render different scenes at different
          * positions on screen. e.g. a game layer would typically be 0, 0, canvas.width, canvas.height
          * whereas a mini map may just be in the top left corner of the screen (0, 0, 100, 100).
-         * @param x X position to render the scene within the canvas (in screen pixels)
-         * @param y Y position to render the scene within the canvas (in screen pixels)
-         * @param width The maximum width to render (in screen pixels)
-         * @param height The maximum height to render (in screen pixels)
+         * @param {Number} x X position to render the scene within the canvas (in screen pixels)
+         * @param {Number} y Y position to render the scene within the canvas (in screen pixels)
+         * @param {Number} width The maximum width to render (in screen pixels)
+         * @param {Number} height The maximum height to render (in screen pixels)
          */
         setViewPort:function (x, y, width, height)
         {
@@ -166,24 +183,38 @@ pc.Scene = pc.Base.extend('pc.Scene',
         /**
          * Fired when a bound event/action is triggered in the input system. Use bindAction
          * to set one up. Override this in your subclass to do something about it.
-         * @param actionName The name of the action that happened
-         * @param event Raw event object
-         * @param pos Position, such as a touch input or mouse position
+         * @param {String} actionName The name of the action that happened
+         * @param {Event} event Raw event object
+         * @param {pc.Point} pos Position, such as a touch input or mouse position
          */
         onAction:function (actionName, event, pos)
         {
         },
 
+        /**
+         * Gets whether the scene is active or not
+         * @return {Boolean} True if active
+         */
         isActive:function ()
         {
             return this.active;
         },
 
+        /**
+         * Gets a layer using a name
+         * @param {String} name Name of the layer you want
+         * @return {pc.Layer} The layer
+         */
         get:function (name)
         {
             return this.layersByName.get(name);
         },
 
+        /**
+         * Adds a layer to the scene. The added layer will automatically be made active.
+         * @param {pc.Layer} layer Layer you want to add
+         * @return {pc.Layer} The layer you added, for convenience.
+         */
         addLayer:function (layer)
         {
             this.layersByName.put(layer.name, layer);
@@ -197,6 +228,10 @@ pc.Scene = pc.Base.extend('pc.Scene',
             return layer;
         },
 
+        /**
+         * Remove a layer
+         * @param {pc.Layer} layer The layer you want to remove
+         */
         removeLayer:function (layer)
         {
             this.layersByName.remove(layer.name);
@@ -207,6 +242,10 @@ pc.Scene = pc.Base.extend('pc.Scene',
             layer.onRemovedFromScene();
         },
 
+        /**
+         * Sets the layer to active
+         * @param {pc.Layer} layer Layer you want to make active
+         */
         setLayerActive:function (layer)
         {
             this.activeLayers.add(layer);
@@ -214,12 +253,20 @@ pc.Scene = pc.Base.extend('pc.Scene',
             layer.active = true;
         },
 
+        /**
+         * Sets the layer to inactive
+         * @param {pc.Layer} layer Layer you want to make inactive
+         */
         setLayerInactive:function (layer)
         {
             this.activeLayers.remove(layer);
             layer.active = false;
         },
 
+        /**
+         * Toggles a layer to active or inactive
+         * @param {pc.Layer} layer Layer you want to toggle
+         */
         toggleLayerActive: function(layer)
         {
             if (layer.active)
@@ -228,11 +275,19 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 this.setLayerActive(layer);
         },
 
+        /**
+         * Gets the linked list node of the first active layer
+         * @return {pc.LinkedListNode} Node pointing to the first layer
+         */
         getFirstActiveLayer:function ()
         {
             return this.activeLayers.first;
         },
 
+        /**
+         * Gets the linked list node of the first layer
+         * @return {pc.LinkedListNode} Node pointing to the first layer
+         */
         getFirstLayer:function ()
         {
             return this.layers.first;
@@ -289,6 +344,9 @@ pc.Scene = pc.Base.extend('pc.Scene',
             }
         },
 
+        /**
+         * Resets all layers
+         */
         reset:function ()
         {
             var next = this.layers.first;
@@ -304,8 +362,8 @@ pc.Scene = pc.Base.extend('pc.Scene',
 
         /**
          * Ask all the layers etc for any entities under the x, y position
-         * @param x the screen x position
-         * @param y the screen y position
+         * @param {Number} x the screen x position
+         * @param {Number} y the screen y position
          */
         entitiesUnderXY:function (x, y)
         {
@@ -323,7 +381,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
          * Loads all of the layers from a Tiled (TMX) map file. Tile layers will become instances of
          * TileLayer, objectgroups will become EntityLayers. Tile sets must have a name that matches an
          * available spritesheet image resource. Note that only a single tilesheet is currently supported.
-         * @param levelData
+         * @param {String} levelData XML formatted TMX data
          */
         loadFromTMX:function (levelData, entityFactory)
         {

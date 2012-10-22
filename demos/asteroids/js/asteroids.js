@@ -29,11 +29,11 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                 'Boom! Roidshot!', "SMASH!", 'Another one bites the moondust', 'YUM!', 'Do you ever miss?'];
         },
 
-        onCollision:function (objAType, objBType, entityA, entityB, force)
+        onCollision:function (aType, bType, entityA, entityB, force, fixtureAType, fixtureBType, contact)
         {
         },
 
-        onCollisionStart:function (objAType, objBType, entityA, entityB)
+        onCollisionStart:function (aType, bType, entityA, entityB, fixtureAType, fixtureBType, contact)
         {
             if ((entityB.hasTag('ASTEROID') || entityB.hasTag('ASTEROID-SMALL')) && entityA.hasTag('BULLET'))
             {
@@ -80,7 +80,7 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
             }
         },
 
-        onCollisionEnd:function (objAType, objBType, entityA, entityB)
+        onCollisionEnd:function (aType, bType, entityA, entityB, fixtureAType, fixtureBType, contact)
         {
         }
 
@@ -519,6 +519,8 @@ TheGame = pc.Game.extend('TheGame',
     {},
     {
         gameScene:null,
+        loadingScene:null,
+        loadingLayer:null,
 
         onReady:function ()
         {
@@ -541,12 +543,23 @@ TheGame = pc.Game.extend('TheGame',
                 pc.device.loader.add(new pc.Sound('music1', 'sounds/flashforward', ['ogg', 'mp3'], 1));
             }
 
+            this.loadingScene = new pc.Scene();
+            this.loadingLayer = new pc.Layer('loading');
+            this.loadingScene.addLayer(this.loadingLayer);
+
             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
         },
 
         onLoading:function (percentageComplete)
         {
-            // draw title screen -- with loading bar
+            var ctx = pc.device.ctx;
+            ctx.clearRect(0, 0, pc.device.canvasWidth, pc.device.canvasHeight);
+            ctx.font = "normal 50px Verdana";
+            ctx.fillStyle = "#88f";
+            ctx.fillText('Asteroids', 40, (pc.device.canvasHeight / 2) - 50);
+            ctx.font = "normal 18px Verdana";
+            ctx.fillStyle = "#777";
+            ctx.fillText('Loading: ' + percentageComplete + '%', 40, pc.device.canvasHeight / 2);
         },
 
         onLoaded:function ()

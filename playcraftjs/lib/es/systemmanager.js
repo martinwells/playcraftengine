@@ -1,18 +1,45 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
+/**
+ * @class pc.SystemManager
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * Manages systems that are within a layer.
+ *
+ * Unless you are building your own systems in a complex way, you should be using the pc.EntityLayer to handle
+ * general system management.
+ */
 pc.SystemManager = pc.Base.extend('pc.SystemManager',
+    /** @lends pc.SystemManager */
     {},
+    /** @lends pc.SystemManager.prototype */
     {
-        systems: null,
-        systemsByComponentType: null,
-        layer: null,    // set by the layer when it creates the system manager
+        /** pc.LinkedList of systems */
+        systems:null,
+        /** Index of the systems by component type */
+        systemsByComponentType:null,
+        /** layer the system is on -- set by the system */
+        layer:null,
 
-        init: function()
+        /**
+         * Constructs a system manager.
+         */
+        init:function ()
         {
             this.systems = new pc.LinkedList();
             this.systemsByComponentType = new pc.Hashtable();
         },
 
-        add: function(system, entityManager)
+        /**
+         * Adds a system to the system manager
+         * @param {pc.systems.System} system System to add
+         * @param {pc.EntityManager} entityManager Entity manager the system is on
+         */
+        add:function (system, entityManager)
         {
             system.layer = this.layer;
             system.systemManager = this;
@@ -23,7 +50,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
                 throw 'Invalid component types: it can be empty, but not undefined. Did you forget to ' +
                     'add an init method to your system and/or not call this._super(componentTypes)';
 
-            for (var i=0; i < system.componentTypes.length; i++)
+            for (var i = 0; i < system.componentTypes.length; i++)
             {
                 var ctype = system.componentTypes[i].toLowerCase();
 
@@ -51,12 +78,16 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             system.onAddedToLayer(this.layer);
         },
 
-        remove: function(system)
+        /**
+         * Removes a system from the system manager
+         * @param {pc.systems.System} system System to remove
+         */
+        remove:function (system)
         {
             system.onRemovedFromLayer(system.layer);
             this.systems.remove(system);
 
-            for (var i=0; i < system.componentTypes; i++)
+            for (var i = 0; i < system.componentTypes; i++)
             {
                 var list = this.systemsByComponentType.get(system.componentTypes[i].toLowerCase());
                 assert(list != null, "Oops, trying to remove a system and it's not in the by type list");
@@ -66,12 +97,22 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
-        getByComponentType: function(componentType)
+        /**
+         * Gets systems based on a component type
+         * @param {String} componentType Component type
+         * @return {pc.LinkedList} A linked list of the systems that have the given component type
+         */
+        getByComponentType:function (componentType)
         {
             return this.systemsByComponentType.get(componentType);
         },
 
-        onOriginChange: function(x, y)
+        /**
+         * Called when the origin of the layer changes
+         * @param {Number} x x-position of the origin
+         * @param {Number} y y-position of the origin
+         */
+        onOriginChange:function (x, y)
         {
             var system = this.systems.first;
             while (system)
@@ -81,18 +122,18 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
-        _handleEntityAdded: function(entity)
+        _handleEntityAdded:function (entity)
         {
             // grab a list of all the component types from the entity
             var componentTypes = entity.getComponentTypes();
-            for (var i=0; i < componentTypes.length; i++)
+            for (var i = 0; i < componentTypes.length; i++)
             {
                 // for every type, grab all the systems that use this type and add this entity
                 var systems = this.systemsByComponentType.get(componentTypes[i].toLowerCase());
                 if (systems)
                 {
                     var next = systems.first;
-                    while(next)
+                    while (next)
                     {
                         // add will check to make sure this entity isn't in there already
                         next.obj.add(entity);
@@ -102,21 +143,21 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
-        _handleEntityRemoved: function(entity)
+        _handleEntityRemoved:function (entity)
         {
             // grab a list of all the component types from the entity
             var componentMap = entity.getAllComponents();
             if (componentMap == null) return;
             var componentTypes = componentMap.keys();
 
-            for (var i=0; i < componentTypes.length; i++)
+            for (var i = 0; i < componentTypes.length; i++)
             {
                 // for every type, grab all the systems that use this type and add this entity
                 var systems = this.systemsByComponentType.get(componentTypes[i].toLowerCase());
                 if (systems)
                 {
                     var next = systems.first;
-                    while(next)
+                    while (next)
                     {
                         // just a plain removal, since this entity is going entirely
                         next.obj.remove(entity);
@@ -126,7 +167,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
-        _handleComponentAdded: function(entity, component)
+        _handleComponentAdded:function (entity, component)
         {
             // get a list of all the systems that are processing components of this type
             // then ask that system to add this entity, if it's not already there
@@ -152,7 +193,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
-        _handleComponentRemoved: function(entity, component)
+        _handleComponentRemoved:function (entity, component)
         {
             // get a list of all the systems that are processing components of a given type
             var list = this.systemsByComponentType.get(component.getType());
@@ -170,10 +211,13 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
 
         },
 
-        processAll: function()
+        /**
+         * Process all the systems
+         */
+        processAll:function ()
         {
             var next = this.systems.first;
-            while(next)
+            while (next)
             {
                 if (next.obj.delay == 0 || (pc.device.now - next.obj._lastRun > next.obj.delay))
                 {
@@ -185,10 +229,15 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
         },
 
+        /**
+         * Called when the layer resizes
+         * @param {Number} width Width of the layer
+         * @param {Number} height Height of the layer
+         */
         onResize:function (width, height)
         {
             var next = this.systems.first;
-            while(next)
+            while (next)
             {
                 next.obj.onResize(width, height);
                 next = next.next();

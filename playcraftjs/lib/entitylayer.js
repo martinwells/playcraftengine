@@ -130,8 +130,8 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
 
         /**
          * Sets the origin for the layer
-         * @param x
-         * @param y
+         * @param {Number} x x origin to set
+         * @param {Number} y y origin to set
          * @return {Boolean} Whether the origin actually changed (was it already set to the passed in origin)
          */
         setOrigin:function (x, y)
@@ -151,26 +151,46 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
             return this.entityManager;
         },
 
+        /**
+         * Get the system manager for this layer
+         * @return {pc.SystemManager}
+         */
         getSystemManager:function ()
         {
             return this.systemManager;
         },
 
+        /**
+         * Add a system to the layer
+         * @param {pc.systems.System} system The system to add to the layer
+         */
         addSystem:function (system)
         {
             this.systemManager.add(system, this.entityManager);
         },
 
+        /**
+         * Gets all the systems that can handle a given component type, such as 'physics'
+         * @param {String} componentType Type of component to match
+         * @return {pc.LinkedList} Linked list of systems that match
+         */
         getSystemsByComponentType:function (componentType)
         {
             return this.systemManager.getByComponentType(componentType);
         },
 
+        /**
+         * Removes a system from this layer's system manager
+         * @param {pc.systems.System} system The system to remove
+         */
         removeSystem:function (system)
         {
             this.systemManager.remove(system);
         },
 
+        /**
+         * Master process for the layer
+         */
         process:function ()
         {
             this._super();
@@ -178,6 +198,11 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
             this.entityManager.cleanup();
         },
 
+        /**
+         * Called automatically when the viewport is changing size.
+         * @param {Number} width Width to resize to
+         * @param {Number} height Height to resize to
+         */
         onResize:function (width, height)
         {
             this.systemManager.onResize(width, height);

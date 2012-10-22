@@ -1,9 +1,24 @@
 /**
- * A particle emitter component
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  */
 
+/**
+ * @class pc.components.ParticleEmitter
+ * @description
+ * [Extends <a href='pc.components.Component'>pc.components.Component</a>]<BR>
+ * [Used in <a href='pc.systems.Particles'>pc.systems.Particles</a>]
+ * <p>
+ * A particle generator.
+ */
 pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.ParticleEmitter',
+    /** @lends pc.components.ParticleEmitter */
     {
+        /**
+         * Constructs (or acquires from the pool) a particle emitter component
+         * @param {Object} options See member list for available options
+         * @return {pc.components.ParticleEmitter} A newly configured emitter component
+         */
         create:function (options)
         {
             var n = this._super();
@@ -11,47 +26,87 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
             return n;
         }
     },
+    /** @lends pc.components.ParticleEmitter.prototype */
     {
+        /** set to false to pause the emitter (and all emissions) */
         active: true,
-        emitting: true,         // true if the emitter should be creating new emissions
-        growXMin:0,             // minimum amount to grow particles at (negative values shrink) x-axis
-        growXMax:0,             // maximum amount to grow particles at (negative values shrink) x-axis
-        growYMin:0,             // minimum amount to grow particles at (negative values shrink) y-axis
-        growYMax:0,             // maximum amount to grow particles at (negative values shrink) y-axis
-        scaleXMin: 0,           // starting scale X
-        scaleXMax: 0,           //
-        scaleYMin: 0,           // starting scale Y
-        scaleYMax: 0,           //
-        fadeInTime: 0,          // time to spend fading in the particle
-        fadeOutTime: 0,         // time spent fading out the particle
-        angleMin: 0,            // minimum angle (direction) to fire a particle in
-        angleMax: 0,            // maximum angle (direction) to fire a particle in
-        thrustMin: 0,           // minimum speed
-        thrustMax: 0,           // (optional) maximum speed (default is speed minimum
-        thrustTime: 0,          // how long to thrust for
+        /** set to false to stop new emissions, but still update existing ones */
+        emitting: true,
+        /** minimum amount to grow particles at (negative values shrink) x-axis */
+        growXMin:0,
+        /** maximum amount to grow particles at x-axis (defaults to growXMin) */
+        growXMax:0,
+        /** minimum amount to grow particles at (negative values shrink) y-axis */
+        growYMin:0,
+        /** maximum amount to grow particles at y-axis (defaults to growYMin) */
+        growYMax:0,
+        /** scaling of the image on x-axis (minimum) */
+        scaleXMin: 0,
+        /** scaling maximum. if different to min a random scale is chosen */
+        scaleXMax: 0,
+        /** scaling of the image on y-axis (minimum) */
+        scaleYMin: 0,
+        /** scaling maximum. if different to min a random scale is chosen */
+        scaleYMax: 0,
+        /** time to spend fading in the particle */
+        fadeInTime: 0,
+        /** time spent fading out the particle */
+        fadeOutTime: 0,
+        /** minimum angle (direction) to fire a particle in */
+        angleMin: 0,
+        /** maximum angle (direction) to fire a particle in */
+        angleMax: 0,
+        /** minimum speed */
+        thrustMin: 0,
+        /** (optional) maximum speed (default is speed minimum */
+        thrustMax: 0,
+        /** how long to thrust for */
+        thrustTime: 0,
+        /** min amount of spin on the particle (in degrees per second) */
         spinMin: 0,
+        /** max spin (random spin chosen between min and max) */
         spinMax: 0,
-        rangeX: 1,              // distribution of particles over x
-        rangeY: 1,              // distribution of particles over y
-        burst: 1,               // number to fire out on each emission
-        delay: 25,              // delay time between emissions in ms
-        spriteSheet: null,      // spritesheet to use
+        /** distribution of particles over x range */
+        rangeX: 1,
+        /** distribution of particles over y */
+        rangeY: 1,
+        /** number to fire out on each emission */
+        burst: 1,
+        /** delay time between emissions in ms */
+        delay: 25,
+        /** spritesheet to use (a particle = a frame) */
+        spriteSheet: null,
+        /** minimum life span of particles */
         lifeMin: 0,
-        lifeMax: 0,             // (optional) default is life minimum
-        rotateSprite: false,    // whether sprite should rotate with angle changes
-        offsetX: null,           // x and y position offset (from the position of the entity)
+        /** max life span (random life span = max-min) */
+        lifeMax: 0,
+        /** whether sprite should rotate with angle changes */
+        rotateSprite: false,
+        /** x position offset (from the position of the entity) */
+        offsetX: null,
+        /** y position offset (from the position of the entity) */
         offsetY: null,
+        /** composite operation on the image */
         compositeOperation: null,
-        relativeAngle: true,    // whether particle angles should be relative to the entity I'm attached to
-        shots: 0,               // number of shots fired by the emitter (self destructs after this). 0=repeat continuously
-        alphaMin: 1,            // minimum range of alpha to randomly change opacity/alpha
+        /** whether particle angles should be relative to the entity I'm attached to */
+        relativeAngle: true,
+        /** number of shots the emitter shold fire (self destructs after this). 0=repeat continuously */
+        shots: 0,
+        /** minimum range of alpha to randomly change opacity/alpha */
+        alphaMin: 1,
+        /** minimum range of alpha to randomly change opacity/alpha */
         alphaMax: 1,
+        /** delay before changing alpha */
         alphaDelay: 0,
 
         _particles: null,
         _lastEmitTime: 0,
         _shotCount: 0,
 
+        /**
+         * Constructs a new component. See create method for options
+         * @param {Object} options Options
+         */
         init:function (options)
         {
             this._super('emitter');
@@ -59,12 +114,19 @@ pc.components.ParticleEmitter = pc.components.Component.extend('pc.components.Pa
                 this.config(options);
         },
 
+        /**
+         * Reset the emitter to start again
+         */
         reset: function()
         {
             this._shotCount = 0;
             this._lastEmitTime = 0;
         },
 
+        /**
+         * Configures the component. See create method for options
+         * @param {Object} options Options
+         */
         config:function (options)
         {
             this._lastEmitTime = 0;

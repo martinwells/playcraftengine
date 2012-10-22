@@ -1,18 +1,24 @@
 /**
- * Playcraft Engine. (C)2012 Playcraft Labs, Inc.
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  */
 
 /**
- * @class pc.ActivatorSystem
- * Handles activating entities when they get within a certain range of another entity
+ * @class pc.systems.Activation
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
+ * Handles activating entities when they get within a certain range of another entity.
+ * See the <a href='pc.components.Activator'>activator component</a> for more information.
  */
-
 pc.systems.Activation = pc.systems.EntitySystem.extend('pc.systems.Activation',
+    /** @lends pc.systems.Activation */
     {},
+    /** @lends pc.systems.Activation.prototype */
     {
         /**
          * Constructor for the activation system
-         * @param delay Time between system runs in milliseconds. Default is 2000 (2 seconds).
+         * @param {Number} delay Time between system runs in milliseconds. Default is 2000 (2 seconds).
          */
         init:function(delay)
         {

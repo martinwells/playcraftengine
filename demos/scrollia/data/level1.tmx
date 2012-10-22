@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="200" height="200" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Cave" tilewidth="32" tileheight="32">
-  <image source="../images/tiles.png" width="128" height="1280"/>
+  <image source="../../../../../../Dropbox/PlaycraftDev/playcraftengine/demos/scrollia/images/tiles.png" width="128" height="1280"/>
   <tile id="2">
    <properties>
     <property name="range" value="50"/>
@@ -62,6 +62,12 @@
   </object>
  </objectgroup>
  <objectgroup name="entity" width="200" height="200">
+  <object name="player" type="PlayerSpawn" x="160" y="576" width="33" height="58">
+   <properties>
+    <property name="entity" value="player"/>
+    <property name="maxSpeed" value="1"/>
+   </properties>
+  </object>
   <object name="lightrays" type="decoration" x="3840" y="1024" width="70" height="98">
    <properties>
     <property name="entity" value="lightrays"/>
@@ -207,11 +213,6 @@
     <property name="entity" value="zombie"/>
    </properties>
   </object>
-  <object name="rock" type="crates" x="1280" y="832" width="64" height="64">
-   <properties>
-    <property name="entity" value="rock"/>
-   </properties>
-  </object>
   <object name="rock" type="crates" x="2208" y="352" width="64" height="64">
    <properties>
     <property name="entity" value="rock"/>
@@ -237,11 +238,6 @@
     <property name="entity" value="crate"/>
    </properties>
   </object>
-  <object name="crate" type="crates" x="768" y="800" width="32" height="32">
-   <properties>
-    <property name="entity" value="crate"/>
-   </properties>
-  </object>
   <object name="crate" type="crates" x="736" y="864" width="32" height="32">
    <properties>
     <property name="entity" value="crate"/>
@@ -257,15 +253,9 @@
     <property name="entity" value="zombie"/>
    </properties>
   </object>
-  <object name="player" type="PlayerSpawn" x="262" y="712" width="33" height="58">
+  <object name="crate" type="crates" x="765" y="799" width="32" height="32">
    <properties>
-    <property name="entity" value="player"/>
-    <property name="maxSpeed" value="1"/>
-   </properties>
-  </object>
-  <object name="ogre" type="Monster" x="598" y="788" width="32" height="64">
-   <properties>
-    <property name="entity" value="ogre"/>
+    <property name="entity" value="crate"/>
    </properties>
   </object>
  </objectgroup>

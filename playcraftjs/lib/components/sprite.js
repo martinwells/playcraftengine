@@ -1,8 +1,25 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
-
-
+/**
+ * @class pc.components.Sprite
+ * @description
+ * [Extends <a href='pc.components.Component'>pc.components.Component</a>]<BR>
+ * [Used in <a href='pc.systems.Render'>pc.systems.Render</a>]
+ * <p>
+ * Adds a sprite to an entity. See the core <a href='pc.Sprite'>sprite</a> class for information on sprites.
+ */
 pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
+    /** @lends pc.components.Sprite */
     {
+        /**
+         * Constructs (or acquires from the pool) a sprite component.
+         * @param {pc.Sprite} options.sprite Sprite object to use
+         * @param {pc.Point} options.offset Object containing x, y properties. Offset position of the sprite.
+         * @return {pc.components.Sprite} A newly configured sprite component
+         */
         create: function(options)
         {
             var n = this._super();
@@ -10,7 +27,17 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
             return n;
         }
     },
+    /** @lends pc.components.Sprite.prototype */
     {
+        /** sprite object */
+        sprite:null,
+        /** Offset position of the text relative to the entity spatial */
+        offset:null,
+
+        /**
+         * Constructs a new component. See create method for options
+         * @param {Object} options Options
+         */
         init: function(options)
         {
             this._super(this.Class.shortName);
@@ -20,9 +47,10 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
                 this.config(options);
         },
 
-        sprite: null,
-        offset: null, // drawing offset
-
+        /**
+         * Configures the component. See create method for options
+         * @param {Object} options Options
+         */
         config: function(options)
         {
             var spriteSheet = pc.checked(options.spriteSheet, null);

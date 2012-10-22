@@ -1,11 +1,23 @@
-
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
 
 /**
- * Renders all entities that have drawable components
+ * @class pc.systems.Render
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
+ * Handles rendering of components: sprite, overlay, rect, text
  */
 pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
+    /** @lends pc.systems.Render */
     {},
+    /** @lends pc.systems.Render.prototype */
     {
+        /**
+         * Constructs a new render system.
+         */
         init: function()
         {
             this._super( [ 'sprite', 'overlay', 'rect', 'text' ] );
@@ -38,9 +50,10 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         {
                             ctx.save();
                             ctx.beginPath();
-                            if (clip.entity)
+                            if (clip.clipEntity)
                             {
-                                var sp = clip.entity.getComponent('spatial');
+                                // entity plus clipping rectangle
+                                var sp = clip.clipEntity.getComponent('spatial');
                                 ctx.rect(
                                     entity.layer.screenX(sp.pos.x) + clip.x, entity.layer.screenY(sp.pos.y) + clip.y,
                                     sp.dim.x+clip.w, sp.dim.y+clip.h);
@@ -161,16 +174,6 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             }
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
                             pc.device.elementsDrawn++;
-                            ctx.restore();
-                        }
-
-                        // draw debug info if required
-                        var debuginfo = next.obj.getComponent('debuginfo');
-                        if (debuginfo)
-                        {
-                            ctx.save();
-                            ctx.strokeStyle='#5f5';
-                            ctx.strokeRect(drawX, drawY, spatial.dim.x, spatial.dim.y);
                             ctx.restore();
                         }
 

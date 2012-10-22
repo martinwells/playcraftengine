@@ -1,19 +1,30 @@
 /**
- * A system that processes entities. update and draw methods will be called matching the entities
- * that contain the componentTypes specified in the constructor.
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  */
 
+/**
+ * @class pc.EntityManager
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * A system that processes entities.
+ */
 pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
+    /** @lends pc.systems.EntitySystem */
     {},
+    /** @lends pc.systems.EntitySystem.prototype */
     {
-        componentTypes: null,
-        entities: null, // list of entities that are to be process by this system
-        suicides: null, // holding place for entities that are to be removed at the end of each cycle
+        /** list of entities that are to be process by this system */
+        entities: null,
+        /** holding place for entities that are to be removed at the end of each cycle */
+        suicides: null,
 
         /**
          * Constructor for a system
-         * @param componentTypes An array of component types this system is interested in. Any entity with
-         * a component matching this type will be sent to this system for processing
+         * @param {Array} componentTypes An array of component types this system is interested in. Any entity with
+         * a component matching this type will be sent to this system for processing.
+         * @param {Number} delay Amount of time between cycles for this system (default = 0)
          */
         init: function(componentTypes, delay)
         {
@@ -25,7 +36,7 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
         /**
          * Adds an entity to this system, but only if the entity has a component type matching one of the types
          * used by this system (this.componentTypes)
-         * @param entity
+         * @param {pc.Entity} entity Entity to add (if the entity's component type matches the systems
          */
         addIfMatched: function(entity)
         {
@@ -39,6 +50,10 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
                 }
         },
 
+        /**
+         * Adds an entity to the system
+         * @param {pc.Entity} entity Entity to add
+         */
         add: function(entity)
         {
             if (this.entities.has(entity)) return; // already in the list
@@ -48,7 +63,7 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
 
         /**
          * Removes an entity from this system -- ignored if the entity isn't there
-         * @param entity
+         * @param {pc.Entity} entity Entity to remove
          */
         remove: function(entity)
         {
@@ -59,7 +74,7 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
         /**
          * Removes an entity from this system, but checks to see if it still matches first (has a component of
          * the correct type). This is called by the entity manager when a component is removed
-         * @param entity
+         * @param {pc.Entity} entity Entity to remove
          */
         removeIfNotMatched: function(entity)
         {
@@ -74,6 +89,10 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
             this.remove(entity);
         },
 
+        /**
+         * Processes all entities. If you override this method, make sure you call this._super() to give the entity
+         * system a chance to process and clean up all entities.
+         */
         processAll: function()
         {
             var next = this.entities.first;
@@ -95,39 +114,42 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
 
         /**
          * Override this in your system to handle updating of matching entities
-         * @param entity Entity to update
+         * @param {pc.Entity} entity Entity to update
          */
         process: function(entity) {},
 
+        /**
+         * Adds the entity to the suicide list; it will be removed at the end of the cycle.
+         * @param entity
+         */
         suicide: function(entity)
         {
             this.suicides.add(entity);
-
         },
 
         /**
          * Called when an entity has been added to this system
-         * @param entity
+         * @param {pc.Entity} entity Entity that was added
          */
         onEntityAdded: function(entity) {},
 
         /**
          * Called when an entity has been removed from this system
-         * @param entity
+         * @param {pc.Entity} entity Entity that was removed
          */
         onEntityRemoved: function(entity) {},
 
         /**
          * Called when a component is added to an entity
-         * @param entity
-         * @param component
+         * @param {pc.Entity} entity Entity the component was added to
+         * @param {pc.components.Component} component Component that was added
          */
         onComponentAdded: function(entity, component) {},
 
         /**
          * Called when a component is removed from an entity
-         * @param entity
-         * @param component
+         * @param {pc.Entity} entity Entity the component was removed from
+         * @param {pc.components.Component} component Component that was removed
          */
         onComponentRemoved: function(entity, component) {}
 

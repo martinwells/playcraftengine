@@ -56,21 +56,13 @@ GameScene = pc.Scene.extend('GameScene',
 
 
 TheGame = pc.Game.extend('TheGame',
-    {
-        test: function()
-        {
-            return 'test';
-        }
-
-    },
+    { },
     {
         gameScene:null,
 
         onReady:function ()
         {
             this._super();
-
-            console.log( TheGame.test() );
 
             // disable caching when developing
             if (pc.device.devMode)

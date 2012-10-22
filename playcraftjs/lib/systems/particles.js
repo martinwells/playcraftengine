@@ -1,6 +1,23 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
+/**
+ * @class pc.systems.Particles
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
+ * A particle system. See the particle component for more information.
+ */
 pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
+    /** @lends pc.systems.Particles */
     { },
+    /** @lends pc.systems.Particles.prototype */
     {
+        /**
+         * Constructs a new particle system
+         */
         init:function ()
         {
             this._super([ 'emitter' ]);

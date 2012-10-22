@@ -1,41 +1,65 @@
+/**
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
 pc.CollisionShape = {
     RECT:0, // rectangular collision area
     CIRCLE:1, // circular
     POLY:2     // a polygon
 };
 
-/**
- * @enum pc.BodyType
- * Used internally to track whether a physics body was created for a tilemap, or an entity
- *
- * @type {Object}
- */
 pc.BodyType = {
     ENTITY:0,
-    TILE: 1
+    TILE:1
 };
 
+/**
+ * @class pc.systems.Physics
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
+ * A 2D physics system for entities. See the <a href='pc.components.Physics'>physics component</a> and
+ * <a href='/develop/guide/physics'>physics guide</a>.
+ */
 pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
+    /** @lends pc.systems.Physics */
     {
+        /** scale of the physics systems relative to 1 pixel */
         SCALE:0.1,
 
+        /** static function to convert from a screen coordinate to physics space */
         toP:function (a)
         {
             return a * this.SCALE;
         },
 
+        /** static function to convert from a physics coordinate to a screen space */
         fromP:function (a)
         {
             return a / this.SCALE;
         }
-
     },
+    /** @lends pc.systems.Physics.prototype */
     {
+        /** the physics world */
         world:null,
+        /** current gravity (pc.Dim) */
         gravity:null,
-        debug: false,
-        debugDraw: null,
+        /** whether debugging is enabled */
+        debug:false,
 
+        debugDraw:null,
+
+        /**
+         * Constructs a new physics systems with options.
+         * @param {pc.Dim} options.gravity Level of gravity as a 2D vector (gravity.x, gravity.y)
+         * @param {pc.TileMap} options.tileCollisionMap.tileMap A tile map which will be used to construct tile collisions
+         * @param {Number} options.tileCollisionMap.collisionCategory Collision category for the tile map
+         * @param {Number} options.tileCollisionMap.collisionMask Collision mask for the tile map
+         * @param {Number} options.tileCollisionMap.collisionGroup Collision group for the tile map
+         * @param {Boolean} options.debug Whether debugging is enabled
+         */
         init:function (options)
         {
             this._super([ 'physics' ]);
@@ -119,6 +143,10 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 contact);
         },
 
+        /**
+         * Process an entity's physics. Called automatically by the entity system.
+         * @param {pc.Entity} entity Entity being processed
+         */
         process:function (entity)
         {
             if (!entity.active) return;
@@ -134,8 +162,8 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 bodyDef.type = ph.immovable ? Box2D.Dynamics.b2BodyDef.b2_staticBody :
                     bodyDef.type = Box2D.Dynamics.b2BodyDef.b2_dynamicBody;
 
-                bodyDef.position.x = this.Class.toP(sp.pos.x + (sp.dim.x/2));
-                bodyDef.position.y = this.Class.toP(sp.pos.y + (sp.dim.y/2));
+                bodyDef.position.x = this.Class.toP(sp.pos.x + (sp.dim.x / 2));
+                bodyDef.position.y = this.Class.toP(sp.pos.y + (sp.dim.y / 2));
                 bodyDef.linearDamping = ph.linearDamping;
                 bodyDef.angularDamping = ph.angularDamping;
                 bodyDef.isBullet = ph.bullet;
@@ -156,17 +184,17 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 pc.assert(ph.shapes.length, "You must specify at least one shapes for a physics entity");
 
                 // configure the shapes as fixtures
-                for (var i=0; i < ph.shapes.length; i++)
+                for (var i = 0; i < ph.shapes.length; i++)
                 {
                     var shape = ph.shapes[i];
 
                     // take the spatial, then offset
                     var w = (sp.dim.x + shape.offset.w) * this.Class.SCALE;
                     var h = (sp.dim.y + shape.offset.h) * this.Class.SCALE;
-                    var hw = w/2;
-                    var hh = h/2;
-                    var hx = (shape.offset.x * this.Class.SCALE)/2;
-                    var hy = (shape.offset.y * this.Class.SCALE)/2;
+                    var hw = w / 2;
+                    var hh = h / 2;
+                    var hx = (shape.offset.x * this.Class.SCALE) / 2;
+                    var hy = (shape.offset.y * this.Class.SCALE) / 2;
 
                     pc.assert(hw > 0 && hh > 0, "Physics requires a spatial size minimum of 1");
 
@@ -178,15 +206,15 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                     switch (shape.shape)
                     {
                         case pc.CollisionShape.CIRCLE:
-                            fixDef.shape = new Box2D.Collision.Shapes.b2CircleShape(w/2);
+                            fixDef.shape = new Box2D.Collision.Shapes.b2CircleShape(w / 2);
                             fixDef.shape.SetLocalPosition(
-                                Box2D.Common.Math.b2Vec2.Get(shape.offset.x*this.Class.SCALE,
-                                    shape.offset.y*this.Class.SCALE));
+                                Box2D.Common.Math.b2Vec2.Get(shape.offset.x * this.Class.SCALE,
+                                    shape.offset.y * this.Class.SCALE));
                             break;
 
                         case pc.CollisionShape.POLY:
                             var points = [];
-                            for (var q=0; q < shape.points.length; q++)
+                            for (var q = 0; q < shape.points.length; q++)
                                 points.push(new Box2D.Common.Math.b2Vec2(
                                     (shape.offset.x + shape.points[q][0]) * this.Class.SCALE,
                                     (shape.offset.y + shape.points[q][1]) * this.Class.SCALE));
@@ -201,10 +229,10 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
 
                             // the body is positioned relative to the center in physics,
                             // so we have to figure out the correct position of the center
-                            points.push(Box2D.Common.Math.b2Vec2.Get(-(hw)+hx, -(hh)+hy));   // top left
-                            points.push(Box2D.Common.Math.b2Vec2.Get(hw, -(hh)+hy));    // top right
+                            points.push(Box2D.Common.Math.b2Vec2.Get(-(hw) + hx, -(hh) + hy));   // top left
+                            points.push(Box2D.Common.Math.b2Vec2.Get(hw, -(hh) + hy));    // top right
                             points.push(Box2D.Common.Math.b2Vec2.Get(hw, hh));    // bottom right
-                            points.push(Box2D.Common.Math.b2Vec2.Get(-(hw)+hx, hh ));   // bottom left
+                            points.push(Box2D.Common.Math.b2Vec2.Get(-(hw) + hx, hh));   // bottom left
 
                             fixDef.shape.SetAsArray(points, points.length);
                             break;
@@ -365,12 +393,20 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             }
         },
 
+        /**
+         * Called when the origin of the layer changes
+         * @param {Number} x x-position of the origin
+         * @param {Number} y y-position of the origin
+         */
         onOriginChange:function (x, y)
         {
             // update the debug draw origin so it keeps up with us
             this.debugDraw.SetOrigin(x, y);
         },
 
+        /**
+         * Process the system
+         */
         processAll:function ()
         {
             // this.world.Step(pc.device.elapsed / 200, 20, 20);
@@ -381,14 +417,18 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             this._super();
         },
 
-        onAddedToLayer: function(layer)
+        onAddedToLayer:function (layer)
         {
             var worldBoundingBox = new Box2D.Collision.b2AABB();
             worldBoundingBox.lowerBound.Set(0, 0);
             worldBoundingBox.upperBound.Set(this.Class.toP(layer.worldSize.x), this.Class.toP(layer.worldSize.y));
         },
 
-        setDebug: function(on)
+        /**
+         * Sets debugging
+         * @param {Boolean} on True to enable debugging
+         */
+        setDebug:function (on)
         {
             if (on)
             {
@@ -399,6 +439,11 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             this.debug = on;
         },
 
+        /**
+         * Get all the entities in a given area
+         * @param {pc.Rect} rect Area to query
+         * @return {Array} Array of entities in the area
+         */
         getEntitiesInArea:function (rect)
         {
             var aabb = new Box2D.Collision.b2AABB(), entities = [];
@@ -416,7 +461,18 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             return entities;
         },
 
-        createStaticBody: function(x, y, w, h, collisionGroup, collisionCategory, collisionMask)
+        /**
+         * Quick way to create a static shape and add it directly to the physics world (without requiring an entity).
+         * Great for collision shapes like world boundaries
+         * @param {Number} x x-position of the collidable shape
+         * @param {Number} y y-position of the collidable shape
+         * @param {Number} w width of the collidable shape
+         * @param {Number} h height of the collidable
+         * @param {Number} collisionGroup Collision group index
+         * @param {Number} collisionCategory Collision category
+         * @param {Number} collisionMask Collision mask
+         */
+        createStaticBody:function (x, y, w, h, collisionGroup, collisionCategory, collisionMask)
         {
             var hw = this.Class.toP(w / 2);
             var hh = this.Class.toP(h / 2);
@@ -448,19 +504,26 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             body.CreateFixture(fixDef);
         },
 
-        addTileCollisionMap: function(tileMap, collisionGroup, collisionCategory, collisionMask)
+        /**
+         * Add a collision tile map (by creating collidable shapes in the physics world matching the tile map)
+         * @param {pc.TileMap} tileMap Tile map for all the tiles
+         * @param {Number} collisionGroup Collision group index
+         * @param {Number} collisionCategory Collision category
+         * @param {Number} collisionMask Collision mask
+         */
+        addTileCollisionMap:function (tileMap, collisionGroup, collisionCategory, collisionMask)
         {
             // Generate a set of rectangles (polys) for the tiles. To make things more efficient
             // we pack tiles horizontally across to reduce the total number of physics fixtures being
             // added.
 
-            for (var ty=0; ty < tileMap.tilesHigh; ty++)
+            for (var ty = 0; ty < tileMap.tilesHigh; ty++)
             {
                 // new row, start again
                 var x = 0;
                 var w = 0;
 
-                for (var tx=0; tx < tileMap.tilesWide; tx++)
+                for (var tx = 0; tx < tileMap.tilesWide; tx++)
                 {
                     if (tileMap.tiles[ty][tx] >= 0)
                     {
@@ -477,7 +540,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                         }
 
                         // set the starting x position for the next rectangle
-                        x = ((tx+1) * tileMap.tileWidth);
+                        x = ((tx + 1) * tileMap.tileWidth);
                     }
                 }
             }
@@ -512,6 +575,17 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
          */
 
 
+        /**
+         * Called when an entity first collides with a tile or another entity. Use the fixture types to differentiate
+         * collisions with different fixtures.
+         * @param {pc.BodyType} aType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.BodyType} bType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.Entity} entityA If an entity, a reference to the entity that was the first part of the collision
+         * @param {pc.Entity} entityB If an entity, a reference to the entity that was the second part of the collision
+         * @param {Number} fixtureAType User type provided when fixture was created of the first fixture
+         * @param {Number} fixtureBType User type provided when fixture was created of the second fixture
+         * @param {b2Contact} contact Additional contact information
+         */
         onCollisionStart:function (aType, bType, entityA, entityB, fixtureAType, fixtureBType, contact)
         {
         },
@@ -519,19 +593,29 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
         /**
          * Continuously called when in a collision state -- note that sensors will not be reported as constantly
          * colliding, they will only be reported as collision start and end events.
-         * @param aType
-         * @param bType
-         * @param entityA
-         * @param entityB
-         * @param force
-         * @param fixtureAType
-         * @param fixtureBType
-         * @param contact
+         * @param {pc.BodyType} aType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.BodyType} bType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.Entity} entityA If an entity, a reference to the entity that was the first part of the collision
+         * @param {pc.Entity} entityB If an entity, a reference to the entity that was the second part of the collision
+         * @param {Number} force The impact force of the collision
+         * @param {Number} fixtureAType User type provided when fixture was created of the first fixture
+         * @param {Number} fixtureBType User type provided when fixture was created of the second fixture
+         * @param {b2Contact} contact Additional contact information
          */
         onCollision:function (aType, bType, entityA, entityB, force, fixtureAType, fixtureBType, contact)
         {
         },
 
+        /**
+         * Called when an entity has finished colliding with a tile or another entity
+         * @param {pc.BodyType} aType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.BodyType} bType Type of the collision body (pc.BodyType.TILE or pc.BodyType.ENTITY)
+         * @param {pc.Entity} entityA If an entity, a reference to the entity that was the first part of the collision
+         * @param {pc.Entity} entityB If an entity, a reference to the entity that was the second part of the collision
+         * @param {Number} fixtureAType User type provided when fixture was created of the first fixture
+         * @param {Number} fixtureBType User type provided when fixture was created of the second fixture
+         * @param {b2Contact} contact Additional contact information
+         */
         onCollisionEnd:function (aType, bType, entityA, entityB, fixtureAType, fixtureBType, contact)
         {
         },
@@ -552,13 +636,6 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                     this.world.DestroyJoint(at._joint);
                 }
             }
-        },
-
-        onComponentAdded:function (entity, component)
-        {
-        },
-        onComponentRemoved:function (entity, component)
-        {
         }
 
     });

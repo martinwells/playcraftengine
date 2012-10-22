@@ -160,9 +160,9 @@ GameScene = pc.Scene.extend('GameScene',
             var backdropLeftSheet = new pc.SpriteSheet({ image:pc.device.loader.get('backdrop-left').resource });
             var backdropRightSheet = new pc.SpriteSheet({ image:pc.device.loader.get('backdrop-right').resource });
 
-            // stretch the 4 pixel background to be 400
-            var stretchedBackdropRepeat = pc.device.loader.get('backdrop-repeat').resource.resize(300, 1);
-            var backdropRepeatSheet = new pc.SpriteSheet({image:stretchedBackdropRepeat, frameWidth:1200, frameHeight:451 });
+            // stretch the 4 pixel background to be 1600 wide
+            var stretchedBackdropRepeat = pc.device.loader.get('backdrop-repeat').resource.resize(400, 1);
+            var backdropRepeatSheet = new pc.SpriteSheet({image:stretchedBackdropRepeat, frameWidth:1600, frameHeight:451 });
 
             //-----------------------------------------------------------------------------
             // background layer
@@ -172,7 +172,7 @@ GameScene = pc.Scene.extend('GameScene',
 
             var backgroundMiddle = pc.Entity.create(this.backgroundLayer);
             backgroundMiddle.addComponent(pc.components.Sprite.create({ spriteSheet:backdropRepeatSheet }));
-            backgroundMiddle.addComponent(pc.components.Spatial.create({ dir:0, y:this.floorY-510, w:400, h:451 }));
+            backgroundMiddle.addComponent(pc.components.Spatial.create({ dir:0, y:this.floorY-510, h:451 }));
 
             var backgroundLeft = pc.Entity.create(this.backgroundLayer);
             backgroundLeft.addComponent(pc.components.Sprite.create({ spriteSheet:backdropLeftSheet }));
@@ -321,7 +321,7 @@ GameScene = pc.Scene.extend('GameScene',
                 collisionCategory:CollisionType.FRIENDLY,
                 collisionMask:CollisionType.ENEMY|CollisionType.FRIENDLY, mass: 1,
                 fixedRotation:true,
-                centerOfMass: { x:15, y:2 } // offset the center of mass of the barrel so it turn on the right pivot
+                centerOfMass: { x:15, y:2 } // offset the center of mass of the barrel so it turns on the right pivot
             }));
 
             // base of the cannon
@@ -472,6 +472,8 @@ TheGame = pc.Game.extend('TheGame',
     {},
     {
         gameScene:null,
+        loadingScene:null,
+        loadingLayer:null,
 
         onReady:function ()
         {
@@ -501,12 +503,23 @@ TheGame = pc.Game.extend('TheGame',
                 pc.device.loader.add(new pc.Sound('explosion', 'sounds/explosion', ['ogg', 'mp3'], 12));
             }
 
+            this.loadingScene = new pc.Scene();
+            this.loadingLayer = new pc.Layer('loading');
+            this.loadingScene.addLayer(this.loadingLayer);
+
             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
         },
 
         onLoading:function (percentageComplete)
         {
-            // draw title screen -- with loading bar
+            var ctx = pc.device.ctx;
+            ctx.clearRect(0, 0, pc.device.canvasWidth, pc.device.canvasHeight);
+            ctx.font = "normal 50px Verdana";
+            ctx.fillStyle = "#8f8";
+            ctx.fillText('Angry Cannons', 40, (pc.device.canvasHeight / 2) - 50);
+            ctx.font = "normal 18px Verdana";
+            ctx.fillStyle = "#777";
+            ctx.fillText('Loading: ' + percentageComplete + '%', 40, pc.device.canvasHeight / 2);
         },
 
         onLoaded:function ()

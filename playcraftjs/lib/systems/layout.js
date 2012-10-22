@@ -3,15 +3,28 @@
  * See licence.txt for details
  */
 
-
 /**
+ * @class pc.systems.Layout
+ * @description
+ * [Extends <a href='pc.systems.System'>pc.systems.System</a>]
+ * <p>
  * Manages the layout of entities
  */
 pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
+    /** @lends pc.systems.Layout */
     {},
+    /** @lends pc.systems.Layout.prototype */
     {
+        /** current margin (left, right, top, bottom) */
         margin: null,
 
+        /**
+         * Constructs a new layout system.
+         * @param {Number} options.margin.left Default left margin for all entities
+         * @param {Number} options.margin.right Default right margin for all entities
+         * @param {Number} options.margin.top Default top margin for all entities
+         * @param {Number} options.margin.bottom Default bottom margin for all entities
+         */
         init: function(options)
         {
             this._super( [ 'layout' ] );
@@ -31,7 +44,7 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
             }
         },
 
-        getAnchorLocation: function(horizontal, vertically)
+        _getAnchorLocation: function(horizontal, vertically)
         {
             if (horizontal === 'left')
             {
@@ -58,9 +71,9 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
         },
 
         /**
-         * Processes all the entities and lays them out according to the anchoring options
+         * Processes all the entities and lays them out according to the anchoring options.
          * Typically this is called whenever a new entity with a layout component is added to the
-         * system.
+         * system, but you can call it manually if you really want to (such as when an entity changed size or moves)
          */
         doLayout: function()
         {
@@ -77,7 +90,7 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
                 var layout = entity.getComponent('layout');
 
                 // add entities to the layout sides; this just sorts them
-                var al = this.getAnchorLocation(layout.horizontal, layout.vertical);
+                var al = this._getAnchorLocation(layout.horizontal, layout.vertical);
                 layouts.add(al, next.obj);
                 //console.log(' adding: ' + next.obj.toString() + ' to anchor group: ' + al);
                 next = next.next();
@@ -93,7 +106,7 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
                 // if it's centered we need to know the height of all the entities being laid out
                 // before we place the first item.
 
-                var dim = this.getEntityDimensions(list);
+                var dim = this._getEntityDimensions(list);
                 var cx = this.margin.left;
                 var cy = this.margin.top;
 
@@ -175,7 +188,7 @@ pc.systems.Layout = pc.systems.EntitySystem.extend('pc.systems.Layout',
 
         _entityDim: null,
 
-        getEntityDimensions: function(list)
+        _getEntityDimensions: function(list)
         {
             if (!this._entityDim)
                 this._entityDim = new pc.Dim();

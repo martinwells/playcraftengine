@@ -1,24 +1,44 @@
 /**
- * Playcraft Engine. (C)2012 Playcraft Labs, Inc.
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  */
 
 /**
  * @class pc.EntityManager
- * Contains and manages all entities in a game
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * Manages entities in a layer. This is the primary entity manager for the entity system. It contains, indexes and
+ * handles the lifecycle of all entities.
+ *
+ * Unless you are building your own systems in a complex way, you should be using the pc.EntityLayer to handle
+ * general entity management.
  */
-
 pc.EntityManager = pc.Base.extend('pc.EntityManager',
+    /** @lends pc.EntityManager */
     {},
+    /** @lends pc.EntityManager.prototype */
     {
-        entitiesByTag: null,                // arbitrary tagging of entities
-        componentsByEntity: null,           // all the components indexed by entityID (as a linked list)
-        componentsByEntityPlusType: null,   // all the components, indexed by entityId and componentType (catted)
+        /** Index of all entities by tag */
+        entitiesByTag: null,
+        /** All the components indexed by entityID (as a linked list) */
+        componentsByEntity: null,
+        /** All the components, indexed by entityId and componentType (catted) */
+        componentsByEntityPlusType: null,
 
-        entities: null,                     // all the entities (todo: is this still required?)
-        entitySuicides: null,               // entities to be removed at the end of processing
+        /** Linked list of all entities */
+        entities: null,
+        /** entities to be removed at the end of processing */
+        entitySuicides: null,
+        /** the system manager */
         systemManager: null,
-        layer: null,                        // the layer this entitymanager is within (set by the layer class)
+        /** the layer this entitymanager is within (set by the layer class) */
+        layer: null,
 
+        /**
+         * Constructs a new entity manager
+         * @param {pc.SystemManager} systemManager The system manager to use
+         */
         init: function(systemManager)
         {
             this.systemManager = systemManager;
@@ -44,6 +64,11 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             this.entitySuicides.clear();
         },
 
+        /**
+         * Adds an entity to the manager
+         * @param {pc.Entity} entity Entity to add
+         * @param {String} [tag] A convenient way to add an entity and tag at the same time
+         */
         add: function(entity, tag)
         {
             // add the entity to our big global map
@@ -64,6 +89,10 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             this.systemManager._handleEntityAdded(entity);
         },
 
+        /**
+         * Removes an entity from the manager
+         * @param {pc.Entity} entity Entity to remove
+         */
         remove: function(entity)
         {
             if (!this.entitySuicides.has(entity))
@@ -73,13 +102,24 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             }
         },
 
+        /**
+         * Removes a component from an entity, and releases it back to the pool
+         * @param {pc.Entity} entity Entity to remove the component from
+         * @param {pc.components.Component} component Component to remove
+         */
         removeComponent: function(entity, component)
         {
             this._removeFromComponentMap(entity, component);
             this.systemManager._handleComponentRemoved(entity, component);
             entity._handleComponentRemoved(component);
+            component._entity = null;
         },
 
+        /**
+         * Adds a tag to an entity
+         * @param {pc.Entity} entity Entity to add the tag to
+         * @param {String} tag Tag to assign to the entity
+         */
         addTag: function(entity, tag)
         {
             if (entity.tags.indexOf(tag.toLowerCase()) != -1) return;
@@ -88,12 +128,22 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             entity.tags.push(tag.toLowerCase());
         },
 
+        /**
+         * Removes a tag from an entity
+         * @param {pc.Entity} entity Entity to remove the tag from
+         * @param {String} tag Tag to remove
+         */
         removeTag: function(entity, tag)
         {
             this.entitiesByTag.remove(tag.toLowerCase(), entity);
             entity.tags.remove(tag.toLowerCase());
         },
 
+        /**
+         * Gets all the entities that have a given tag
+         * @param {String} tag Tag to match
+         * @return {pc.LinkedList} List of entities
+         */
         getTagged: function(tag)
         {
             return this.entitiesByTag.get(tag.toLowerCase());
@@ -111,6 +161,10 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             entity.active = true;
         },
 
+        /**
+         * Makes an entity inactive (no longer processed)
+         * @param {pc.Entity} entity Entity to deactivate
+         */
         deactivate: function(entity)
         {
             if (!entity.active) return;
@@ -143,19 +197,26 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             entity.release();
         },
 
+        /**
+         * Add a component to an entity
+         * @param {pc.Entity} entity Entity to add the component to
+         * @param {pc.components.Component} component Component to add
+         * @return {pc.components.Component} Component that was added (for convience)
+         */
         addComponent: function(entity, component)
         {
             // make sure this entity is in the correct component maps
             this._addToComponentMap(entity, component);
             entity._handleComponentAdded(component);
             this.systemManager._handleComponentAdded(entity, component);
+            component._entity = entity;
             return component;
         },
 
         /**
          * Get a component of a given class from an entity
-         * @param entity Entity that has the component you're looking for
-         * @param componentType Class of component to get (e.g. pc.component.Position)
+         * @param {pc.Entity} entity Entity that has the component you're looking for
+         * @param {String} componentType Class of component to get (e.g. pc.component.Position)
          */
         getComponent: function(entity, componentType)
         {
@@ -164,8 +225,8 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
         /**
          * Gets the components in an entity
-         * @param entity Entity you want the components of
-         * @return {pc.Hashtable} a hashtable of components keyed by component type
+         * @param {pc.Entity} entity Entity you want the components of
+         * @return {pc.Hashtable} Hashtable of components keyed by component type
          */
         getComponents: function(entity)
         {
@@ -174,8 +235,8 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
         /**
          * Checks if a given entity contains a component of a given type
-         * @param entity
-         * @param componentType
+         * @param {pc.Entity} entity Entity to check
+         * @param {String} componentType Type to check for
          */
         hasComponentOfType: function(entity, componentType)
         {

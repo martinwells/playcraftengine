@@ -124,6 +124,17 @@ pc.Game = pc.Base.extend('pc.Game', {},
             return true; // return false to quit the update loop
         },
 
+        stopAllSounds: function()
+        {
+            // stop any current sounds from playing
+            var sounds = pc.device.loader.getAllSounds();
+            for (var i = 0; i < sounds.length; i++)
+            {
+                if (pc.device.soundEnabled)
+                    sounds[i].stop();
+            }
+        },
+
         /**
          * Base handler for input actions. This gives the game a chance to intercept and act on actions like
          * F9 and F10 for debugging. See pc.Input for more information on input handlers
@@ -133,13 +144,7 @@ pc.Game = pc.Base.extend('pc.Game', {},
         {
             if (actionName === 'toggle sound')
             {
-                // stop any current sounds from playing
-                var sounds = pc.device.loader.getAllSounds();
-                for (var i=0; i < sounds.length; i++)
-                {
-                    if (pc.device.soundEnabled)
-                        sounds[i].stop();
-                }
+                this.stopAllSounds();
                 // toggle the sound
                 pc.device.soundEnabled = !pc.device.soundEnabled;
             }

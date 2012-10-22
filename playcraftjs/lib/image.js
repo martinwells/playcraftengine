@@ -1,33 +1,53 @@
 /**
- * PlayCraft Engine
- * Image: a basic image class
- * @class
+ * Playcraft Engine - (C)2012 Playcraft Labs, Inc.
+ * See licence.txt for details
  */
 
-pc.Image = pc.Base.extend('pc.Image', {},
+/**
+ * @class pc.Image
+ * @description
+ * [Extends <a href='pc.Base'>pc.Base</a>]
+ * <p>
+ * A basic image resource. You can use this class to acquire images (loaded from a URI) and then draw them on-screen
+ * with effects such as scaling, rotation, compositing and alpha.<p>
+ */
+pc.Image = pc.Base.extend('pc.Image',
+    /** @lends pc.Image */
+    {},
+    /** @lends pc.Image.prototype */
     {
+        /** Width of the image; set upon loading, can be overridden after load */
         width:0,
+        /** Height of the image; set upon loading, can be overridden after load */
         height:0,
+        /** Source image element */
         image:null,
+        /** Source URI used to load the image */
         src:null,
-        name: null,
+        /** Resource name */
+        name:null,
+        /** Whether the image has been loaded yet */
         loaded:false,
+        /** Optional function called after this image loads */
         onLoadCallback:null,
+        /** Optional function called if this image fails to load */
         onErrorCallback:null,
+        /** x-scale to draw the image at */
         scaleX:1,
+        /** y-scale to draw the image at */
         scaleY:1,
+        /** alpha level to draw the image at (0.5=50% transparent) */
         alpha:1,
-        compositeOperation: null,
-        translateX: 0,
-        translateY: 0,
+        /** Composite operation to draw the image with, e.g. 'lighter' */
+        compositeOperation:null,
 
         /**
-         * Loads an image from a remote (URI) resource. This will automatically
-         * add this image into the resource manager if the game is still in an init
-         * phase.
-         * @param src URI for the image
-         * @param onLoadCallback Function to be called once the image has been loaded
-         * @param onErrorCallback Function to be called if the image fails to load
+         * Constructs a new pc.Image. If the pc.device.loader has already started then the image will be
+         * immediately loaded, otherwise it will wait for the resource loader to handle the loading.
+         * @param {String} name Name to give the image resource
+         * @param {String} src URI for the image
+         * @param {Function} onLoadCallback Function to be called once the image has been loaded
+         * @param {Function} onErrorCallback Function to be called if the image fails to load
          */
         init:function (name, src, onLoadCallback, onErrorCallback)
         {
@@ -41,8 +61,8 @@ pc.Image = pc.Base.extend('pc.Image', {},
             this.onErrorCallback = onErrorCallback;
 
             // setup our own handlers
-            this.image.onload = this.onLoad.bind(this);
-            this.image.onerror = this.onError.bind(this);
+            this.image.onload = this._onLoad.bind(this);
+            this.image.onerror = this._onError.bind(this);
             this.scaleX = 1;
             this.scaleY = 1;
             this.alpha = 1;
@@ -51,6 +71,20 @@ pc.Image = pc.Base.extend('pc.Image', {},
                 this.load();
         },
 
+        /**
+         * Change the alpha level to draw the image at (0.5 = 50% transparent)
+         * @param {Number} a Alpha level
+         */
+        setAlpha:function (a)
+        {
+            this.alpha = a;
+        },
+
+        /**
+         * Change the x and/or y scale to draw the image at.
+         * @param {Number} scaleX x-scale to draw at (2 = 200% wide, -1 = reversed normal on x)
+         * @param {Number} scaleY y-scale to draw at (2 = 200% high, -1 = reversed normal on y)
+         */
         setScale:function (scaleX, scaleY)
         {
             this.scaleX = scaleX;
@@ -58,17 +92,18 @@ pc.Image = pc.Base.extend('pc.Image', {},
         },
 
         /**
-         * Sets the componsite drawing operation for this image. Set to null to clear it back to the default.
-         * @param o
+         * Sets the componsite drawing operation for this image.
+         * @param {String} o Operation to use (e.g. 'lighter')
          */
-        setCompositeOperation: function(o)
+        setCompositeOperation:function (o)
         {
             this.compositeOperation = o;
         },
 
         /**
-         * Load an image. If the game hasn't started then the image resource
-         * will be added to the resource manager's queue.
+         * Load an image directly
+         * @param {Function} onLoadCallback Function to be called once the image has been loaded
+         * @param {Function} onErrorCallback Function to be called if the image fails to load
          */
         load:function (onLoadCallback, onErrorCallback)
         {
@@ -77,8 +112,8 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
             if (this.loaded && onLoadCallback) this.onLoadCallback(this);
 
-            this.image.onload = this.onLoad.bind(this);
-            this.image.onerror = this.onError.bind(this);
+            this.image.onload = this._onLoad.bind(this);
+            this.image.onerror = this._onError.bind(this);
             this.image.src = this.src;
         },
 
@@ -91,6 +126,17 @@ pc.Image = pc.Base.extend('pc.Image', {},
             this.load();
         },
 
+        /**
+         * Draw the image onto a context
+         * @param {Context} ctx Context to draw the sprite image on
+         * @param {Number} sx Source position in the image (or detination x if only 3 params)
+         * @param {Number} sy Source position in the image (or destination y if only 3 params)
+         * @param {Number} x x-position destination x position to draw the image at
+         * @param {Number} y y-position destination y position to draw the image at
+         * @param {Number} width Width to draw (will clip the image edge)
+         * @param {Number} height Height to draw (will clip the image edge)
+         * @param {Number} rotationAngle Angle to draw the image at
+         */
         draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
         {
             // scale testing
@@ -99,7 +145,14 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
             if (arguments.length == 3)
             {
-                ctx.drawImage(this.image, sx, sy);
+                ctx.save();
+                if (this.alpha != 1)
+                    ctx.globalAlpha = this.alpha;
+                ctx.translate(sx + (this.width / 2), sy + (this.height / 2));
+                ctx.scale(this.scaleX, this.scaleY);
+                ctx.drawImage(this.image, 0, 0, this.width, this.height, (-this.width / 2),
+                    (-this.height / 2), this.width, this.height);
+                ctx.restore();
             }
             else
             {
@@ -116,11 +169,11 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
                         ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
                     } else
-                        ctx.translate(x+(width/2), y+(height/2));
+                        ctx.translate(x + (width / 2), y + (height / 2));
 
                     ctx.rotate(rotationAngle * (Math.PI / 180));
                     ctx.scale(this.scaleX, this.scaleY);
-                    ctx.drawImage(this.image, sx, sy, width, height, (-width/2), (-height/2), width, height);
+                    ctx.drawImage(this.image, sx, sy, width, height, (-width / 2), (-height / 2), width, height);
                     ctx.restore();
                 }
                 else
@@ -134,7 +187,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
                         var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
                         var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
 
-                        ctx.translate(x+(-(width/2)*xf2), y+(-(height/2)*yf2));
+                        ctx.translate(x + (-(width / 2) * xf2), y + (-(height / 2) * yf2));
                     } else
                         ctx.translate(x, y);
 
@@ -150,7 +203,7 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
         },
 
-        onLoad:function ()
+        _onLoad:function ()
         {
             this.loaded = true;
 
@@ -161,13 +214,18 @@ pc.Image = pc.Base.extend('pc.Image', {},
                 this.onLoadCallback(this);
         },
 
-        onError:function ()
+        _onError:function ()
         {
             if (this.onErrorCallback)
                 this.onErrorCallback(this);
         },
 
-        expand: function(extraWidth, extraHeight)
+        /**
+         * Expands the image by adding blank pixels to the bottom and side
+         * @param {Number} extraWidth Amount of width to add
+         * @param {Number} extraHeight Amount of height to add
+         */
+        expand:function (extraWidth, extraHeight)
         {
             this.image.width = this.width + extraWidth;
             this.image.height = this.height + extraHeight;
@@ -180,14 +238,9 @@ pc.Image = pc.Base.extend('pc.Image', {},
             var sw = this.width * scaleX;
             var sh = this.height * scaleY;
 
-            // todo: fix this code
             var startingImage = document.createElement('canvas');
             startingImage.width = this.width;
             startingImage.height = this.height;
-
-            var startingCtx = startingImage.getContext('2d');
-            startingCtx.drawImage(this.image, 0, 0, this.width, this.height, 0, 0, this.width, this.height);
-            var startingPixels = startingCtx.getImageData(0, 0, this.width, this.height);
 
             var result = document.createElement('canvas');
             result.width = sw;
@@ -195,6 +248,10 @@ pc.Image = pc.Base.extend('pc.Image', {},
 
             var ctx = result.getContext('2d');
             var resultPixels = ctx.getImageData(0, 0, sw, sh);
+
+            var startingCtx = startingImage.getContext('2d');
+            startingCtx.drawImage(this.image, 0, 0, this.width, this.height, 0, 0, this.width, this.height);
+            var startingPixels = startingCtx.getImageData(0, 0, this.width, this.height);
 
             for (var y = 0; y < sh; y++)
             {
@@ -235,10 +292,10 @@ pc.CanvasImage = pc.Base.extend('pc.CanvasImage', {},
 
         draw:function (ctx, sx, sy, x, y, width, height)
         {
-            if ( width == undefined || height == undefined || width == 0 || height == 0)
+            if (width == undefined || height == undefined || width == 0 || height == 0)
                 ctx.drawImage(this.canvas, sx, sy);
             else
-                ctx.drawImage(this.canvas, sx, sy, width, height, x*this.scaleX, y*this.scaleY,
+                ctx.drawImage(this.canvas, sx, sy, width, height, x * this.scaleX, y * this.scaleY,
                     width * this.scaleX, height * this.scaleY);
         },
 
@@ -261,7 +318,7 @@ pc.ImageTools = pc.Base.extend('pc.ImageTools',
          * @param directions Number of directions you want back
          * @return {pc.CanvasImage} A new pc.CanvasImage with the rotations
          */
-        rotate: function(image, w, h, directions)
+        rotate:function (image, w, h, directions)
         {
             // create an destination canvas big enough
             var resultCanvas = document.createElement('canvas');
@@ -271,15 +328,15 @@ pc.ImageTools = pc.Base.extend('pc.ImageTools',
             var ctx = resultCanvas.getContext('2d');
 
             // find center of the source image
-            var cx = w/2;
-            var cy = h/2;
+            var cx = w / 2;
+            var cy = h / 2;
 
-            for (var d=0; d < directions; d++)
+            for (var d = 0; d < directions; d++)
             {
                 ctx.save();
-                ctx.translate(d * w + (w/2), h/2);
-                ctx.rotate( ((360/directions)*d) * (Math.PI/180));
-                ctx.drawImage(image, -(w/2), -(h/2));
+                ctx.translate(d * w + (w / 2), h / 2);
+                ctx.rotate(((360 / directions) * d) * (Math.PI / 180));
+                ctx.drawImage(image, -(w / 2), -(h / 2));
                 ctx.restore();
             }
 

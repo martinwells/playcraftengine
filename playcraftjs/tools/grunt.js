@@ -10,6 +10,7 @@ module.exports = function (grunt)
                 src:[
 
                     // externals
+                    'packed.js', // included only when packing
                     'ext/jquery171.js',
                     'ext/gamecore.js/src/class.js',
                     'ext/gamecore.js/src/gamecore.js',
@@ -21,11 +22,9 @@ module.exports = function (grunt)
                     'ext/gamecore.js/src/stacktrace.js',
                     'ext/gamecore.js/src/pooled.js',
                     'ext/base64.js',
-                    'ext/sylvester.js',
                     'ext/box2dweb.2.1a-pc.js',
 
                     // playcraft engine
-                    'packed.js', // included only when packing
                     'playcraft.js',
                     'boot.js', // <--- must be first after playcraft.js for engine scripts (sets up some translations)
                     'input.js',
@@ -62,7 +61,8 @@ module.exports = function (grunt)
                     'components/activator.js',
                     'components/input.js',
                     'components/fade.js',
-                    'components/drawing.js',
+                    'components/rect.js',
+                    'components/text.js',
                     'components/sprite.js',
                     'components/layout.js',
                     'components/particleemitter.js',

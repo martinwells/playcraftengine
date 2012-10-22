@@ -1254,15 +1254,40 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     e.addComponent(pc.components.Input.create(
                         {
                             states:[
-                                ['moving right', ['D', 'TOUCH', 'RIGHT']],
+                                ['moving right', ['D', 'RIGHT']],
                                 ['moving left', ['A', 'LEFT']],
                                 ['jumping', ['W', 'UP']],
                                 ['blocking', ['S', 'DOWN']],
-                                ['attacking', ['SPACE', 'MOUSE_LEFT_DOWN']],
+                                // bind the mouse button to attack; false means allow the click anywhere on screen
+                                // not just on the entity itself
+                                ['attacking', ['MOUSE_LEFT_BUTTON', 'SPACE'], false],
                                 ['casting', ['F', 'ENTER']]
                             ]
                         }));
                     return e;
+
+                /*
+
+                input controls:
+
+                create a touchpad component
+                draw a circle
+                apply touch to it
+                add a custom system figure the pressure sides
+                link it to the player
+
+
+                LEFT/RIGHT
+                JUMP BUTTON
+                ATTACK BUTTON
+                FIREBALL
+
+
+
+
+                 */
+
+
 
                 case 'zombie':
                     e = pc.Entity.create(layer);
@@ -1405,8 +1430,8 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     e.addComponent(pc.components.OriginShifter.create({ ratio:0.1 }));
 
                     // make the backdrop clip to within the boundary of the window
-                    backdrop.addComponent(pc.components.Clip.create({ entity:e, x:1, y:1 }));
-                    backdrop2.addComponent(pc.components.Clip.create({ entity:e, x:1, y:1, w:-20}));
+                    backdrop.addComponent(pc.components.Clip.create({ clipEntity:e, x:1, y:1 }));
+                    backdrop2.addComponent(pc.components.Clip.create({ clipEntity:e, x:1, y:1, w:-20}));
 
                     return e;
 
@@ -1559,6 +1584,8 @@ TheGame = pc.Game.extend('TheGame',
     {},
     {
         gameScene:null,
+        loadingScene: null,
+        loadingLayer: null,
         soundManager: null,
 
         onReady:function ()
@@ -1601,12 +1628,23 @@ TheGame = pc.Game.extend('TheGame',
                 pc.device.loader.add(new pc.Sound('blood-hit2', 'sounds/blood_hit2', ['ogg', 'mp3'], 2));
             }
 
+            this.loadingScene = new pc.Scene();
+            this.loadingLayer = new pc.Layer('loading');
+            this.loadingScene.addLayer(this.loadingLayer);
+
             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
         },
 
         onLoading:function (percentageComplete)
         {
-            // draw title screen -- with loading bar
+            var ctx = pc.device.ctx;
+            ctx.clearRect(0,0,pc.device.canvasWidth, pc.device.canvasHeight);
+            ctx.font = "normal 50px Times";
+            ctx.fillStyle = "#bbb";
+            ctx.fillText('Scrollia', 40, (pc.device.canvasHeight / 2)-50);
+            ctx.font = "normal 14px Verdana";
+            ctx.fillStyle = "#777";
+            ctx.fillText('Loading: ' + percentageComplete + '%', 40, pc.device.canvasHeight/2);
         },
 
         onLoaded:function ()
