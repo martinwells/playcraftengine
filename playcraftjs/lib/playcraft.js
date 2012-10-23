@@ -5,7 +5,7 @@
 if (!window.pc)
     window.pc = {};
 
-pc.VERSION = '0.5.21';
+pc.VERSION = '0.5.22';
 
 
 /**
@@ -101,7 +101,6 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.setBaseUrl(engineBaseURL);
 
         // Externals
-//        loader.add('ext/jquery171.js');
         loader.add('ext/gamecore.js/src/gamecore.js');
         loader.add('ext/gamecore.js/src/class.js');
         loader.add('ext/gamecore.js/src/base.js');
@@ -151,6 +150,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('components/input.js');
         loader.add('components/fade.js');
         loader.add('components/rect.js');
+        loader.add('components/poly.js');
         loader.add('components/text.js');
         loader.add('components/sprite.js');
         loader.add('components/layout.js');

@@ -20,7 +20,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
          */
         init: function()
         {
-            this._super( [ 'sprite', 'overlay', 'rect', 'text' ] );
+            this._super( [ 'sprite', 'overlay', 'rect', 'text', 'poly' ] );
         },
 
         processAll: function()
@@ -142,6 +142,35 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 if (rect.strokeColor && rect.lineWidth)
                                     ctx.strokeRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
                             }
+
+                            if (alpha) ctx.globalAlpha = 1; // restore the alpha
+                            ctx.restore();
+                            pc.device.elementsDrawn++;
+                        }
+
+                        var poly = next.obj.getComponent('poly');
+                        if (poly)
+                        {
+                            ctx.save();
+                            ctx.lineWidth = poly.lineWidth;
+                            ctx.fillStyle = poly.color.color;
+                            if (alpha) ctx.globalAlpha = alpha.level;
+                            if (poly.strokeColor && poly.lineWidth) ctx.strokeStyle = poly.strokeColor.color;
+
+                            var hw = spatial.dim.x/2;
+                            var hh = spatial.dim.y/2;
+
+                            // we center so rotation / dir works correctly
+                            ctx.translate(drawX + hw, drawY + hh);
+                            ctx.rotate(spatial.dir * (Math.PI / 180));
+
+                            ctx.beginPath();
+                            ctx.moveTo(poly.points[0][0]-hw, poly.points[0][1]-hh);
+                            for (var p=1; p < poly.points.length; p++)
+                                ctx.lineTo(poly.points[p][0]-hw, poly.points[p][1]-hh);
+
+                            ctx.closePath();
+                            ctx.fill();
 
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
                             ctx.restore();
