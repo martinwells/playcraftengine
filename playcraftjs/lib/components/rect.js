@@ -20,7 +20,7 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
          * @param {String} options.strokeColor Line color in the form of #RRGGBB
          * @param {Number} options.lineWidth Stroke width
          * @param {Number} options.cornerRadius Radius of the corners (defaults to 0)
-         * @return {pc.components.Rectangle} A rectangle component
+         * @return {pc.components.Rect} A rectangle component
          */
         create:function (options)
         {
