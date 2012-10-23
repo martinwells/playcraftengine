@@ -521,6 +521,7 @@ BrainSystem = pc.systems.EntitySystem.extend('BrainSystem',
     });
 
 
+
 /**
  * PlayerControlSystem
  * Handle input for the player
@@ -540,6 +541,7 @@ PlayerControlSystem = pc.systems.Input.extend('PlayerControlSystem',
             this._super(entity);
 
             var brain = entity.getComponent('brain');
+
             if (brain.state == Brain.State.DYING)
                 return; // no input if you're dead -- todo: add a way to disable input - set input component to inactive?
 
@@ -979,6 +981,10 @@ GameScene = pc.Scene.extend('GameScene',
             this.bgEntityLayer.addSystem(new pc.systems.Particles());
             this.bgEntityLayer.addSystem(new pc.systems.Activation());
 
+            //------------------------------------------------------------------------------------------------
+            // Game Layer
+            //------------------------------------------------------------------------------------------------
+
             // generate the shadow background map
             this.gameLayer = this.get('entity');
             this.gameLayer.setZIndex(20);
@@ -1017,7 +1023,7 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.addSystem(new BrainSystem());
             this.gameLayer.addSystem(new PlayerControlSystem());
 
-
+            // create the health bar
             //------------------------------------------------------------------------------------------------
             // UI Layer
             //------------------------------------------------------------------------------------------------
@@ -1027,11 +1033,11 @@ GameScene = pc.Scene.extend('GameScene',
             this.uiLayer.addSystem(new pc.systems.Render());
             this.uiLayer.addSystem(new pc.systems.Effects());
             this.uiLayer.addSystem(new pc.systems.Expiration());
+            this.uiLayer.addSystem(new pc.systems.Input());
             this.uiLayer.addSystem(new HealthBarSystem());
             this.uiLayer.setZIndex(100);
             this.addLayer(this.uiLayer);
 
-            // create the health bar
             var healthBar = pc.Entity.create(this.uiLayer);
             healthBar.addComponent(HealthBar.create(this.player, pc.device.canvasWidth / 5, 15));
             healthBar.addComponent(pc.components.Spatial.create({ }));
@@ -1046,6 +1052,51 @@ GameScene = pc.Scene.extend('GameScene',
             e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
             e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:70 }));
             e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{ left:80 } }));
+
+            // if this is a touch device, construct a UI layer entity for the left/right arrows
+            // then redirect the touch events to the player
+//            if (pc.device.isTouch)
+            {
+                var h = 80;
+                var w = 80;
+
+                // left arrow direction control
+                var leftArrow = pc.Entity.create(this.uiLayer);
+                leftArrow.addComponent(pc.components.Spatial.create({x:0, y:this.viewPort.h-h, dir:0, w:w, h:h}));
+                leftArrow.addComponent(pc.components.Poly.create({ color:'#888888', points:[
+                    [0, h/2],
+                    [w, 0],
+                    [w, h],
+                    [0, h/2]
+                ] }));
+                leftArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
+                leftArrow.addComponent(pc.components.Input.create(
+                    {
+                        target:this.player, // actions/states will be sent/set on the player, not this arrow
+                        states:[
+                            ['moving left', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ]
+                    }));
+
+                // right arrow direction control
+                var rightArrow = pc.Entity.create(this.uiLayer);
+                rightArrow.addComponent(pc.components.Spatial.create({x:w+5, y:this.viewPort.h - h, dir:0, w:w, h:h}));
+                rightArrow.addComponent(pc.components.Poly.create({ color:'#888888', points:[
+                    [0, 0],
+                    [w, h/2],
+                    [0, h],
+                    [0, 0]
+                ] }));
+                rightArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
+                rightArrow.addComponent(pc.components.Input.create(
+                    {
+                        target:this.player, // actions/states will be sent/set on the player, not this arrow
+                        states:[
+                            ['moving right', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ]
+                    }));
+
+            }
 
         },
 
@@ -1258,36 +1309,12 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                                 ['moving left', ['A', 'LEFT']],
                                 ['jumping', ['W', 'UP']],
                                 ['blocking', ['S', 'DOWN']],
-                                // bind the mouse button to attack; false means allow the click anywhere on screen
-                                // not just on the entity itself
-                                ['attacking', ['MOUSE_LEFT_BUTTON', 'SPACE'], false],
+                                ['attacking', ['SPACE']],
                                 ['casting', ['F', 'ENTER']]
                             ]
                         }));
+
                     return e;
-
-                /*
-
-                input controls:
-
-                create a touchpad component
-                draw a circle
-                apply touch to it
-                add a custom system figure the pressure sides
-                link it to the player
-
-
-                LEFT/RIGHT
-                JUMP BUTTON
-                ATTACK BUTTON
-                FIREBALL
-
-
-
-
-                 */
-
-
 
                 case 'zombie':
                     e = pc.Entity.create(layer);
