@@ -1055,48 +1055,72 @@ GameScene = pc.Scene.extend('GameScene',
 
             // if this is a touch device, construct a UI layer entity for the left/right arrows
             // then redirect the touch events to the player
-//            if (pc.device.isTouch)
-            {
-                var h = 80;
-                var w = 80;
+            var h = 80;
+            var w = 80;
 
-                // left arrow direction control
-                var leftArrow = pc.Entity.create(this.uiLayer);
-                leftArrow.addComponent(pc.components.Spatial.create({x:0, y:this.viewPort.h-h, dir:0, w:w, h:h}));
-                leftArrow.addComponent(pc.components.Poly.create({ color:'#888888', points:[
-                    [0, h/2],
-                    [w, 0],
-                    [w, h],
-                    [0, h/2]
-                ] }));
-                leftArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
-                leftArrow.addComponent(pc.components.Input.create(
-                    {
-                        target:this.player, // actions/states will be sent/set on the player, not this arrow
-                        states:[
-                            ['moving left', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
-                        ]
-                    }));
+            // left arrow direction control
+            var leftArrow = pc.Entity.create(this.uiLayer);
+            leftArrow.addComponent(pc.components.Spatial.create({x:0, y:this.viewPort.h-h, dir:0, w:w, h:h}));
+            leftArrow.addComponent(pc.components.Poly.create({ color:'#888888', strokeColor:'#ff0000', lineWidth:12, points:[
+                [0, h/2],
+                [w, 0],
+                [w, h],
+                [0, h/2]
+            ] }));
+            leftArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
+            leftArrow.addComponent(pc.components.Input.create(
+                {
+                    target:this.player, // actions/states will be sent/set on the player, not this arrow
+                    states:[
+                        ['moving left', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                    ]
+                }));
 
-                // right arrow direction control
-                var rightArrow = pc.Entity.create(this.uiLayer);
-                rightArrow.addComponent(pc.components.Spatial.create({x:w+5, y:this.viewPort.h - h, dir:0, w:w, h:h}));
-                rightArrow.addComponent(pc.components.Poly.create({ color:'#888888', points:[
-                    [0, 0],
-                    [w, h/2],
-                    [0, h],
-                    [0, 0]
-                ] }));
-                rightArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
-                rightArrow.addComponent(pc.components.Input.create(
-                    {
-                        target:this.player, // actions/states will be sent/set on the player, not this arrow
-                        states:[
-                            ['moving right', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
-                        ]
-                    }));
+            // right arrow direction control
+            var rightArrow = pc.Entity.create(this.uiLayer);
+            rightArrow.addComponent(pc.components.Spatial.create({x:w+5, y:this.viewPort.h - h, dir:0, w:w, h:h}));
+            rightArrow.addComponent(pc.components.Poly.create({ color:'#888888', strokeColor:'#ff0000', lineWidth:12, points:[
+                [0, 0],
+                [w, h/2],
+                [0, h],
+                [0, 0]
+            ] }));
+            rightArrow.addComponent(pc.components.Alpha.create({ level:0.2 }));
+            rightArrow.addComponent(pc.components.Input.create(
+                {
+                    target:this.player, // actions/states will be sent/set on the player, not this arrow
+                    states:[
+                        ['moving right', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                    ]
+                }));
 
-            }
+            // jump button
+            var jump = pc.Entity.create(this.uiLayer);
+            jump.addComponent(pc.components.Spatial.create({x:this.viewPort.w-w, y:this.viewPort.h - h, dir:0, w:w, h:h}));
+            jump.addComponent(pc.components.Circle.create({ strokeColor:'#ff0000', color:'#ffffff', lineWidth:12  }));
+            jump.addComponent(pc.components.Text.create({ text:['JUMP'], lineWidth:0, fontHeight:14, offset:{x:20, y:-(h/2)+5} }));
+            jump.addComponent(pc.components.Alpha.create({ level:0.2 }));
+            jump.addComponent(pc.components.Input.create(
+                {
+                    target:this.player, // actions/states will be sent/set on the player, not this arrow
+                    states:[
+                        ['jumping', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                    ]
+                }));
+
+            // cast button
+            var cast = pc.Entity.create(this.uiLayer);
+            cast.addComponent(pc.components.Spatial.create({x:this.viewPort.w - (w*2), y:this.viewPort.h - h, dir:0, w:w, h:h}));
+            cast.addComponent(pc.components.Circle.create({ strokeColor:'#ff0000', color:'#ffffff', lineWidth:12  }));
+            cast.addComponent(pc.components.Text.create({ text:['CAST'], lineWidth:0, fontHeight:14, offset:{x:20, y:-(h / 2) + 5} }));
+            cast.addComponent(pc.components.Alpha.create({ level:0.2 }));
+            cast.addComponent(pc.components.Input.create(
+                {
+                    target:this.player, // actions/states will be sent/set on the player, not this arrow
+                    states:[
+                        ['casting', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                    ]
+                }));
 
         },
 

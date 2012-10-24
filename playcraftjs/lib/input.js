@@ -110,6 +110,10 @@ pc.Input = pc.Base('pc.Input',
         actionBindings:null,
         /** Current position of the mouse on-screen, updated continuously */
         mousePos: null,
+        /** indicates if the left mouse button is currently down */
+        mouseLeftButtonDown: false,
+        /** indicates if the right mouse button is currently down */
+        mouseRightButtonDown: false,
 
         init:function ()
         {
@@ -140,17 +144,20 @@ pc.Input = pc.Base('pc.Input',
             // There can be many bindings associated with a particular input, so we see
             // if there is already one, and then append this to the array, otherwise
             // we create the array
+            var binding = { stateName:stateName, object:obj, input:input, state:{on:false, event:null}, uiTarget:uiTarget };
             var bindingSet = this.stateBindings.get(input);
             if (bindingSet == null)
-                this.stateBindings.put(input, [
-                    { stateName:stateName, object:obj, state:{on:false, event:null}, uiTarget:uiTarget }
-                ]);
+                this.stateBindings.put(input, [ binding ]);
             else
                 // otherwise append a new binding
-                bindingSet.push({ stateName:stateName, object:obj, state:{ on:false, event:null }, uiTarget:uiTarget });
+                bindingSet.push(binding);
 
             // now setup a state for this object/input combination
             this.states.put(obj.uniqueId + '\\\\' + stateName, {on: false, event: null});
+
+            // if this is a positional type binding, add it to the positional tracking array
+            if (pc.InputType.isPositional(pc.InputType.getCode(input)))
+                this._positionals.push(binding);
         },
 
 
@@ -173,7 +180,8 @@ pc.Input = pc.Base('pc.Input',
                         var state = this.states.get(next.object.uniqueId + '\\\\' + next.stateName);
                         state.on = false;
                         state.event = null;
-                        pc.tools.arrayRemove(this._tracks, binding);
+                        if (pc.InputType.isPositional(binding.input))
+                            pc.tools.arrayRemove(this._positionals, binding);
                     }
                 }
             }
@@ -244,11 +252,11 @@ pc.Input = pc.Base('pc.Input',
             var bindingSet = this.actionBindings.get(input);
             if (bindingSet == null)
                 this.actionBindings.put(input, [
-                    { actionName:actionName, object:obj, uiTarget:uiTarget }
+                    { actionName:actionName, object:obj, input:input, uiTarget:uiTarget }
                 ]);
             else
                 // otherwise append a new binding
-                bindingSet.push({ actionName:actionName, object:obj, uiTarget:uiTarget });
+                bindingSet.push({ actionName:actionName, input:input, object:obj, uiTarget:uiTarget });
         },
 
         /**
@@ -312,44 +320,54 @@ pc.Input = pc.Base('pc.Input',
             window.addEventListener('keyup', this._keyUp.bind(this), true);
         },
 
-        _tracks: [], // a linked list of bindings we are currently tracking
+        _positionals: [], // array of bindings that need to be checked against positional events like mouse move and touch
 
-        _checkState: function(moveEvent)
+        // Checks the positional event to see if it's a new event INSIDE an on-screen rectangle that has been
+        // bound to a state. This is so when a positional event, like a mouse move, 'slides' over an element
+        // we can turn the state on, as well as detecting when it slides out of the area of the uiTarget
+
+        _checkPositional: function(moveEvent)
         {
-            //
-            // Tracks states that are active, by watching to see if the mouse has moved beyond the region (such as moving
-            // the mouse out of a uitarget's surrounding rectangle, or having an entity move out from under the mouse.
-            // Since you can have multiple overlapping elements, we support multiple tracked selections simultaneously.
-            //
-
             // check existing tracked states -- did we move out of an element
-            for (var i=0; i < this._tracks.length; i++)
+            for (var i=0; i < this._positionals.length; i++)
             {
-                var next = this._tracks[i];
-                var pos = this.Class.getEventPosition(moveEvent);
-                var er = null;
-                if (pc.valid(next.uiTarget))
-                    er = next.uiTarget.getScreenRect();
-                else
-                    er = next.object.getScreenRect ? next.object.getScreenRect() : null;
+                var binding = this._positionals[i];
 
-                if (er && !er.containsPoint(pos))
+                if (moveEvent.type == 'mousemove' && pc.InputType.isTouch(pc.InputType.getCode(binding.input)))
+                    continue;
+
+                if (moveEvent.type == 'touchmove' && !pc.InputType.isTouch(pc.InputType.getCode(binding.input)))
+                    continue;
+
+                if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_LEFT_BUTTON && !this.mouseLeftButtonDown)
+                    continue;
+
+                if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_RIGHT_BUTTON && !this.mouseRightButtonDown)
+                    continue;
+
+                var er = null;
+                if (pc.valid(binding.uiTarget))
+                    er = binding.uiTarget.getScreenRect();
+                else
+                    er = binding.object.getScreenRect ? binding.object.getScreenRect() : null;
+
+                if (er)
                 {
-                    // no longer in the right position, turn state off
-                    var state = this.states.get(next.object.uniqueId + '\\\\' + next.stateName);
-                    state.on = false;
-                    state.event = moveEvent;
-                } else
-                {
-                    // moved into position, turn back on
-                    var state2 = this.states.get(next.object.uniqueId + '\\\\' + next.stateName);
-                    state2.on = true;
-                    state2.event = moveEvent;
+                    if (!er.containsPoint( this.Class.getEventPosition(moveEvent) ))
+                    {
+                        // no longer in the right position, turn state off
+                        var state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
+                        state.on = false;
+                        state.event = moveEvent;
+                    } else
+                    {
+                        // moved into position, turn back on
+                        var state2 = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
+                        state2.on = true;
+                        state2.event = moveEvent;
+                    }
                 }
             }
-
-            // todo: check if we moved INTO an element, this is just checking for moving out
-
         },
 
         _changeState:function (eventCode, stateOn, event)
@@ -391,12 +409,6 @@ pc.Input = pc.Base('pc.Input',
                                 var state = this.states.get(binding.object.uniqueId + '\\\\' + binding.stateName);
                                 state.on = stateOn;
                                 state.event = event;
-
-                                // start tracking the movement for this element
-                                if (state.on)
-                                    this._tracks.push(binding);
-                                else
-                                    pc.Tools.arrayRemove(this._tracks, binding);
                             }
                         } else
                         {
@@ -420,7 +432,7 @@ pc.Input = pc.Base('pc.Input',
         _lastMouseMove: null,
 
         /**
-         * Called by the pc.device main loop to process any events received. We only handle events
+         * Called by the pc.device main loop to process any move events received. We only handle events
          * here so they are processed once per cycle, not every time we get them (i.e. stop handling
          * a flood of mouse move or touch events
          */
@@ -428,7 +440,7 @@ pc.Input = pc.Base('pc.Input',
         {
             if (this._lastMouseMove)
             {
-                this._checkState(this._lastMouseMove);
+                this._checkPositional(this._lastMouseMove);
                 this.fireAction(pc.InputType.MOUSE_MOVE, this._lastMouseMove);
                 this.Class.getEventPosition(this._lastMouseMove, this.mousePos);
                 this._lastMouseMove = null;
@@ -481,18 +493,24 @@ pc.Input = pc.Base('pc.Input',
         {
             for(var i=0, len=event.touches.length; i < len; i++)
             {
-                this._checkState(event.touches[i]);
+                this._checkPositional(event.touches[i]);
             }
             event.preventDefault();
         },
 
         _mouseUp:function (event)
         {
-            // kill all the mouse tracks (mouse is up)
-            // todo: need separate tracks for different buttons
-            this._tracks.length = 0;
+            if (event.button == 0 || event.button == 1)
+            {
+                this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, false, event);
+                this.mouseLeftButtonDown = false;
+            } else
+            {
+                this._changeState(pc.InputType.MOUSE_RIGHT_BUTTON, false, event);
+                this.mouseRightButtonDown = false;
+            }
+
             // turn off specific states
-            this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, false, event);
             event.preventDefault();
         },
 
@@ -502,10 +520,12 @@ pc.Input = pc.Base('pc.Input',
             {
                 this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, true, event);
                 this.fireAction(pc.InputType.MOUSE_LEFT_BUTTON, event);
+                this.mouseLeftButtonDown = true;
             } else
             {
                 this._changeState(pc.InputType.MOUSE_RIGHT_BUTTON, true, event);
                 this.fireAction(pc.InputType.MOUSE_RIGHT_BUTTON, event);
+                this.mouseRightButtonDown = true;
             }
             event.preventDefault();
         },
@@ -632,6 +652,11 @@ pc.InputType = pc.Base.extend('pc.InputType',
             this.addInput(this.MOUSE_WHEEL_UP, 'MOUSE_WHEEL_UP');
             this.addInput(this.MOUSE_WHEEL_DOWN, 'MOUSE_WHEEL_DOWN');
             this.addInput(this.MOUSE_MOVE, 'MOUSE_MOVE');
+        },
+
+        isTouch:function(inputCode)
+        {
+            return inputCode == this.TOUCH;
         },
 
         isPositional:function (inputCode)

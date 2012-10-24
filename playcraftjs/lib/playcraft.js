@@ -151,6 +151,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('components/fade.js');
         loader.add('components/rect.js');
         loader.add('components/poly.js');
+        loader.add('components/circle.js');
         loader.add('components/text.js');
         loader.add('components/sprite.js');
         loader.add('components/layout.js');
