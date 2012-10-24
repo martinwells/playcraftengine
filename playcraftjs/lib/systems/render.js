@@ -20,7 +20,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
          */
         init: function()
         {
-            this._super( [ 'sprite', 'overlay', 'rect', 'text', 'poly' ] );
+            this._super( [ 'sprite', 'overlay', 'rect', 'text', 'poly', 'circle' ] );
         },
 
         processAll: function()
@@ -148,14 +148,43 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             pc.device.elementsDrawn++;
                         }
 
+
+                        var circle = next.obj.getComponent('circle');
+                        if (circle)
+                        {
+                            ctx.save();
+                            ctx.lineWidth = circle.lineWidth;
+                            if (alpha) ctx.globalAlpha = alpha.level;
+
+                            ctx.translate(drawX + (spatial.dim.x / 2), drawY + (spatial.dim.y / 2));
+                            ctx.rotate(spatial.dir * (Math.PI / 180));
+
+                            ctx.beginPath();
+                            ctx.arc(0, 0, spatial.dim.x / 2, 0, pc.Math.PI * 2, true);
+                            ctx.closePath();
+
+                            if (circle.color)
+                            {
+                                ctx.fillStyle = circle.color.color;
+                                ctx.fill();
+                            }
+
+                            if (circle.strokeColor)
+                            {
+                                ctx.lineWidth = circle.lineWidth;
+                                ctx.strokeStyle = circle.strokeColor.color;
+                                ctx.stroke();
+                            }
+                            if (alpha) ctx.globalAlpha = 1; // restore the alpha
+                            ctx.restore();
+                            pc.device.elementsDrawn++;
+                        }
+
                         var poly = next.obj.getComponent('poly');
                         if (poly)
                         {
                             ctx.save();
-                            ctx.lineWidth = poly.lineWidth;
-                            ctx.fillStyle = poly.color.color;
                             if (alpha) ctx.globalAlpha = alpha.level;
-                            if (poly.strokeColor && poly.lineWidth) ctx.strokeStyle = poly.strokeColor.color;
 
                             var hw = spatial.dim.x/2;
                             var hh = spatial.dim.y/2;
@@ -170,7 +199,18 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 ctx.lineTo(poly.points[p][0]-hw, poly.points[p][1]-hh);
 
                             ctx.closePath();
-                            ctx.fill();
+                            if (poly.color)
+                            {
+                                ctx.fillStyle = poly.color.color;
+                                ctx.fill();
+                            }
+
+                            if (poly.strokeColor)
+                            {
+                                ctx.lineWidth = poly.lineWidth;
+                                ctx.strokeStyle = poly.strokeColor.color;
+                                ctx.stroke();
+                            }
 
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
                             ctx.restore();
