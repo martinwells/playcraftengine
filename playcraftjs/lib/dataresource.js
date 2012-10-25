@@ -52,6 +52,7 @@ pc.DataResource = pc.Base.extend('pc.DataResource',
 
         /**
          * Loads data from a remote (URI) resource.
+         * @param {String} name Name to give the resource
          * @param {String} src URI for the data
          * @param {function} [onLoadCallback] Function to be called once the image has been loaded
          * @param {function} [onErrorCallback] Function to be called if the image fails to load
@@ -75,7 +76,6 @@ pc.DataResource = pc.Base.extend('pc.DataResource',
          * the pc.Loader will automatically call load when it starts.
          * @param {function} [onLoadCallback] Optional function called when the resource has finished loading
          * @param {function} [onErrorCallback] Optional function called if the resource fails to load
-         * @param
          */
         load:function (onLoadCallback, onErrorCallback)
         {
@@ -105,7 +105,7 @@ pc.DataResource = pc.Base.extend('pc.DataResource',
 
             if (this.request.readyState == 4)
             {
-                if (this.request.status == 200)
+                if (this.request.status == 200 || this.request.status == 0)
                 {
                     this.loaded = true;
 

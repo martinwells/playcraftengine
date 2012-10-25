@@ -267,6 +267,7 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
             pc.device.input.bindState(this, 'firing', 'TOUCH');
             pc.device.input.bindState(this, 'firing', 'SPACE');
+
         },
 
 
