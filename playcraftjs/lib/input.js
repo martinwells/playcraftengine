@@ -236,10 +236,10 @@ pc.Input = pc.Base('pc.Input',
          * Note: If the uiTarget element is not provided, the bounding rectangle of the obj is used (as long as
          * the object provides a getScreenRect() method, otherwise there is no checking
          *
-         * @param obj The entity, layer or scene to bind this action to (must implement onAction)
-         * @param actionName The name of the action, e.g. 'FIRE' or 'JUMP'
-         * @param input The input code as a string
-         * @param uiTarget An optional element to limit the input to only within the bounds of the element (must
+         * @param {pc.Base} obj The entity, layer or scene to bind this action to (must implement onAction)
+         * @param {String} actionName The name of the action, e.g. 'FIRE' or 'JUMP'
+         * @param {String} input The input code as a string
+         * @param {pc.Base} [uiTarget] An optional element to limit the input to only within the bounds of the element (must
          * implement getScreenRect)
          */
         bindAction:function (obj, actionName, input, uiTarget)
@@ -262,8 +262,8 @@ pc.Input = pc.Base('pc.Input',
         /**
          * Triggers an action to be fired. Typically this will be fired in response to an input, but it can
          * also be used to simulate an event.
-         * @param eventCode event code
-         * @param event An event object
+         * @param {Number} eventCode event code
+         * @param {Event} event An event object
          */
         fireAction:function (eventCode, event)
         {
@@ -481,20 +481,15 @@ pc.Input = pc.Base('pc.Input',
 
         _touchEnd:function (event)
         {
-            this._tracks.length = 0;
             for(var i=0, len=event.changedTouches.length; i < len; i++)
-            {
                 this._changeState(pc.InputType.TOUCH, false, event.changedTouches[i]);
-            }
             event.preventDefault();
         },
 
         _touchMove:function (event)
         {
             for(var i=0, len=event.touches.length; i < len; i++)
-            {
                 this._checkPositional(event.touches[i]);
-            }
             event.preventDefault();
         },
 
