@@ -30,7 +30,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
          */
         init: function()
         {
-            this._super( [ 'fade' ] );
+            this._super( [ 'fade', 'spin', 'scale' ] );
         },
 
         /**
@@ -56,6 +56,50 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                             if (!this._fade(alpha, fade))
                                 entity.removeComponent(fade);
                         }
+                    }
+                    var spin = entity.getComponent('spin');
+                    if (spin && spin.spinning)
+                    {
+                        var spatial = entity.getComponent('spatial');
+                        var a = spin.rate / pc.device.elapsed;
+
+                        if (spin.max > 0 && spin.spinSoFar+a >= spin.max)
+                        {
+                            spin.spinning = false;
+                            a = (spin.max-spin.spinSoFar);
+                        }
+                        spin.spinSoFar += a;
+                        spatial.setDir( pc.Math.rotate(spatial.getDir(), spin.clockwise ? a : -a));
+                    }
+
+                    var scale = entity.getComponent('scale');
+                    if (scale && scale.scaling)
+                    {
+                        spatial = entity.getComponent('spatial');
+
+                        if (!scale._bound && (scale.x != 1 || scale.y != 1))
+                        {
+                            spatial.addScale(scale.x, scale.y);
+                            scale._bound = true;
+                            if (scale.growX == 0 && scale.growY == 0)
+                                scale.scaling = false;
+                        }
+
+                        var sx = scale.growX / pc.device.elapsed;
+                        var sy = scale.growY / pc.device.elapsed;
+
+                        if (scale.maxX != 0 && (scale.scaledXSoFar > 0 && scale.scaledXSoFar + sx >= scale.maxX))
+                            sx = (scale.maxX - scale.scaledXSoFar);
+                        if (scale.maxY != 0 && (scale.scaledYSoFar > 0 && scale.scaledYSoFar + sy >= scale.maxY))
+                            sy = (scale.maxY - scale.scaledYSoFar);
+
+                        scale.scaledXSoFar += sx;
+                        scale.scaledYSoFar += sy;
+                        spatial.addScale(sx, sy);
+
+                        if ((scale.maxX != 0 && scale.scaledXSoFar >= scale.maxX) &&
+                            (scale.maxY != 0 && scale.scaledYSoFar >= scale.maxY))
+                            scale.scaling = false;
                     }
                 }
 

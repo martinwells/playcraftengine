@@ -137,6 +137,12 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         _body:null, // set by the physics system, if this is attached to a physics body
         _fixtures:null, // array of fixtures attached to the body
 
+        // internal tracking of the associated spatial to detect changes. initialized by the physics
+        // component when bound
+        _lastSpatialPos:null,
+        _lastSpatialDim:null,
+        _lastSpatialDir:0,
+
         /**
          * Constructs and configures a new physics component (see create for details of options)
          */

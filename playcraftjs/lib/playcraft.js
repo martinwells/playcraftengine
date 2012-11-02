@@ -5,7 +5,7 @@
 if (!window.pc)
     window.pc = {};
 
-pc.VERSION = '0.5.22';
+pc.VERSION = '0.5.4';
 
 
 /**
@@ -149,6 +149,8 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('components/activator.js');
         loader.add('components/input.js');
         loader.add('components/fade.js');
+        loader.add('components/spin.js');
+        loader.add('components/scale.js');
         loader.add('components/rect.js');
         loader.add('components/poly.js');
         loader.add('components/circle.js');

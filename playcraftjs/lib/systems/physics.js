@@ -270,6 +270,10 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 if (ph.impulse) ph.applyImpulse(ph.impulse);
                 if (ph.torque) ph.applyTorque(ph.torque);
                 if (ph.turn) ph.applyTurn(ph.turn);
+
+                ph._lastSpatialPos = pc.Point.create(sp.pos.x, sp.pos.y);
+                ph._lastSpatialDim = pc.Dim.create(sp.dim.x, sp.dim.y);
+                ph._lastSpatialDir = sp.dir;
             }
 
             // handle attachments/joints
@@ -366,13 +370,38 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 }
             }
 
+            // sync up with the spatial component
             var p = ph._body.GetPosition();
+            var dir = Math.round(pc.Math.radToDeg(ph._body.GetAngle()));
 
-            sp.pos.x = this.Class.fromP(p.x) - (sp.dim.x / 2);
-            sp.pos.y = this.Class.fromP(p.y) - (sp.dim.y / 2);
-            sp.dir = pc.Math.radToDeg(ph._body.GetAngle());
+            // first check to see if the spatial position or dimensions have changed from what we last set them to be
+            // if it has changed, force a position, dimension or direction change
+            if (ph._lastSpatialPos.x != sp.pos.x || ph._lastSpatialPos.y != sp.pos.y)
+            {
+                // the spatial position changed, so we move the physics object accordingly
+                var x = ph._lastSpatialPos.x != sp.pos.x ? this.Class.toP(sp.pos.x + (sp.dim.x / 2)) : p.x;
+                var y = ph._lastSpatialPos.y != sp.pos.y ? this.Class.toP(sp.pos.y + (sp.dim.y / 2)) : p.y;
 
-            // if there is a max velocity set enforce it
+                ph._body.SetPosition(Box2D.Common.Math.b2Vec2.Get(x, y));
+            }
+
+            if (ph._lastSpatialDir != sp.dir)
+            {
+                ph._body.SetAngle(pc.Math.degToRad(sp.dir));
+                dir = Math.round(pc.Math.radToDeg(ph._body.GetAngle()));
+            }
+
+            // update the spatial to match the physics position
+            sp.pos.x = Math.round(this.Class.fromP(p.x) - (sp.dim.x / 2));
+            sp.pos.y = Math.round(this.Class.fromP(p.y) - (sp.dim.y / 2));
+            sp.dir = dir;
+
+            // update what we think is the last position (according to the physics system)
+            ph._lastSpatialPos.x = sp.pos.x;
+            ph._lastSpatialPos.y = sp.pos.y;
+            ph._lastSpatialDir = dir;
+
+            // if there is a max velocity then enforce it
             if (ph.maxSpeed.x > 0 || ph.maxSpeed.y > 0)
             {
                 var velocity = ph._body.GetLinearVelocity();

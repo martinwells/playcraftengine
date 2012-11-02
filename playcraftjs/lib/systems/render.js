@@ -40,15 +40,17 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                     // accommodate scene viewport and layering offset positions
                     var drawX = entity.layer.screenX(spatial.pos.x);
                     var drawY = entity.layer.screenY(spatial.pos.y);
+                    var unscaledPos = spatial.getUnscaledPos();
+                    var unscaledDim = spatial.getUnscaledDim();
 
                     // is it onscreen?
                     if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y,0, spatial.dir))
                     {
                         var ctx = pc.device.ctx;
+                        ctx.save();
 
                         if (clip)
                         {
-                            ctx.save();
                             ctx.beginPath();
                             if (clip.clipEntity)
                             {
@@ -66,6 +68,16 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             }
                             ctx.closePath();
                             ctx.clip();
+                        }
+
+                        if (spatial.scaleX != 1 || spatial.scaleY != 1)
+                        {
+                            ctx.scale(spatial.scaleX, spatial.scaleY);
+                            drawX = entity.layer.screenX(unscaledPos.x);
+                            drawY = entity.layer.screenY(unscaledPos.y);
+//                            need to offset the spatial since it's also been scaled...
+//                            we scale the image, but not the size and position
+//                            spatial.getPosUnscaled()?
                         }
 
                         var shifter = entity.getComponent('originshifter');
@@ -112,12 +124,9 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         if (rect)
                         {
                             ctx.save();
-                            ctx.lineWidth = rect.lineWidth;
-                            ctx.fillStyle = rect.color.color;
                             if (alpha) ctx.globalAlpha = alpha.level;
-                            if (rect.strokeColor && rect.lineWidth) ctx.strokeStyle = rect.strokeColor.color;
 
-                            ctx.translate(drawX+(spatial.dim.x/2), drawY+(spatial.dim.y/2));
+                            ctx.translate((drawX+(spatial.dim.x/2)), (drawY+(spatial.dim.y/2)));
                             ctx.rotate( spatial.dir * (Math.PI/180));
 
                             // rounded rectangle
@@ -135,12 +144,31 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 ctx.lineTo(drawX, drawY + spatial.radius);
                                 ctx.quadraticCurveTo(drawX, drawY, drawX + spatial.radius, drawY);
                                 ctx.closePath();
-                                ctx.fill();
+
+                                if (rect.color)
+                                {
+                                    ctx.fillStyle = rect.color.color;
+                                    ctx.fill();
+                                }
+                                if (rect.lineColor && rect.lineWidth)
+                                {
+                                    ctx.lineWidth = rect.lineWidth;
+                                    ctx.strokeStyle = rect.lineColor.color;
+                                    ctx.stroke();
+                                }
                             } else
                             {
-                                ctx.fillRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
-                                if (rect.strokeColor && rect.lineWidth)
+                                if (rect.color)
+                                {
+                                    ctx.fillStyle = rect.color.color;
+                                    ctx.fillRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
+                                }
+                                if (rect.lineColor && rect.lineWidth)
+                                {
+                                    ctx.lineWidth = rect.lineWidth;
+                                    ctx.strokeStyle = rect.lineColor.color;
                                     ctx.strokeRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
+                                }
                             }
 
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
@@ -156,7 +184,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             ctx.lineWidth = circle.lineWidth;
                             if (alpha) ctx.globalAlpha = alpha.level;
 
-                            ctx.translate(drawX + (spatial.dim.x / 2), drawY + (spatial.dim.y / 2));
+                            ctx.translate((drawX + (spatial.dim.x / 2)), (drawY + (spatial.dim.y / 2)));
                             ctx.rotate(spatial.dir * (Math.PI / 180));
 
                             ctx.beginPath();
@@ -169,10 +197,10 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 ctx.fill();
                             }
 
-                            if (circle.strokeColor)
+                            if (circle.lineColor)
                             {
                                 ctx.lineWidth = circle.lineWidth;
-                                ctx.strokeStyle = circle.strokeColor.color;
+                                ctx.strokeStyle = circle.lineColor.color;
                                 ctx.stroke();
                             }
                             if (alpha) ctx.globalAlpha = 1; // restore the alpha
@@ -190,7 +218,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             var hh = spatial.dim.y/2;
 
                             // we center so rotation / dir works correctly
-                            ctx.translate(drawX + hw, drawY + hh);
+                            ctx.translate((drawX + hw), (drawY + hh));
                             ctx.rotate(spatial.dir * (Math.PI / 180));
 
                             ctx.beginPath();
@@ -205,10 +233,10 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 ctx.fill();
                             }
 
-                            if (poly.strokeColor)
+                            if (poly.lineColor)
                             {
                                 ctx.lineWidth = poly.lineWidth;
-                                ctx.strokeStyle = poly.strokeColor.color;
+                                ctx.strokeStyle = poly.lineColor.color;
                                 ctx.stroke();
                             }
 
@@ -223,8 +251,13 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             ctx.save();
                             var yAdd=0;
                             if (alpha) ctx.globalAlpha = alpha.level;
+                            hw = spatial.dim.x / 2;
+                            hh = spatial.dim.y / 2;
                             ctx.font = text._fontCache;
                             ctx.lineWidth = text.lineWidth;
+
+                            ctx.translate((drawX + hw), (drawY + hh));
+                            ctx.rotate(spatial.dir * (Math.PI / 180));
 
                             for (var i=0; i < text.text.length; i++)
                             {
@@ -232,12 +265,12 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 if (text.color)
                                 {
                                     ctx.fillStyle = text.color.color;
-                                    ctx.fillText(text.text[i], drawX + text.offset.x, drawY + yAdd + spatial.dim.y + text.offset.y);
+                                    ctx.fillText(text.text[i], text.offset.x-hw, yAdd + spatial.dim.y + text.offset.y-hh);
                                 }
                                 if (text.strokeColor && text.lineWidth)
                                 {
                                     ctx.strokeStyle = text.strokeColor.color;
-                                    ctx.strokeText(text.text[i], drawX + text.offset.x, drawY + yAdd + spatial.dim.y + text.offset.y);
+                                    ctx.strokeText(text.text[i], text.offset.x-hw, yAdd + spatial.dim.y + text.offset.y-hh);
                                 }
                                 yAdd += (text.fontHeight * 1.1);
                             }
@@ -246,8 +279,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             ctx.restore();
                         }
 
-                        if (clip)
-                            ctx.restore();
+                        ctx.restore();
                     }
                 }
                 next = next.next();

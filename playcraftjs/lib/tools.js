@@ -69,7 +69,9 @@ pc.Tools = pc.Base.extend('pc.Tools',
          */
         arrayRemove:function (array, e)
         {
-            for (var i = 0; i < array.length; i++)
+
+            //for (var i = 0; i < array.length; i++)
+            for (var i = array.length - 1; i >= 0; i--)
             {
                 if (array[i] == e)
                     array.splice(i, 1);

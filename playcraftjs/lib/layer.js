@@ -215,18 +215,6 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
             return this._worldPos;
         },
 
-        _screenPos:null, // cached temp
-        /**
-         * Get a screen relative position from a world coordinate.
-         * @param {pc.Point} pos World relative position
-         */
-        screenPos:function (pos)
-        {
-            this._screenPos.x = this.worldYToScreen(pos.x);
-            this._screenPos.y = this.worldYToScreen(pos.y);
-            return this._screenPos;
-        },
-
         /**
          * @param {Number} x X position in world co-ordinates
          * @return {Number} X position relative to the screen (based on the layer's current origin and the viewport

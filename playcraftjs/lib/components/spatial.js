@@ -39,6 +39,10 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
         pos: null,
         /** dimension of the entity as a pc.Dim object (use dim.x for width and dim.y for height) */
         dim: null,
+        /** amount the spatial is scaled on x-axis */
+        scaleX: 0,
+        /** amount the spatial is scaled on y-axis */
+        scaleY: 0,
         dir: 0,
 
         _centerPos: null, // cache of the current center
@@ -56,7 +60,11 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
             this.dim = pc.Dim.create(0, 0);
             this._screenRect = pc.Rect.create(0, 0, 0, 0);
             this._centerPos = pc.Point.create(0, 0);
+            this._unscaledPos = pc.Point.create(0,0);
+            this._unscaledDim = pc.Point.create(0,0);
             this.lastMove = pc.Dim.create(0, 0);
+            this.scaleX = 1;
+            this.scaleY = 1;
 
             if (pc.valid(options))
                 this.config(options);
@@ -73,6 +81,8 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
             this.dim.x = pc.checked(options.w, 0);
             this.dim.y = pc.checked(options.h, 0);
             this.dir = pc.checked(options.dir, 0);
+            this.scaleX = pc.checked(options.scaleX, 1);
+            this.scaleY = pc.checked(options.scaleY, 1);
 
             this._centerPos.x = 0;
             this._centerPos.y = 0;
@@ -103,8 +113,78 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
         },
 
         /**
+         * Increase the dimensions of the spatial by the given x and y scales. Scaling occurs relative to the
+         * center of the spatial, so the position is moved accordingly
+         * @param {Number} x x-axis scale to apply (can be negative to shrink)
+         * @param {Number} y y-axis scale to apply (can be negative to shrink)
+         */
+        addScale:function(x, y)
+        {
+            this.pos.x -= (this.dim.x * x);
+            this.pos.y -= (this.dim.y * y);
+            this.dim.x *= (1+x);
+            this.dim.y *= (1+y);
+            this.scaleX += x;
+            this.scaleY += y;
+        },
+
+        _unscaledPos: null,
+
+        /**
+         * Gets the spatial position, without any scaling effects
+         * @return {pc.Point} The unscaled position
+         */
+        getUnscaledPos:function()
+        {
+            this._unscaledPos.x = this.pos.x / this.scaleX;
+            this._unscaledPos.y = this.pos.y / this.scaleY;
+            return this._unscaledPos;
+        },
+
+        _unscaledDim: null,
+
+        /**
+         * Gets the spatial dimensions, without any scaling effects
+         * @return {pc.Dim} The unscaled dimensions
+         */
+        getUnscaledDim:function()
+        {
+            this._unscaledDim.x = this.dim.x / this.scaleX;
+            this._unscaledDim.y = this.dim.y / this.scaleY;
+            return this._unscaledDim;
+        },
+
+        /**
+         * Reduces the scale of the spatial. See addScale for details
+         * @param {Number} x x-axis scale to reduce by
+         * @param {Number} y y-axis scale to reduce by
+         */
+        subtractScale:function (x, y)
+        {
+            this.addScale(-x, -y);
+        },
+
+        /**
+         * Set the spatial direction
+         * @param {Number} d Direction to set
+         */
+        setDir:function(d)
+        {
+            this.dir = d;
+        },
+
+        /**
+         * Get the current direction
+         * @return {Number} Direction
+         */
+        getDir:function ()
+        {
+            return this.dir;
+        },
+
+        /**
          * Get the center pos of the spatial (calculated when you call this)
-         * @return {pc.Point} A pc.Point representing the center of the spatial (cached so you do not neet to release it)
+         * @return {pc.Point} A pc.Point representing the center of the spatial (cached so you do not need to release it)
          */
         getCenterPos: function()
         {

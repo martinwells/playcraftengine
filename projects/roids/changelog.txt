@@ -1,0 +1,46 @@
+Roids on Roids Changelog
+==========================================================
+10/20/2012 ALD 
+- Created log and added to repo.
+- Removed images\.DS_Store from project
+- Removed sounds\.DS_Store from project
+- Removed sounds\explosion.mp3 from project
+- Removed sounds\lowfire.mp3 from project
+- Updated README.md with a little Asteroids history.
+- js/gamephysics.js :: Fixed some script warnings
+- js/main.js :: Fixed some script warnings
+- js/scene_game.js :: Fixed some script warnings
+*COMMIT
+
+10/20/2012 ALD 
+- game.html :: Added Google Analytics Tracking Code.
+- Major Design Change Implemented. Not going to use 9 different ships, but rather a single ship with upgradeable Engines, Shields and Guns
+- images/splash.png :: Updated, Added new ship level and level 5 with shields up
+- images/Splash_07.png :: Removed.
+- images/* :: Removed all previous ships
+- images/ships1-5.png :: New ship template added.
+- images/tileset_space.png :: Removed
+- images/backdrop01.png :: Added
+- images/backdrop02.png :: Added
+- images/backdrop03.png :: Added
+- images/backdrop04.png :: Added
+- images/backdrop05.png :: Added
+- images/backdrop06.png :: Added
+- images/backdrop07.png :: Updated
+*COMMIT
+- images/publisher.png :: Added - Used by Publisher Splash Screen
+- images/splash.png :: Updated, Minor Changes.
+- js/scene_publisher.js :: Added
+- js/google.js :: Moved Google Analytics into here along with adMOB
+- game.html :: Moved Google Analytics into google.js
+- game.html :: Added densitydpi to Viewport meta tag
+- js/scene_publisher.js :: Removed. Now handled by per HTML/CSS
+- js/scene_splash.js :: Removed. Now handled by per HTML/CSS
+- game.html :: Removed scene_splash.js and scene_publisher.js includes
+- images/asteroid1.png :: Renamed to asteroid-medium.pnp
+- images/asteroid-large.png :: added.
+- main.js :: Added HUD
+- main.js :: created all 5 ship levels and implemented
+- main.js :: score working
+- main.js :: energy usage and regen working
+- main.js :: health loss and regen working

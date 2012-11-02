@@ -17,7 +17,7 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
         /**
          * Constructs (or acquires from the pool) a rectangle component.
          * @param {String} options.color Fill color in the form of #RRGGBB.
-         * @param {String} options.strokeColor Line color in the form of #RRGGBB
+         * @param {String} options.lineColor Line color in the form of #RRGGBB
          * @param {Number} options.lineWidth Stroke width
          * @param {Number} options.cornerRadius Radius of the corners (defaults to 0)
          * @return {pc.components.Rect} A rectangle component
@@ -34,7 +34,7 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
         /** pc.Color representing fill color */
         color:null,
         /** pc.Color representing stroke color */
-        strokeColor:null,
+        lineColor:null,
         /** Stroke width */
         lineWidth:0,
         /** radius of the corners (0=straight edges) */
@@ -48,7 +48,7 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
         {
             this._super(this.Class.shortName);
             this.color = pc.Color.create('#ffffff');
-            this.strokeColor = pc.Color.create('#888888');
+            this.lineColor = pc.Color.create('#888888');
             if (pc.valid(options))
                 this.config(options);
         },
@@ -64,10 +64,10 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
             else
                 this.color.set(pc.checked(options.color, '#ffffff'));
 
-            if (!options.strokeColor)
-                this.strokeColor.set('#ffffff');
+            if (!options.lineColor)
+                this.lineColor.set('#ffffff');
             else
-                this.strokeColor.set(pc.checked(options.strokeColor, '#888888'));
+                this.lineColor.set(pc.checked(options.lineColor, '#888888'));
 
             this.lineWidth = pc.checked(options.lineWidth, 0);
             this.cornerRadius = pc.checked(options.cornerRadius, 0);

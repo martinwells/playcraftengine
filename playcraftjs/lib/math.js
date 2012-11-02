@@ -70,9 +70,9 @@ pc.Math = pc.Base('pc.Math',
         {
             var newDir = angle + by;
             while (newDir > 359)
-                newDir -= 359;
+                newDir -= 360;
             while (newDir < 0)
-                newDir = 359 + newDir;
+                newDir = 360 + newDir;
             return newDir;
         },
 
@@ -270,10 +270,10 @@ pc.Rect = pc.Pooled('pc.Rect',
     {
         /**
          * Constructs a new rectangle
-         * @param x x-position of the top left of the rectangle
-         * @param y y-position of the top left of the rectangle
-         * @param w width of the rectangle
-         * @param h height of the rectangle
+         * @param {Number} x x-position of the top left of the rectangle
+         * @param {Number} y y-position of the top left of the rectangle
+         * @param {Number} w width of the rectangle
+         * @param {Number} h height of the rectangle
          * @return {pc.Rect} A new rectangle (acquired from the free object pool}
          */
         create:function (x, y, w, h)

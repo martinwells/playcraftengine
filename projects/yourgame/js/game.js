@@ -24,14 +24,13 @@ GameScene = pc.Scene.extend('GameScene',
             // all we need is the render system
             this.gameLayer.addSystem(new pc.systems.Render());
 
-            // create a simple box
             this.box = pc.Entity.create(this.gameLayer);
 
-            this.box.addComponent(pc.components.Rect.create({ color:'#ff2222' }));
-            this.box.addComponent(pc.components.Spatial.create({ x:100, y: 100, w:50, h:50 }));
+            this.box.addComponent(pc.components.Rect.create({ color:'#ff0000' }));
+            this.box.addComponent(pc.components.Spatial.create({ x:200, y:200, w:100, h:100 }));
 
             // a simple move action bound to the space key
-            pc.device.input.bindAction(this, 'move', 'SPACE');
+            pc.device.input.bindAction(this, 'move', 'UP');
         },
 
         onAction:function (actionName, event, pos)

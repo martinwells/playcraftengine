@@ -51,6 +51,7 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
 
                 if (input.actions)
                 {
+                    eventTarget = this;
                     for (i = 0; i < input.actions.length; i++)
                     {
                         keys = input.actions[i][1];
@@ -65,10 +66,12 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
 
         /**
          * Override to react to the actions
-         * @param {pc.Entity} entity Entity that had the action occur on it
-         * @param {String} action Name of the action
+         * @param {String} actionName Name of the action
+         * @param {Event} event Event object that caused the input
+         * @param {pc.Point} pos Position the input occurred
+         * @param {Object} uiTarget The target that received the input (spatial of an entity if bound)
          */
-        onAction: function(entity, action)
+        onAction:function(actionName, event, pos, uiTarget)
         {
         },
 

@@ -17,7 +17,7 @@ pc.components.Circle = pc.components.Component.extend('pc.components.Circle',
         /**
          * Constructs (or acquires from the pool) a rectangle component.
          * @param {String} options.color Fill color in the form of #RRGGBB.
-         * @param {String} options.strokeColor Line color in the form of #RRGGBB
+         * @param {String} options.lineColor Line color in the form of #RRGGBB
          * @param {Number} options.lineWidth Stroke width
          * @return {pc.components.Circle} The new component
          */
@@ -33,7 +33,7 @@ pc.components.Circle = pc.components.Component.extend('pc.components.Circle',
         /** pc.Color representing fill color */
         color:null,
         /** pc.Color representing stroke color */
-        strokeColor:null,
+        lineColor:null,
         /** Stroke width */
         lineWidth:0,
 
@@ -63,14 +63,14 @@ pc.components.Circle = pc.components.Component.extend('pc.components.Circle',
             } else
                 this.color = null;
 
-            if (options.strokeColor)
+            if (options.lineColor)
             {
-                if (this.strokeColor == null)
-                    this.strokeColor = pc.Color.create(options.strokeColor);
+                if (this.lineColor == null)
+                    this.lineColor = pc.Color.create(options.lineColor);
                 else
-                    this.strokeColor.set(options.strokeColor);
+                    this.lineColor.set(options.lineColor);
             } else
-                this.strokeColor = null;
+                this.lineColor = null;
 
             this.lineWidth = pc.checked(options.lineWidth, 0);
         }

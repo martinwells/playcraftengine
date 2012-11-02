@@ -307,7 +307,6 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.Sprite.create({ spriteSheet:this.playerSheet, animationStart:'floating' }));
                     e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:dir,
                         w:this.playerSheet.frameWidth, h:this.playerSheet.frameHeight}));
-
                     e.addComponent(pc.components.Physics.create(
                         {
                             maxSpeed:{x:50, y:50},
@@ -503,7 +502,9 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     this.fireSound.play(false);
                     var tc = this.playerSpatial.getCenterPos();
+                    // offset the size of the bullet (the center of the 30x30 image)
                     tc.subtract(15, 15);
+                    // move outward in the direction of the ship so the bullets appear to be coming from the front
                     tc.moveInDir(this.playerSpatial.dir, 20);
                     this.createEntity('plasmaFire', this.gameLayer, tc.x, tc.y, this.playerSpatial.dir);
                     this.lastFireTime = pc.device.now;
