@@ -219,17 +219,25 @@ pc.Loader = pc.Base.extend('pc.Loader',
             return this.baseUrl + src + this._noCacheString;
         },
 
+        /**
+        * Andrew: 
+        *    fixed minor bug where if you used uppercase characters in key name res would return null
+        *    because it did not fins the key in the hashtable. Just displayed and error notice to console.
+        */
         _onLoad:function (resource)
         {
             var res = this.resources.get(resource.name);
-            res.state = this.State.READY;
-            this.progress++;
+            if (res == null) {
+                this.error('Unable to get resource ['+resource.name+'] - Please make sure you are using all lowercase.');
+            } else { 
+                res.state = this.State.READY;
+                this.progress++;
 
-            if (this.loadingListener != null)
-                this.loadingListener(Math.round((this.progress / this.totalBeingLoaded) * 100));
+                if (this.loadingListener != null)
+                    this.loadingListener(Math.round((this.progress / this.totalBeingLoaded) * 100));
 
-            this.info(resource.name + ' loaded (' + Math.round((this.progress / this.totalBeingLoaded) * 100) + '% done)');
-
+                this.info(resource.name + ' loaded (' + Math.round((this.progress / this.totalBeingLoaded) * 100) + '% done)');
+            }
             this._checkAllDone();
         },
 
