@@ -1,4 +1,4 @@
-
+var requirejs = require('requirejs');
 var express = require('express');
 var app = express(2020);
 var watch = require('watch');

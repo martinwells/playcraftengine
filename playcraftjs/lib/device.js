@@ -80,6 +80,10 @@ pc.Device = pc.Base.extend('pc.Device',
         isAndroid:false,
         /** is this a touch device */
         isTouch:false,
+        /** is this an ios device */
+        isiOS: false,
+        /** is this an iPod device */
+        isiPod: false,
 
         requestAnimFrame:null,
         /** pc.Input handler global instance */
@@ -120,6 +124,7 @@ pc.Device = pc.Base.extend('pc.Device',
             this.isiPad = gamecore.Device.isiPad;
             this.isAndroid = gamecore.Device.isAndroid;
             this.isTouch = gamecore.Device.isTouch;
+            this.isiOS = (this.isiPhone || this.isiPad);
             this.device = gamecore.Device;
 
             this.requestAnimFrame = gamecore.Device.requestAnimFrame;
@@ -201,7 +206,7 @@ pc.Device = pc.Base.extend('pc.Device',
          */
         onReady:function ()
         {
-            if (this.isiPad)
+            if (this.isiOS)
             {
                 this.showDebug = false;
                 this.soundEnabled = false;
@@ -317,9 +322,9 @@ pc.Device = pc.Base.extend('pc.Device',
             if (flip)
             {
                 // in landscape, flip things around
-                var w = this.canvas.width;
-                this.canvas.width = this.canvas.height;
-                this.canvas.height = w;
+//                var w = this.canvas.width;
+//                this.canvas.width = this.canvas.height;
+//                this.canvas.height = w;
             }
 
             this.canvasWidth = this.canvas.width;

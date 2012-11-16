@@ -119,6 +119,9 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         immovable:false,
         /** Changes the center of mass from the default center (pc.Dim) */
         centerOfMass:null,
+        /** causes box2d body to be aligned to center (rather than top left shifted) (default: true) */
+        centered:true,
+
         /**
          * Custom gravity (x an y properties)
          */
@@ -172,6 +175,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this.collisionCategory = pc.checked(options.collisionCategory, 0);
             this.collisionMask = pc.checked(options.collisionMask, 0);
             this.sensorOnly = pc.checked(options.sensorOnly, false);
+            this.centered = pc.checked(options.centered, true);
 
             // no shape supplied, create a default one
             if (!pc.valid(options.shapes) && !Array.isArray(options.shapes))
@@ -253,6 +257,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
         },
 
+        /**
+         * Applies angular velocity (turn) to the physics body
+         * @param {Number} d Degrees of turn to apply
+         */
         applyTurn:function (d)
         {
             if (this._body)
@@ -409,7 +417,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         setLinearVelocity:function (x, y)
         {
             if (this._body)
+            {
                 this._body.SetLinearVelocity(Box2D.Common.Math.b2Vec2.Get(x * pc.systems.Physics.SCALE, y * pc.systems.Physics.SCALE));
+                this._body.SetAwake(true);
+            }
         },
 
         _velReturn:null,
@@ -444,17 +455,11 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         setAngularVelocity:function (a)
         {
             if (this._body)
+            {
                 this._body.SetAngularVelocity(a);
+                this._body.SetAwake(true);
+            }
         },
-
-        /*
-         getCollisions: function()
-         {
-         // tbd - return a list of current colliding entities
-         var contactList = this._body.GetContactList();
-         return ;
-         },
-         */
 
         /**
          * Change the collision category (changes all shapes)

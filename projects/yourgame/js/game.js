@@ -10,7 +10,7 @@ GameScene = pc.Scene.extend('GameScene',
     { },
     {
         gameLayer:null,
-        box: null,
+        box:null,
 
         init:function ()
         {
@@ -23,11 +23,17 @@ GameScene = pc.Scene.extend('GameScene',
 
             // all we need is the render system
             this.gameLayer.addSystem(new pc.systems.Render());
+            this.gameLayer.addSystem(new pc.systems.Effects());
+            this.gameLayer.addSystem(new pc.systems.Physics({ debug:true }));
 
-            this.box = pc.Entity.create(this.gameLayer);
-
-            this.box.addComponent(pc.components.Rect.create({ color:'#ff0000' }));
-            this.box.addComponent(pc.components.Spatial.create({ x:200, y:200, w:100, h:100 }));
+            for (var i = 0; i < 10; i++)
+            {
+                this.box = pc.Entity.create(this.gameLayer);
+                this.box.addComponent(pc.components.Rect.create({ color:[ pc.Math.rand(0, 255), pc.Math.rand(0, 255), pc.Math.rand(0, 255) ] }));
+                this.box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
+                this.box.addComponent(pc.components.Scale.create({ growX:0.02, growY:0.04 }));
+                this.box.addComponent(pc.components.Spatial.create({ x:200 + (i * 50), y:200, w:100, h:100 }));
+            }
 
             // a simple move action bound to the space key
             pc.device.input.bindAction(this, 'move', 'UP');
@@ -69,16 +75,16 @@ TheGame = pc.Game.extend('TheGame',
 
             /*
 
-            // no resources are loaded in this template, so this is all commented out
-            pc.device.loader.add(new pc.Image('an id', 'images/an image.png'));
+             // no resources are loaded in this template, so this is all commented out
+             pc.device.loader.add(new pc.Image('an id', 'images/an image.png'));
 
-            if (pc.device.soundEnabled)
-                pc.device.loader.add(new pc.Sound('fire', 'sounds/fire', ['ogg', 'mp3'], 15));
+             if (pc.device.soundEnabled)
+             pc.device.loader.add(new pc.Sound('fire', 'sounds/fire', ['ogg', 'mp3'], 15));
 
-            // fire up the loader
-            pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
+             // fire up the loader
+             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
 
-            */
+             */
 
             // and instead, we just start the game (otherwise you should do it in the loader callback below)
             this.gameScene = new GameScene();

@@ -2,10 +2,45 @@
  * Playcraft Engine
  */
 
+(function (globalNamespace)
+{
+    var req = typeof module !== 'undefined' && module.exports
+        ? require("requirejs")
+        : require;
+
+    var pc = {};
+
+    pc.start = function ()
+    {
+        req("loader", function ()
+        {
+            // loaded
+        });
+    };
+
+    // Always add it to the global namespace
+    globalNamespace.pc = pc;
+
+    if (typeof define === 'function')
+    { // AMD Module
+        define(function ()
+        {
+            return pc;
+        });
+    } else if (typeof module !== 'undefined' && module.exports)
+    { // Node.js Module
+        module.exports = pc;
+    }
+
+}).call(this);
+
+
+
+/*
 if (!window.pc)
     window.pc = {};
 
-pc.VERSION = '0.5.4';
+pc.VERSION = '0.5.5';
 
 
 /**

@@ -201,7 +201,9 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                 n.addEventListener("canplaythrough", this.onLoad.bind(this), false);
                 n.addEventListener("error", this.onError.bind(this), false);
                 n.onerror = this.onError.bind(this);
+                n.onload = this.onLoad.bind(this);
                 n.src = this.src;
+                n.load();
                 this.sounds.push(n);
 
                 if (pc.device.isAppMobi)

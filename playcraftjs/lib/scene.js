@@ -115,7 +115,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
         },
 
         /**
-         * Called when this scene has been deactviated
+         * Called when this scene has been deactivated
          */
         onDeactivated:function ()
         {
@@ -219,6 +219,11 @@ pc.Scene = pc.Base.extend('pc.Scene',
          */
         addLayer:function (layer)
         {
+            if (!pc.valid(layer))
+                throw "Error: invalid layer";
+            if (!pc.valid(layer.name))
+                throw "Error: trying to add a layer that has no name (forget to call this._super in your layer init?)";
+
             this.layersByName.put(layer.name, layer);
             this.layers.add(layer);
             this.activeLayers.add(layer);

@@ -144,7 +144,7 @@ GameScene = pc.Scene.extend('GameScene',
             this.smallAsteroidSheet.addAnimation({ name:'floating', time:500, frameCount:20 });
 
             this.playerSheet = new pc.SpriteSheet(
-                { image:pc.device.loader.get('player-ship').resource, frameWidth:40, frameHeight:40, useRotation:true});
+                { image:pc.device.loader.get('playerShip').resource, frameWidth:40, frameHeight:40, useRotation:true});
             this.playerSheet.addAnimation({ name:'floating', frameCount:1});
 
             this.plasmaFireSheet = new pc.SpriteSheet({ image:pc.device.loader.get('plasma-fire').resource, frameWidth:30, frameHeight:30 });
@@ -281,6 +281,7 @@ GameScene = pc.Scene.extend('GameScene',
                             animSpeedOffset:pc.Math.rand(500, 1000),
                             spriteSheet:this.asteroidSheet, animationStart:'floating'
                         }));
+
                     e.addComponent(pc.components.Spatial.create(
                         {
                             x:x1, y:y1,
@@ -529,7 +530,7 @@ TheGame = pc.Game.extend('TheGame',
 
             // load resources
             pc.device.loader.setDisableCache();
-            pc.device.loader.add(new pc.Image('player-ship', 'images/ship1.png'));
+            pc.device.loader.add(new pc.Image('playerShip', 'images/ship1.png'));
             pc.device.loader.add(new pc.Image('stars', 'images/stars.png'));
             pc.device.loader.add(new pc.Image('explosions', 'images/smallexplosions.png'));
             pc.device.loader.add(new pc.Image('plasma-fire', 'images/flareblue16.png'));

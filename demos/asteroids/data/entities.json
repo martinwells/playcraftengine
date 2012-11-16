@@ -1,0 +1,70 @@
+
+
+{
+    "resources":
+    {
+        "images":
+        [
+            { "name":"player-ship", "url":"images/ship1.png" },
+            { "name":"stars", "url":"images/stars.png" },
+            { "name":"explosions", "url":"images/smallexplosions.png" },
+            { "name":"plasma-fire", "url":"images/flareblue16.png" },
+            { "name":"asteroids1", "url":"images/asteroid1.png" },
+            { "name":"asteroid-small", "url":"images/asteroid-small.png" },
+            { "name":"smoke", "url":"images/smoke1.png" }
+        ],
+
+        "sounds":
+        [
+            { "name":"fire", "url":"sounds/lowfire", "formats":["ogg", "mp3"], "channels":15 },
+            { "name":"explosion", "url":"sounds/explosion", "formats":["ogg", "mp3"], "channels":12 },
+            { "name":"music1", "url":"sounds/flashforward", "formats":["ogg", "mp3"], "channels":1 }
+        ]
+    },
+
+    "spriteSheets":
+    {
+        "1":"2"
+    },
+
+    "scene":
+    {
+        "name":"game",
+        "layers":
+        [
+        ]
+
+    },
+
+    "entity":
+    {
+        "tag":"asteroid-small",
+        "components":
+        [
+            {"pc.components.Sprite": { "currentFrame":"10", "spriteSheet":"smallAsteroidSheet", "animationStart":"floating" } }
+            {"pc.components.Spatial": { "x", "{x}", "y":"{y}" }}
+        ]
+    }
+
+e.addComponent(pc.components.Spatial.create(
+{
+x:x, y:y,
+dir:pc.Math.rand(0, 359),
+w:this.smallAsteroidSheet.frameWidth,
+h:this.smallAsteroidSheet.frameHeight
+}));
+e.addComponent(pc.components.Physics.create(
+{
+force:25,
+mass:2,
+bounce:1,
+shapes:[{shape:pc.CollisionShape.CIRCLE}],
+collisionCategory:CollisionType.ENEMY,
+collisionMask:CollisionType.FRIENDLY | CollisionType.ENEMY
+}));
+
+return e;
+
+
+
+}

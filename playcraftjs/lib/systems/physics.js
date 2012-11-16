@@ -162,8 +162,15 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 bodyDef.type = ph.immovable ? Box2D.Dynamics.b2BodyDef.b2_staticBody :
                     bodyDef.type = Box2D.Dynamics.b2BodyDef.b2_dynamicBody;
 
-                bodyDef.position.x = this.Class.toP(sp.pos.x + (sp.dim.x / 2));
-                bodyDef.position.y = this.Class.toP(sp.pos.y + (sp.dim.y / 2));
+                if (ph.centered)
+                {
+                    bodyDef.position.x = this.Class.toP(sp.pos.x + (sp.dim.x / 2));
+                    bodyDef.position.y = this.Class.toP(sp.pos.y + (sp.dim.y / 2));
+                } else
+                {
+                    bodyDef.position.x = this.Class.toP(sp.pos.x);
+                    bodyDef.position.y = this.Class.toP(sp.pos.y);
+                }
                 bodyDef.linearDamping = ph.linearDamping;
                 bodyDef.angularDamping = ph.angularDamping;
                 bodyDef.isBullet = ph.bullet;
@@ -213,11 +220,14 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                             break;
 
                         case pc.CollisionShape.POLY:
+                            fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape;
+
                             var points = [];
                             for (var q = 0; q < shape.points.length; q++)
-                                points.push(new Box2D.Common.Math.b2Vec2(
+                                points.push(Box2D.Common.Math.b2Vec2.Get(
                                     (shape.offset.x + shape.points[q][0]) * this.Class.SCALE,
                                     (shape.offset.y + shape.points[q][1]) * this.Class.SCALE));
+
                             fixDef.shape.SetAsArray(points, points.length);
                             break;
 
@@ -266,10 +276,10 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                     ph._body.SetMassData(md);
                 }
 
-                if (ph.force) ph.applyForce(ph.force);
-                if (ph.impulse) ph.applyImpulse(ph.impulse);
                 if (ph.torque) ph.applyTorque(ph.torque);
                 if (ph.turn) ph.applyTurn(ph.turn);
+                if (ph.force) ph.applyForce(ph.force);
+                if (ph.impulse) ph.applyImpulse(ph.impulse);
 
                 ph._lastSpatialPos = pc.Point.create(sp.pos.x, sp.pos.y);
                 ph._lastSpatialDim = pc.Dim.create(sp.dim.x, sp.dim.y);
@@ -401,7 +411,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             ph._lastSpatialPos.y = sp.pos.y;
             ph._lastSpatialDir = dir;
 
-            // if there is a max velocity then enforce it
+            // if there is a max velocity set enforce it
             if (ph.maxSpeed.x > 0 || ph.maxSpeed.y > 0)
             {
                 var velocity = ph._body.GetLinearVelocity();

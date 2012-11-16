@@ -378,6 +378,12 @@ pc.Rect = pc.Pooled('pc.Rect',
 pc.Point = pc.Pooled('pc.Point',
     /** @lends pc.Point */
     {
+        /**
+         * Constructs a new point (from the pool)
+         * @param {Number} x x position
+         * @param {Number} y y position
+         * @return {pc.Point} A shiny new point
+         */
         create:function (x, y)
         {
             var n = this._super();
@@ -525,6 +531,43 @@ pc.Point = pc.Pooled('pc.Point',
         }
 
 
+    });
+
+pc.Poly = pc.Pooled('pc.Poly',
+    /** @lends pc.Poly */
+    {
+        create:function (x, y, points)
+        {
+            var n = this._super();
+            n.x = x;
+            n.y = y;
+            n.points = points;
+            return n;
+        }
+    },
+    /** @lends pc.Poly.prototype */
+    {
+        /** x position of the polygon */
+        x:0,
+        /** y position of the polygon */
+        y:0,
+        /** array of points representing the polygon (relative to x, y) */
+        points:null,
+
+        _boundingRect: null,
+
+        init:function(x, y, points)
+        {
+            this.x = x;
+            this.y = y;
+            this.points = points;
+            this._boundingRect = pc.Rect.create(0,0,0,0);
+        },
+
+        getBoundingRect:function()
+        {
+
+        }
     });
 
 

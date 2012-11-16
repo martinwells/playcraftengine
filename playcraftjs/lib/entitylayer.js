@@ -74,23 +74,50 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
                 var y = parseInt(objData.getAttribute('y'));
                 var w = parseInt(objData.getAttribute('width'));
                 var h = parseInt(objData.getAttribute('height'));
-                var props = objData.getElementsByTagName("properties")[0].getElementsByTagName("property");
+                var shape = null;
 
-                var options = {};
-                for (var p = 0; p < props.length; p++)
+                // either it's a polygon shape, or it's a rectangle (has w and h)
+                var polygon = objData.getElementsByTagName("polygon");
+                if (polygon.length > 0)
                 {
-                    var name = props[p].getAttribute("name");
-                    var value = props[p].getAttribute("value");
-                    options[name] = value;
-                    if (name === 'entity')
-                        entityType = value;
+                    var pointsString = polygon[0].getAttribute('points');
+                    var points = [];
+                    var pairs = pointsString.split(' ');
+                    for (var j = 0; j < pairs.length; j++)
+                    {
+                        var nums = pairs[j].split(',');
+                        points.push([parseInt(nums[0]), (parseInt(nums[1]))]);
+                    }
+                    shape = pc.Poly.create(x, y, points);
+                }
+                else
+                {
+                    // plain rectangle (just need the width and height)
+                    shape = pc.Dim.create(w, h);
+                }
+
+                // parse parameters into options
+                var options = {};
+                var ps = objData.getElementsByTagName("properties");
+
+                if (ps.length)
+                {
+                    var props = ps[0].getElementsByTagName("property");
+                    for (var p = 0; p < props.length; p++)
+                    {
+                        var name = props[p].getAttribute("name");
+                        var value = props[p].getAttribute("value");
+                        options[name] = value;
+                        if (name === 'entity')
+                            entityType = value;
+                    }
                 }
 
                 // create a new entity
                 // ask the entity factory to create entity of this type and on this layer
                 //
                 if (entityType)
-                    entityFactory.createEntity(n, entityType, x, y, w, h, options);
+                    entityFactory.createEntity(n, entityType, x, y, 0, shape, options);
                 else
                     this.warn('Entity loaded from map with no "entity" type property set. x=' + x + ' y=' + y)
             }

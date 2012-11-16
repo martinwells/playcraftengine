@@ -1022,7 +1022,7 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.addSystem(new GamePhysics(
                 {
                     gravity:{ x:0, y:70 },
-                    debug:false,
+                    debug:true,
                     tileCollisionMap:{
                         tileMap:this.tileLayer.tileMap,
                         collisionCategory:CollisionType.WALL,
@@ -1302,12 +1302,29 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
             this.ogreSheet.addAnimation({ name:'recoiling left', frameCount:5, frameX:5, frameY:8, offsetY:-30, offsetX:65, time:1000, scaleX:-1, loops:1 });
         },
 
-        createEntity:function (layer, type, x, y, dir)
+        createEntity:function (layer, type, x, y, dir, shape, options)
         {
             var e = null;
 
             switch (type)
             {
+                case 'collidable':
+                    e = pc.Entity.create(layer);
+                    e.addTag('COLLIDABLE TERRAIN');
+
+                    e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0, w:1, h:1 }));
+                    e.addComponent(pc.components.Physics.create(
+                        {
+                            centered: false,
+                            mass:10,
+                            immovable:true,
+                            shapes:[ { points:shape.points, shape:pc.CollisionShape.POLY } ],
+                            collisionCategory:CollisionType.ENEMY,
+                            collisionMask:CollisionType.FRIENDLY | CollisionType.WALL
+                        }));
+
+                    return e;
+
                 case 'player':
                     e = pc.Entity.create(layer);
                     e.addTag('PLAYER');
@@ -1649,7 +1666,10 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     return e;
 
             }
+
+            throw "Unknown entity type: " + type;
         }
+
     });
 
 TheGame = pc.Game.extend('TheGame',

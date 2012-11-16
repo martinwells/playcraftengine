@@ -473,8 +473,6 @@ TheGame = pc.Game.extend('TheGame',
     {},
     {
         gameScene:null,
-        loadingScene:null,
-        loadingLayer:null,
 
         onReady:function ()
         {
@@ -504,10 +502,6 @@ TheGame = pc.Game.extend('TheGame',
                 pc.device.loader.add(new pc.Sound('explosion', 'sounds/explosion', ['ogg', 'mp3'], 12));
             }
 
-            this.loadingScene = new pc.Scene();
-            this.loadingLayer = new pc.Layer('loading');
-            this.loadingScene.addLayer(this.loadingLayer);
-
             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
         },
 
@@ -520,6 +514,7 @@ TheGame = pc.Game.extend('TheGame',
             ctx.fillText('Angry Cannons', 40, (pc.device.canvasHeight / 2) - 50);
             ctx.font = "normal 18px Verdana";
             ctx.fillStyle = "#777";
+
             ctx.fillText('Loading: ' + percentageComplete + '%', 40, pc.device.canvasHeight / 2);
         },
 

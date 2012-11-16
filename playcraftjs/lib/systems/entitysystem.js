@@ -4,9 +4,9 @@
  */
 
 /**
- * @class pc.EntityManager
+ * @class pc.systems.EntitySystem
  * @description
- * [Extends <a href='pc.Base'>pc.Base</a>]
+ * [Extends <a href='pc.Base'>pc.System</a>]
  * <p>
  * A system that processes entities.
  */

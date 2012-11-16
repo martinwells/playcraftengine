@@ -251,12 +251,21 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
 
 
 /**
- * EntityFactory -- for creating entities (mostly just an interface class
- * you extend from to create an entity factory
+ * EntityFactory -- for creating entities (mostly just an interface class you extend from to create an entity factory).
  */
 pc.EntityFactory = pc.Base.extend('pc.EntityFactory',
     { },
     {
-        createEntity:function (layer, type, x, y, w, h, options)
+        /**
+         * Called by the entity loader
+         * @param {pc.Layer} layer Layer the entity should be placed on
+         * @param {String} type String type of the entity to create
+         * @param {Number} x X position
+         * @param {Number} y Y position
+         * @param {Number} dir Facing angle
+         * @param {Object} shape Collision shape (either pc.Dim for rectangle or pc.Poly for polygons)
+         * @param {Object} options Properties assigned to the entity
+         */
+        createEntity:function (layer, type, x, y, dir, shape, options)
         { }
     });

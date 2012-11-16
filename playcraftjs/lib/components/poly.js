@@ -48,7 +48,7 @@ pc.components.Poly = pc.components.Component.extend('pc.components.Poly',
         {
             this._super(this.Class.shortName);
             this.color = pc.Color.create('#ffffff');
-            this.lineColor = pc.Color.create('#888888');
+            this.lineColor = null;
             if (pc.valid(options))
                 this.config(options);
         },
@@ -64,11 +64,13 @@ pc.components.Poly = pc.components.Component.extend('pc.components.Poly',
             else
                 this.color.set(pc.checked(options.color, '#ffffff'));
 
-            if (!options.lineColor)
-                this.lineColor.set('#ffffff');
-            else
-                this.lineColor.set(pc.checked(options.lineColor, '#888888'));
-
+            if (pc.valid(options.lineColor))
+            {
+                if (this.lineColor == null)
+                    this.lineColor = pc.Color.create(options.lineColor);
+                else
+                    this.lineColor.set(pc.checked(options.lineColor, '#888888'));
+            }
             this.lineWidth = pc.checked(options.lineWidth, 0);
             if (options.points.length < 3)
                 throw 'Invalid polygon, requires at least 3 points';

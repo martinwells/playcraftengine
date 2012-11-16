@@ -41,7 +41,6 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                     var drawX = entity.layer.screenX(spatial.pos.x);
                     var drawY = entity.layer.screenY(spatial.pos.y);
                     var unscaledPos = spatial.getUnscaledPos();
-                    var unscaledDim = spatial.getUnscaledDim();
 
                     // is it onscreen?
                     if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y,0, spatial.dir))
@@ -75,9 +74,6 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             ctx.scale(spatial.scaleX, spatial.scaleY);
                             drawX = entity.layer.screenX(unscaledPos.x);
                             drawY = entity.layer.screenY(unscaledPos.y);
-//                            need to offset the spatial since it's also been scaled...
-//                            we scale the image, but not the size and position
-//                            spatial.getPosUnscaled()?
                         }
 
                         var shifter = entity.getComponent('originshifter');

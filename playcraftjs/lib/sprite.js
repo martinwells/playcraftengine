@@ -32,6 +32,7 @@
  */
 
 pc.Sprite = pc.Pooled.extend('pc.Sprite',
+    /** @lends pc.Sprite */
     {
         /**
          * Construct a new sprite object by acquiring it from the free pool and configuring it
@@ -45,6 +46,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
             return n;
         }
     },
+    /** @lends pc.Sprite.prototype */
     {
         /** Current animation frame */
         currentFrame:0,
