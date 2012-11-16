@@ -154,6 +154,7 @@ GameScene = pc.Scene.extend('GameScene',
             //-----------------------------------------------------------------------------
             this.starsLayer = this.addLayer(new StarFieldLayer(0, 10000, 10000));
             this.nebulaLayer = this.addLayer(new StarFieldLayer(2, 10000, 10000));
+            this.planetLayer = this.addLayer(new PlanetLayer());
 
             //-----------------------------------------------------------------------------
             // game layer
@@ -176,8 +177,9 @@ GameScene = pc.Scene.extend('GameScene',
             this.playerPhysics = this.player.getComponent('physics');
             this.playerSpatial = this.player.getComponent('spatial');
 
-            this.starsLayer.setOriginTrack(this.gameLayer, 0.1, 0.1);
-            this.nebulaLayer.setOriginTrack(this.gameLayer, 0.2, 0.2);
+            this.starsLayer.setOriginTrack(this.gameLayer, 0.03, 0.03);
+            this.nebulaLayer.setOriginTrack(this.gameLayer, 0.05, 0.05);
+            this.planetLayer.setOriginTrack(this.gameLayer, 0.1, 0.1);
 
             // create some asteroids
             this.newLevel();

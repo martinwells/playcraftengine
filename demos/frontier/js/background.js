@@ -9,17 +9,16 @@ PlanetLayer = pc.Layer.extend('PlanetLayer', {},
 
         init:function (scene)
         {
-            this._super('planets', false);
+            this._super('planets');
             this.planetImage = pc.device.loader.get('planet1').resource;
             this.planetImage2 = pc.device.loader.get('planet2').resource;
         },
 
-        // this layer's offset will be changed based on the ship's movement
-        // switch to tile-based?
-        draw:function (ctx, vx, vy, vw, vh)
+        process:function()
         {
-            this.planetImage.draw(ctx, vx - this.origin.x + 150, vy - this.origin.y + 100);
-            this.planetImage2.draw(ctx, vx - this.origin.x + 650, vy - this.origin.y + 500);
+            this._super();
+            this.planetImage.draw(pc.device.ctx, this.screenX(100), this.screenY(100));
+            this.planetImage2.draw(pc.device.ctx, this.screenX(500), this.screenY(500));
         }
 
     });
