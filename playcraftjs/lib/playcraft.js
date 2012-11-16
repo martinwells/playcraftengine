@@ -2,6 +2,7 @@
  * Playcraft Engine
  */
 
+/*
 (function (globalNamespace)
 {
     var req = typeof module !== 'undefined' && module.exports
@@ -33,10 +34,10 @@
     }
 
 }).call(this);
+*/
 
 
 
-/*
 if (!window.pc)
     window.pc = {};
 

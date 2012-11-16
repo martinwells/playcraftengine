@@ -127,6 +127,7 @@ pc.Loader = pc.Base.extend('pc.Loader',
         {
             // resource.src already has the baseUrl set by the resource class (i.e. pc.Image)
             // so no need to add it here
+            resource.name = resource.name.toLowerCase();
             this.resources.put(resource.name.toLowerCase(), { resource:resource, state:this.State.QUEUED });
             this.info('Adding resource ' + resource.src + ' to the queue.');
         },
