@@ -61,16 +61,13 @@ GamePhysics = pc.systems.Physics.extend('GamePhysics',
                         var sp = entityB.getComponent('spatial');
                         var count = 3;//pc.Math.rand(2, 5);
                         for (var i = 0; i < count; i++)
-                            this.layer.scene.createEntity('asteroid-small', this.layer,
+                            this.layer.scene.createEntity(this.layer, 'asteroid-small',
                                 sp.getCenterPos().x + pc.Math.rand(-10, 10),
                                 sp.getCenterPos().y + pc.Math.rand(-10, 10));
 
                         entityA.layer.scene.asteroidsLeft += count;
                     }
                 }
-
-                entityA.layer.scene.leftCounter.getComponent('text').text[0] = 'Asteroids Left: ' + entityA.layer.scene.asteroidsLeft;
-                entityA.layer.scene.displayText(this.encouragements[pc.Math.rand(0, this.encouragements.length-1)]);
             }
         },
 
@@ -98,7 +95,6 @@ GameScene = pc.Scene.extend('GameScene',
         playerPhysics:null,
         playerSpatial:null,
         engine:null,
-        asteroidsLeft:0,
         leftCounter:null,
         level:0,
 
@@ -157,6 +153,16 @@ GameScene = pc.Scene.extend('GameScene',
             this.planetLayer = this.addLayer(new PlanetLayer());
 
             //-----------------------------------------------------------------------------
+            // ui layer
+            //-----------------------------------------------------------------------------
+            this.uiLayer = this.addLayer(new pc.EntityLayer('ui', pc.device.canvasWidth, pc.device.cavnasHeight));
+            this.uiLayer.addSystem(new pc.systems.Render());
+            this.uiLayer.addSystem(new pc.systems.Expiration());
+            this.uiLayer.addSystem(new pc.systems.Effects());
+//            this.uiLayer.systemManager.add(new RadarSystem(this.gameLayer));
+            this.uiLayer.addSystem(new pc.systems.Layout({ margin:{ top:10, left:10, bottom:10, right:10 } }));
+
+            //-----------------------------------------------------------------------------
             // game layer
             //-----------------------------------------------------------------------------
             this.gameLayer = this.addLayer(new pc.EntityLayer('game layer', 10000, 10000));
@@ -170,9 +176,9 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.addSystem(new pc.systems.Layout());
 
             // setup the starting entities
-            this.player = this.createEntity('player', this.gameLayer,
+            this.player = this.createEntity(this.gameLayer, 'player',
                 (this.gameLayer.scene.viewPort.w / 2)-24, (this.gameLayer.scene.viewPort.h / 2)-24, 0);
-            this.engine = this.createEntity('engine', this.gameLayer,
+            this.engine = this.createEntity(this.gameLayer, 'engine',
                 this.gameLayer.scene.viewPort.w / 2, this.gameLayer.scene.viewPort.h / 2, 0, this.player);
             this.playerPhysics = this.player.getComponent('physics');
             this.playerSpatial = this.player.getComponent('spatial');
@@ -184,9 +190,7 @@ GameScene = pc.Scene.extend('GameScene',
             // create some asteroids
             this.newLevel();
 
-            this.createEntity('instructions', this.gameLayer);
-            this.createLevelAlert(this.gameLayer, 1);
-            this.createLeftCounter();
+            this.createEntity(this.uiLayer, 'instructions');
 
             // setup the controls
             pc.device.input.bindState(this, 'turning right', 'D');
@@ -211,7 +215,7 @@ GameScene = pc.Scene.extend('GameScene',
             e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{left:30 }}));
         },
 
-        createEntity:function (type, layer, x, y, dir, attachTo)
+        createEntity:function (layer, type, x, y, dir, attachTo)
         {
             var e = null;
 
@@ -364,45 +368,12 @@ GameScene = pc.Scene.extend('GameScene',
             return null;
         },
 
-        createLevelAlert:function ()
-        {
-            var e = pc.Entity.create(this.gameLayer);
-            e.addComponent(pc.components.Fade.create({ fadeInTime:1500, holdTime:2000, fadeOutTime:1500 }));
-            e.addComponent(pc.components.Text.create({ color:'#000000', strokeColor:'#666666', text:['Level ' + this.level], lineWidth:2,
-                fontHeight:44 }));
-            e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
-            e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:60 }));
-            e.addComponent(pc.components.Layout.create({ vertical:'bottom', horizontal:'left', margin:{ bottom:80, left:80 } }));
-        },
-
-        createLeftCounter:function ()
-        {
-            var e = pc.Entity.create(this.gameLayer);
-            e.addComponent(pc.components.Text.create({ color:'#ffffff', text:['Asteroids Left: ' + this.asteroidsLeft],
-                lineWidth:0, fontHeight:20 }));
-            e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:20 }));
-            e.addComponent(pc.components.Layout.create({ vertical:'top', horizontal:'left', margin:{ top:30, left:30 } }));
-            this.leftCounter = e;
-        },
-
-        createLevelComplete:function ()
-        {
-            var e = pc.Entity.create(this.gameLayer);
-            e.addComponent(pc.components.Text.create({ color:'#ffffff', text:['Level Complete'],
-                lineWidth:0, fontHeight:20 }));
-            e.addComponent(pc.components.Fade.create({ fadeInTime:1500, holdTime:2000, fadeOutTime:1500 }));
-            e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
-            e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:20 }));
-            e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'center' }));
-        },
-
         newLevel:function ()
         {
             this.level++;
             var count = 200;
             for (var i = 0; i < count; i++)
                 this.createEntity('asteroid', this.gameLayer);
-            this.asteroidsLeft += count;
         },
 
         lastFireTime:0,
@@ -416,14 +387,6 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.origin.y = this.playerSpatial.getCenterPos().y - (this.viewPort.h / 2);
             // because the star and nebular layers are set to origin track the game layer, we don't need to
             // adjust them here; it's automatic
-
-            if (!this.asteroidsLeft)
-            {
-                // end the level
-                this.createLevelComplete();
-                this.newLevel();
-                this.createLevelAlert();
-            }
 
             if (pc.device.input.isInputState(this, 'turning left'))
                 this.playerPhysics.applyTurn(-40);
@@ -456,7 +419,7 @@ GameScene = pc.Scene.extend('GameScene',
                     tc.subtract(15, 15);
                     // move outward in the direction of the ship so the bullets appear to be coming from the front
                     tc.moveInDir(this.playerSpatial.dir, 20);
-                    this.createEntity('plasmaFire', this.gameLayer, tc.x, tc.y, this.playerSpatial.dir);
+                    this.createEntity(this.gameLayer, 'plasmaFire', tc.x, tc.y, this.playerSpatial.dir);
                     this.lastFireTime = pc.device.now;
                 }
             }
@@ -511,7 +474,7 @@ TheGame = pc.Game.extend('TheGame',
             ctx.clearRect(0, 0, pc.device.canvasWidth, pc.device.canvasHeight);
             ctx.font = "normal 50px Verdana";
             ctx.fillStyle = "#88f";
-            ctx.fillText('Asteroids', 40, (pc.device.canvasHeight / 2) - 50);
+            ctx.fillText('Frontier', 40, (pc.device.canvasHeight / 2) - 50);
             ctx.font = "normal 18px Verdana";
             ctx.fillStyle = "#777";
             ctx.fillText('Loading: ' + percentageComplete + '%', 40, pc.device.canvasHeight / 2);
