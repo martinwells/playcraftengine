@@ -34,8 +34,7 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
         /** Last movement in 2D space */
         lastMove: null,
 
-        /** position of the entity as a pc.Point object (use pos.x and pos.y). Note: if you add a physics
-         * component, then it will then manage position (use force etc to move). This pos then becomes read-only */
+        /** position of the entity as a pc.Point object (use pos.x and pos.y). */
         pos: null,
         /** dimension of the entity as a pc.Dim object (use dim.x for width and dim.y for height) */
         dim: null,
