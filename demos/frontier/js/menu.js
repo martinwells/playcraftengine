@@ -1,3 +1,4 @@
+
 MenuScene = pc.Scene('MenuScene',
     {
 
