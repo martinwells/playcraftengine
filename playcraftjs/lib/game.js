@@ -337,10 +337,10 @@ pc.Game = pc.Base.extend('pc.Game', {},
          */
         togglePauseResume:function ()
         {
-            if (pc.system.game.paused)
-                pc.system.game.resume();
+            if (pc.device.game.paused)
+                pc.device.game.resume();
             else
-                pc.system.game.pause();
+                pc.device.game.pause();
         },
 
         /**
