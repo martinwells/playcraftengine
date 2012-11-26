@@ -105,7 +105,7 @@ pc.DataResource = pc.Base.extend('pc.DataResource',
 
             if (this.request.readyState == 4)
             {
-                if (this.request.status == 200 || this.request.status == 0)
+                if (this.request.status == 200)
                 {
                     this.loaded = true;
 

@@ -54,6 +54,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          * @param {Number} [options.collisionCategory] Collision category to assign (default: 0)
          * @param {Number} [options.collisionMask] Collision mask to assign (default: 0)
          * @param {Boolean} [options.sensorOnly] Don't react to collisions, just sense them (default: false)
+         * @param {Boolean} [options.centered] Causes box2d body to be aligned to center (rather than top left shifted) (default: true)
          * @param {Array} [options.shapes] An array of shapes representing the fixtures (default: entity's spatial rectangle)
          * @param {pc.Dim} [options.maxSpeed] Maxium velocity to allow the entity to go (as an x, y vector)
          * @param {pc.Dim} [options.gravity] Gravity override for the entity only (x, y vector)

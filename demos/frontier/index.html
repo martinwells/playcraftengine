@@ -6,7 +6,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <script type="text/javascript" src="/playcraftjs/lib/playcraft.js"></script>
     <script>
-        pc.start('pcGameCanvas', 'TheGame', 'js/', ['frontier.js', 'background.js'], '/playcraftjs/lib/');
+        pc.start('pcGameCanvas', 'TheGame', 'js/',
+                    [
+                        'systems/navigation.js',
+                        'systems/gamephysics.js',
+                        'systems/radar.js',
+                        'components/radar.js',
+                        'background.js',
+                        'entityfactory.js',
+                        'gamescene.js',
+                        'game.js'
+                    ], '/playcraftjs/lib/');
     </script>
 </head>
 

@@ -133,7 +133,7 @@ pc.Color = pc.Pooled.extend('pc.Color',
          */
         addGreen:function (g)
         {
-            this.rgb[1] = pc.Math.limitAdd(this.rgb[0], g, 0, 255);
+            this.rgb[1] = pc.Math.limitAdd(this.rgb[1], g, 0, 255);
             this._updateColorCache();
         },
 
@@ -143,7 +143,7 @@ pc.Color = pc.Pooled.extend('pc.Color',
          */
         subGreen:function (g)
         {
-            this.rgb[1] = pc.Math.limitAdd(this.rgb[0], -g, 0, 255);
+            this.rgb[1] = pc.Math.limitAdd(this.rgb[1], -g, 0, 255);
             this._updateColorCache();
         },
 
@@ -163,7 +163,7 @@ pc.Color = pc.Pooled.extend('pc.Color',
          */
         addBlue:function (b)
         {
-            this.rgb[2] = pc.Math.limitAdd(this.rgb[0], b, 0, 255);
+            this.rgb[2] = pc.Math.limitAdd(this.rgb[2], b, 0, 255);
             this._updateColorCache();
         },
 
@@ -173,7 +173,7 @@ pc.Color = pc.Pooled.extend('pc.Color',
          */
         subBlue:function (b)
         {
-            this.rgb[2] = pc.Math.limitAdd(this.rgb[0], -b, 0, 255);
+            this.rgb[2] = pc.Math.limitAdd(this.rgb[2], -b, 0, 255);
             this._updateColorCache();
         },
 

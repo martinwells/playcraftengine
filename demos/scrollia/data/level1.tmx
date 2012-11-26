@@ -118,11 +118,6 @@
     <property name="entity" value="zombie"/>
    </properties>
   </object>
-  <object name="zombie" type="Monster" x="1184" y="864" width="30" height="55">
-   <properties>
-    <property name="entity" value="zombie"/>
-   </properties>
-  </object>
   <object name="lightrays" type="decoration" x="3424" y="1024" width="70" height="98">
    <properties>
     <property name="entity" value="lightrays"/>
@@ -173,22 +168,7 @@
     <property name="entity" value="crate"/>
    </properties>
   </object>
-  <object name="Plank" type="plank" x="736" y="768" width="96" height="32">
-   <properties>
-    <property name="entity" value="plank"/>
-   </properties>
-  </object>
-  <object name="Plank" type="plank" x="1920" y="704" width="96" height="32">
-   <properties>
-    <property name="entity" value="plank"/>
-   </properties>
-  </object>
   <object name="Plank" type="plank" x="2048" y="704" width="96" height="32">
-   <properties>
-    <property name="entity" value="plank"/>
-   </properties>
-  </object>
-  <object name="Plank" type="plank" x="2080" y="672" width="96" height="32">
    <properties>
     <property name="entity" value="plank"/>
    </properties>
@@ -218,16 +198,6 @@
     <property name="entity" value="rock"/>
    </properties>
   </object>
-  <object name="crate" type="fixture" x="800" y="832" width="32" height="32">
-   <properties>
-    <property name="entity" value="crate"/>
-   </properties>
-  </object>
-  <object name="crate" type="crates" x="800" y="864" width="32" height="32">
-   <properties>
-    <property name="entity" value="crate"/>
-   </properties>
-  </object>
   <object name="crate" type="crates" x="736" y="832" width="32" height="32">
    <properties>
     <property name="entity" value="crate"/>
@@ -243,26 +213,16 @@
     <property name="entity" value="crate"/>
    </properties>
   </object>
-  <object name="crate" type="crates" x="768" y="832" width="32" height="32">
-   <properties>
-    <property name="entity" value="crate"/>
-   </properties>
-  </object>
   <object name="zombie" type="Monster" x="1664" y="1056" width="30" height="55">
    <properties>
     <property name="entity" value="zombie"/>
    </properties>
   </object>
-  <object name="crate" type="crates" x="765" y="799" width="32" height="32">
-   <properties>
-    <property name="entity" value="crate"/>
-   </properties>
-  </object>
-  <object x="932" y="925">
+  <object name="hill" x="937" y="927">
    <properties>
     <property name="entity" value="collidable"/>
    </properties>
-   <polygon points="0,0 92,-91 187,1"/>
+   <polygon points="0,0 89,-87 174,1"/>
   </object>
  </objectgroup>
 </map>

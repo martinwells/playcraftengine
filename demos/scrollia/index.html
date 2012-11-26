@@ -8,7 +8,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <script type="text/javascript" src="/playcraftjs/lib/playcraft.js"></script>
     <script>
-        pc.start('pcGameCanvas', 'TheGame', 'js/', ['scrollia.js']);
+        pc.start('pcGameCanvas', 'TheGame', 'js/',
+                [
+                    'components/brain.js',
+                    'components/health.js',
+                    'components/healthbar.js',
+                    'systems/brain.js',
+                    'systems/healthbar.js',
+                    'systems/health.js',
+                    'systems/gamephysics.js',
+                    'systems/playercontrol.js',
+                    'soundmanager.js',
+                    'entityfactory.js',
+                    'gamescene.js',
+                    'game.js'
+                ]);
     </script>
 </head>
 

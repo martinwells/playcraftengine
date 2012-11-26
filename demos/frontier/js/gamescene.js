@@ -1,78 +1,114 @@
-
-
-
-GameScene = pc.Scene('GameScene',
-    {},
+GameScene = pc.Scene.extend('GameScene',
+    { },
     {
+        entityFactory:null,
+        player:null,
+        playerPhysics:null,
+        playerSpatial:null,
+        engine:null,
+        leftCounter:null,
+        level:0,
+
+        starsLayer:null,
+        nebulaLayer:null,
         gameLayer:null,
-        playerShip:null,
-        energyBarLayer:null,
-        spaceStationLayer:null,
-        radarLayer:null,
-        state:0,
-        originTarget:null,
-        starFieldLayer1:null,
-        starFieldLayer2:null,
-        starFieldLayer3:null,
         uiLayer:null,
-        level:1,
+        asteroidSheet:null,
+        smallAsteroidSheet:null,
+        playerSheet:null,
+        plasmaFireSheet:null,
+        explosionSheet:null,
+        music:null,
+        musicPlaying:true,
+        fireSound:null,
 
         init:function ()
         {
-            this._super('game');
-        },
+            this._super();
 
-        onReady:function ()
-        {
-            // create the background layer
-            this.starFieldLayer1 = theGame.starFieldLayer1;
-            this.starFieldLayer3 = theGame.starFieldLayer3;
-            this.addLayer(this.starFieldLayer1);
-//            this.addLayer(this.starFieldLayer2); // was a bit slow with this running in firefox
-            this.addLayer(this.starFieldLayer3);
-            this.planetLayer = new PlanetLayer();
-            this.addLayer(this.planetLayer);
+            this.entityFactory = new EntityFactory();
 
-            // create the player ship -- not in a layer/level till startLevel is called
-            this.playerShip = Gunstar.create();
-
-            // sets up input states and binds them to the player entity
-            // you can have multiple inputs result in a different state
-            if (!pc.system.isTouch)
+            // start the music
+            if (pc.device.soundEnabled)
             {
-                pc.system.input.bindState(this.playerShip, 'moving_right', 'RIGHT');
-                pc.system.input.bindState(this.playerShip, 'moving_right', 'D');
-                pc.system.input.bindState(this.playerShip, 'moving_left', 'LEFT');
-                pc.system.input.bindState(this.playerShip, 'moving_left', 'A');
-                pc.system.input.bindState(this.playerShip, 'moving_up', 'UP');
-                pc.system.input.bindState(this.playerShip, 'moving_up', 'W');
-                pc.system.input.bindState(this.playerShip, 'moving_down', 'DOWN');
-                pc.system.input.bindState(this.playerShip, 'moving_down', 'S');
-                //            pc.system.input.bindState(this.playerShip, 'firing', 'SPACE');
-                pc.system.input.bindState(this.playerShip.turret, 'firing2', 'MOUSE_LEFT_BUTTON', this);
-                //                    pc.system.input.bindState(this.playerShip.turret, 'firing', 'SPACE');
-                pc.system.input.bindAction(this, 'aiming', 'MOUSE_MOVE');
-
-                pc.system.input.bindState(this.playerShip.turret, 'firing', 'SPACE', this);
-
-                pc.system.input.bindAction(this, 'escape', 'ESC');
-                pc.system.input.bindAction(this, 'toggleCollisions', 'T');
-                pc.system.input.bindAction(this, 'toggleDebugGrid', 'G');
-                pc.system.input.bindAction(this, 'toggleSound', 'M');
-                pc.system.input.bindAction(this, 'togglePause', 'P');
-                pc.system.input.bindAction(this, 'dumpPoolStats', 'X');
-            } else
-            {
-                // UI controls layer will setup the input for touch input
+                this.fireSound = pc.device.loader.get('fire').resource;
+                this.fireSound.setVolume(0.2);
+                this.music = pc.device.loader.get('music1').resource;
+                this.music.setVolume(0.2);
+//                this.music.play(true);
+                this.musicPlaying = true;
             }
 
-            this.uiLayer = new ControlsLayer();
-            this.addLayer(this.uiLayer);
 
-            this.radarLayer = new RadarLayer();
-            this.addLayer(this.radarLayer);
+            //-----------------------------------------------------------------------------
+            // stars layer
+            //-----------------------------------------------------------------------------
+            this.starsLayer = this.addLayer(new StarFieldLayer(0, 10000, 10000));
+            this.nebulaLayer = this.addLayer(new StarFieldLayer(2, 10000, 10000));
+            this.planetLayer = this.addLayer(new PlanetLayer());
 
-            this.startLevel(1);
+            //-----------------------------------------------------------------------------
+            // game layer
+            //-----------------------------------------------------------------------------
+            this.gameLayer = this.addLayer(new pc.EntityLayer('game layer', 10000, 10000));
+
+            // fire up the systems we need for the game layer
+            this.gameLayer.addSystem(new GamePhysics({ gravity:{ x:0, y:0 }, debug:false }));
+            this.gameLayer.addSystem(new pc.systems.Particles());
+            this.gameLayer.addSystem(new pc.systems.Effects());
+            this.gameLayer.addSystem(new pc.systems.Render());
+            this.gameLayer.addSystem(new pc.systems.Expiration());
+            this.gameLayer.addSystem(new pc.systems.Layout());
+
+            //-----------------------------------------------------------------------------
+            // ui layer
+            //-----------------------------------------------------------------------------
+            this.uiLayer = this.addLayer(new pc.EntityLayer('ui', pc.device.canvasWidth, pc.device.cavnasHeight));
+            this.uiLayer.addSystem(new pc.systems.Render());
+            this.uiLayer.addSystem(new pc.systems.Expiration());
+            this.uiLayer.addSystem(new pc.systems.Effects());
+//            this.uiLayer.systemManager.add(new RadarSystem(this.gameLayer));
+            this.uiLayer.addSystem(new pc.systems.Layout({ margin:{ top:10, left:10, bottom:10, right:10 } }));
+//            this.uiLayer.systemManager.add(new RadarSystem(this.gameLayer));
+
+            var e = pc.Entity.create(this.uiLayer);
+            e.addComponent(pc.components.Rect.create({ color:'#000000', lineWidth:0 }));
+            e.addComponent(pc.components.Alpha.create({level:0.6}));
+            e.addComponent(RadarComponent.create());
+            e.addComponent(pc.components.Spatial.create({ w:150, h:150 }));
+            e.addComponent(pc.components.Layout.create({ vertical:'top', horizontal:'right',
+                margin:{ top:0, left:10, bottom:10, right:0 }}));
+
+            // add origin tracking, this causes these layers to shift there origin (scroll) at a given ratio
+            // to the game layer, which creates nice parallax effects on the backgrounds
+            this.starsLayer.setOriginTrack(this.gameLayer, 0.03, 0.03);
+            this.nebulaLayer.setOriginTrack(this.gameLayer, 0.05, 0.05);
+            this.planetLayer.setOriginTrack(this.gameLayer, 0.1, 0.1);
+
+            // create some asteroids
+            this.newLevel();
+
+            // setup the controls
+            pc.device.input.bindState(this, 'turning right', 'D');
+            pc.device.input.bindState(this, 'turning right', 'RIGHT');
+            pc.device.input.bindState(this, 'turning left', 'A');
+            pc.device.input.bindState(this, 'turning left', 'LEFT');
+            pc.device.input.bindState(this, 'thrusting', 'W');
+            pc.device.input.bindState(this, 'thrusting', 'UP');
+            pc.device.input.bindState(this, 'reversing', 'S');
+            pc.device.input.bindState(this, 'reversing', 'DOWN');
+            pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
+            pc.device.input.bindState(this, 'firing', 'SPACE');
+        },
+
+        displayText:function (s)
+        {
+            var e = pc.Entity.create(this.gameLayer);
+            e.addComponent(pc.components.Fade.create({ fadeInTime:1000, holdTime:1000, fadeOutTime:1500 }));
+            e.addComponent(pc.components.Text.create({ color:'#e65cba', text:[s], fontHeight:20 }));
+            e.addComponent(pc.components.Expiry.create({ lifetime:6500 }));
+            e.addComponent(pc.components.Spatial.create({ dir:0, w:170, h:20 }));
+            e.addComponent(pc.components.Layout.create({ vertical:'middle', horizontal:'left', margin:{left:30 }}));
         },
 
         startLevel:function (level)
@@ -85,134 +121,69 @@ GameScene = pc.Scene('GameScene',
             this.gameLayer = this.get('Object Layer 1');
             this.spaceStationLayer.origin = this.gameLayer.origin;
 
-            // add/remove the ui layer so it's always drawn last (z-order drawing for layers soon)
-            this.removeLayer(this.uiLayer);
-            this.addLayer(this.uiLayer);
-
-            // add the player ship into the new game level
-            this.gameLayer.addElement(this.playerShip);
-            // todo: get the player ship start object (from the map), and move the ship to the same spot
-            // then reset the ships shields etc
+            // make sure the uiLayer is drawn last
+            this.uiLayer.setZIndex(10);
 
             // tell the radar about the new level
-            this.radarLayer.setLayers(this.spaceStationLayer, this.gameLayer);
+//            this.radarLayer.setLayers(this.spaceStationLayer, this.gameLayer);
 
-            var levelAlert = pc.TextElement.create(this.uiLayer, 'Level ' + this.level, [0, 0, 0], [200, 200, 200], '30pt Calibri',
-                (this.viewPortWidth / 20), this.viewPortHeight / 2, 200, 30);
-            levelAlert.add(pc.FadeEffect.create({ fadeInTime:4000, holdTime:1000, fadeOutTime:4000}));
-            levelAlert.setLifetime(10000);
+            // setup the starting entities
+            this.player = this.createEntity(this.gameLayer, 'player',
+                (this.gameLayer.scene.viewPort.w / 2) - 24, (this.gameLayer.scene.viewPort.h / 2) - 24, 0);
+            this.playerPhysics = this.player.getComponent('physics');
+            this.playerSpatial = this.player.getComponent('spatial');
 
-            var levelTitle = pc.TextElement.create(this.uiLayer, 'Discovery', [0, 0, 0], [120, 120, 120], '30pt Calibri',
-                (this.viewPortWidth / 20), (this.viewPortHeight / 2) + 30, 200, 30);
-            levelTitle.add(pc.FadeEffect.create({ fadeInTime:4000, holdTime:1000, fadeOutTime:4000}));
-            levelTitle.setLifetime(10000);
-
-            if (level == 1)
-            {
-                // show some instructions
-                var boxX = (this.viewPortWidth / 2) - 295;
-                var boxY = (this.viewPortHeight / 2) - 60;
-                var rect = pc.ui.Rect.create(this.uiLayer, [100, 100, 100], [20, 20, 20], 10,
-                    boxX, boxY, 275, 40);
-
-                // add effects
-
-                var keys = pc.ui.Text.create(this.uiLayer, 'Use W,S,D,A to move', null, [120, 120, 120], '20pt Calibri',
-                    boxX + 20, boxY - 32, 200, 60);
-                var fadeEffect = pc.effects.Fade.create({startDelay:3000, fadeInTime:2000, holdTime:0, fadeOutTime:2000});
-                keys.add(fadeEffect);
-                rect.add(fadeEffect);
-
-                boxX -= 100;
-                boxY -= 100;
-                var rect2 = pc.RectElement.create(this.uiLayer, [100, 100, 100], [20, 20, 20], 10,
-                    boxX, boxY, 275, 40);
-                var keys2 = pc.TextElement.create(this.uiLayer, 'Mouse to aim and fire', null, [120, 120, 120], '20pt Calibri',
-                    boxX + 20, boxY - 32, 200, 60);
-                var fadeEffect2 = pc.FadeEffect.create({startDelay:4000, fadeInTime:2000, holdTime:0, fadeOutTime:2000});
-                keys2.add(fadeEffect2);
-                rect2.add(fadeEffect2);
-
-                var arrow = pc.TextElement.create(this.uiLayer, 'Enemies are this way >>>>>>', null, [120, 120, 200], '20pt Calibri',
-                    boxX + 250, boxY, 200, 60);
-                arrow.add(pc.FadeEffect.create({startDelay:8000, fadeInTime:3000, holdTime:0, fadeOutTime:3000}));
-
-                var arrow2 = pc.TextElement.create(this.uiLayer, 'What are you waiting for? Go get em!', null, [120, 200, 120], '20pt Calibri',
-                    boxX + 250, boxY, 200, 60);
-                arrow2.add(pc.FadeEffect.create({startDelay:14000, fadeInTime:3000, holdTime:0, fadeOutTime:3000}));
-
-                var arrow3 = pc.TextElement.create(this.uiLayer, "Don't be afraid. You have a big gun.", null, [200, 120, 120], '20pt Calibri',
-                    boxX + 250, boxY, 200, 60);
-                arrow3.add(pc.FadeEffect.create({startDelay:20000, fadeInTime:3000, holdTime:0, fadeOutTime:3000}));
-
-                // wait timer, then show direction keys, then wait, then mouse aiming
-                // then game demo stuff (like toggle debug)
-            }
         },
 
-        onAction:function (actionName, event, pos)
+        lastFireTime:0,
+        fireDelay:150,
+
+        process:function ()
         {
-            if (actionName === 'dumpPoolStats')
-                this.debug(pc.Pool.getStats());
+            if (!pc.device.loader.finished) return;
 
-            if (actionName === 'aiming')
-                this.playerShip.turret.onAction('aiming', event, pos);
+            this.gameLayer.origin.x = this.playerSpatial.getCenterPos().x - (this.viewPort.w / 2);
+            this.gameLayer.origin.y = this.playerSpatial.getCenterPos().y - (this.viewPort.h / 2);
+            // because the star and nebular layers are set to origin track the game layer, we don't need to
+            // adjust them here; it's automatic
 
-            if (actionName === 'toggleCollisions')
-                pc.system.setDebugCollisions(!pc.system.debugCollisions);
+            if (pc.device.input.isInputState(this, 'turning left'))
+                this.playerPhysics.applyTurn(-40);
+            if (pc.device.input.isInputState(this, 'turning right'))
+                this.playerPhysics.applyTurn(40);
 
-            // todo: go through and pause all sounds - this just disables playing of new sounds
-            if (actionName === 'toggleSound')
-                pc.system.soundEnabled = (!pc.system.soundEnabled);
+            if (!(pc.device.input.isInputState(this, 'turning left')) && !(pc.device.input.isInputState(this, 'turning right')))
+                this.playerPhysics.applyTurn(0);
 
-            if (actionName === 'toggleDebugGrid')
+            if (pc.device.input.isInputState(this, 'thrusting'))
             {
-                this.spaceStationLayer.debugShowGrid = (!this.spaceStationLayer.debugShowGrid);
-                this.planetLayer.debugShowGrid = (!this.planetLayer.debugShowGrid);
-                this.starFieldLayer.debugShowGrid = (!this.starFieldLayer.debugShowGrid);
+                this.playerPhysics.applyForce(10);
+                this.engine.getComponent('emitter').emitting = true;
+            } else
+            {
+                this.engine.getComponent('emitter').emitting = false;
             }
 
-            if (actionName === 'escape')
-                theGame.startMenu();
+            if (pc.device.input.isInputState(this, 'reversing'))
+                this.playerPhysics.applyForce(-10);
 
-            if (actionName === 'dumpPool')
+            if (pc.device.input.isInputState(this, 'firing'))
             {
-                console.log(pc.Pool.getStats());
+                var sinceLastFire = pc.device.now - this.lastFireTime;
+                if (sinceLastFire > this.fireDelay)
+                {
+                    this.fireSound.play(false);
+                    var tc = this.playerSpatial.getCenterPos();
+                    // offset the size of the bullet (the center of the 30x30 image)
+                    tc.subtract(15, 15);
+                    // move outward in the direction of the ship so the bullets appear to be coming from the front
+                    tc.moveInDir(this.playerSpatial.dir, 20);
+                    this.createEntity(this.gameLayer, 'plasmaFire', tc.x, tc.y, this.playerSpatial.dir);
+                    this.lastFireTime = pc.device.now;
+                }
             }
 
-            if (actionName === 'togglePause')
-                this.togglePauseResume();
-        },
-
-        update:function (elapsed)
-        {
-            this._super(elapsed);
-
-            this.gameLayer.origin.x = this.playerShip.centerPos.x - (this.viewPortWidth / 2);
-            this.gameLayer.origin.y = this.playerShip.centerPos.y - (this.viewPortHeight / 2);
-            this.spaceStationLayer.origin.match(this.gameLayer.origin);
-
-            this.starFieldLayer1.origin.x = (this.playerShip.pos.x - (this.viewPortWidth / 6)) / 7;
-            this.starFieldLayer1.origin.y = (this.playerShip.pos.y - (this.viewPortHeight / 2)) / 7;
-//            this.starFieldLayer2.origin.x = (this.playerShip.pos.x - (this.viewPortWidth / 6)) / 5;
-//            this.starFieldLayer2.origin.y = (this.playerShip.pos.y - (this.viewPortHeight / 2)) / 5;
-            this.starFieldLayer3.origin.x = (this.playerShip.pos.x - (this.viewPortWidth / 6)) / 3;
-            this.starFieldLayer3.origin.y = (this.playerShip.pos.y - (this.viewPortHeight / 2)) / 3;
-//
-            this.planetLayer.origin.x = (this.playerShip.pos.x - (this.viewPortWidth / 6)) / 20;
-            this.planetLayer.origin.y = (this.playerShip.pos.y - (this.viewPortHeight / 2)) / 20;
-
-            return true; // return false to quit
-        },
-
-        draw:function (ctx)
-        {
-            this._super(ctx);
+            this._super();
         }
-
-
-
-
     });
-
 
