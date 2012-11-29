@@ -339,10 +339,11 @@ pc.Input = pc.Base('pc.Input',
                 if (moveEvent.type == 'touchmove' && !pc.InputType.isTouch(pc.InputType.getCode(binding.input)))
                     continue;
 
-                if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_LEFT_BUTTON && !this.mouseLeftButtonDown)
-                    continue;
-
-                if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_RIGHT_BUTTON && !this.mouseRightButtonDown)
+                if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_LEFT_UP ||
+                    pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_LEFT_DOWN ||
+                    pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_RIGHT_UP ||
+                    pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_RIGHT_UP ||
+                    )
                     continue;
 
                 var er = null;
@@ -497,11 +498,15 @@ pc.Input = pc.Base('pc.Input',
         {
             if (event.button == 0 || event.button == 1)
             {
-                this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, false, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_LEFT_DOWN, false, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_LEFT_UP, true, event);
+                this.fireAction(pc.InputType.MOUSE_BUTTON_LEFT_UP, event);
                 this.mouseLeftButtonDown = false;
             } else
             {
-                this._changeState(pc.InputType.MOUSE_RIGHT_BUTTON, false, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_DOWN, false, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_UP, true, event);
+                this.fireAction(pc.InputType.MOUSE_BUTTON_RIGHT_UP, event);
                 this.mouseRightButtonDown = false;
             }
 
@@ -513,13 +518,15 @@ pc.Input = pc.Base('pc.Input',
         {
             if (event.button == 0 || event.button == 1)
             {
-                this._changeState(pc.InputType.MOUSE_LEFT_BUTTON, true, event);
-                this.fireAction(pc.InputType.MOUSE_LEFT_BUTTON, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_LEFT_DOWN, true, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_LEFT_UP, false, event);
+                this.fireAction(pc.InputType.MOUSE_BUTTON_LEFT_DOWN, event);
                 this.mouseLeftButtonDown = true;
             } else
             {
-                this._changeState(pc.InputType.MOUSE_RIGHT_BUTTON, true, event);
-                this.fireAction(pc.InputType.MOUSE_RIGHT_BUTTON, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_DOWN, true, event);
+                this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_UP, false, event);
+                this.fireAction(pc.InputType.MOUSE_BUTTON_RIGHT_DOWN, event);
                 this.mouseRightButtonDown = true;
             }
             event.preventDefault();
@@ -553,13 +560,15 @@ pc.InputType = pc.Base.extend('pc.InputType',
         nameToCode:null,
         codeToName:null,
 
-        POSITIONAL_EVENT_START:1000,
-        MOUSE_LEFT_BUTTON: 1100,
-        MOUSE_RIGHT_BUTTON: 1101,
-        MOUSE_WHEEL_UP: 1102,
-        MOUSE_WHEEL_DOWN: 1103,
-        MOUSE_MOVE: 1104,
-        TOUCH: 1000,
+        POSITIONAL_EVENT_START:     1000,
+        MOUSE_MOVE:                 1100, // Basic mouse movement
+        MOUSE_BUTTON_LEFT_UP:       1110,
+        MOUSE_BUTTON_LEFT_DOWN:     1111,
+        MOUSE_BUTTON_RIGHT_UP:      1120,
+        MOUSE_BUTTON_RIGHT_DOWN:    1121,
+        MOUSE_WHEEL_UP:             1130,
+        MOUSE_WHEEL_DOWN:           1131,
+        TOUCH:                      1000,
 
         init:function ()
         {
@@ -642,8 +651,12 @@ pc.InputType = pc.Base.extend('pc.InputType',
 //            this.addInput(1001, 'touchmove');
 //            this.addInput(1002, 'touchend');
 
-            this.addInput(this.MOUSE_LEFT_BUTTON, 'MOUSE_LEFT_BUTTON');
-            this.addInput(this.MOUSE_RIGHT_BUTTON, 'MOUSE_RIGHT_BUTTON');
+
+            this.addInput(this.MOUSE_BUTTON_LEFT_DOWN, 'MOUSE_BUTTON_LEFT_DOWN');
+            this.addInput(this.MOUSE_BUTTON_LEFT_UP, 'MOUSE_BUTTON_LEFT_UP');
+            this.addInput(this.MOUSE_BUTTON_RIGHT_DOWN, 'MOUSE_BUTTON_RIGHT_DOWN');
+            this.addInput(this.MOUSE_BUTTON_RIGHT_UP, 'MOUSE_BUTTON_RIGHT_UP');
+
             this.addInput(this.MOUSE_WHEEL_UP, 'MOUSE_WHEEL_UP');
             this.addInput(this.MOUSE_WHEEL_DOWN, 'MOUSE_WHEEL_DOWN');
             this.addInput(this.MOUSE_MOVE, 'MOUSE_MOVE');
