@@ -147,10 +147,8 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
         {
             this._super(name);
             this.entityFactory = entityFactory;
-            this.systemManager = new pc.SystemManager();
-            this.entityManager = new pc.EntityManager(this.systemManager);
-            this.entityManager.layer = this;
-            this.systemManager.layer = this;
+            this.systemManager = new pc.SystemManager(this);
+            this.entityManager = new pc.EntityManager(this);
 
             this.worldSize = pc.Dim.create(pc.checked(worldSizeX, 10000), pc.checked(worldSizeY, 10000));
         },

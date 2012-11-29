@@ -22,24 +22,24 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
         systems:null,
         /** Index of the systems by component type */
         systemsByComponentType:null,
-        /** layer the system is on -- set by the system */
+        /** layer the system is on */
         layer:null,
 
         /**
          * Constructs a system manager.
          */
-        init:function ()
+        init:function (layer)
         {
             this.systems = new pc.LinkedList();
             this.systemsByComponentType = new pc.Hashtable();
+            this.layer = layer;
         },
 
         /**
          * Adds a system to the system manager
          * @param {pc.systems.System} system System to add
-         * @param {pc.EntityManager} entityManager Entity manager the system is on
          */
-        add:function (system, entityManager)
+        add:function (system)
         {
             system.layer = this.layer;
             system.systemManager = this;
@@ -68,7 +68,7 @@ pc.SystemManager = pc.Base.extend('pc.SystemManager',
             }
 
             // add all the entities to this system
-            var entity = entityManager.entities.first;
+            var entity = this.layer.entityManager.entities.first;
             while (entity)
             {
                 this._handleEntityAdded(entity.object());

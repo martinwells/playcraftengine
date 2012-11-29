@@ -30,18 +30,16 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         entities: null,
         /** entities to be removed at the end of processing */
         entitySuicides: null,
-        /** the system manager */
-        systemManager: null,
         /** the layer this entitymanager is within (set by the layer class) */
         layer: null,
 
         /**
          * Constructs a new entity manager
-         * @param {pc.SystemManager} systemManager The system manager to use
+         * @param {pc.EntityLayer} layer The entity layer this entity manager is doing work for
          */
-        init: function(systemManager)
+        init: function(layer)
         {
-            this.systemManager = systemManager;
+            this.layer = layer;
             this.entitiesByTag = new pc.HashList();
             this.entities = new pc.LinkedList();
             this.componentsByEntity = new pc.Hashmap();
@@ -86,7 +84,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             }
 
             // let the system manager take care of business
-            this.systemManager._handleEntityAdded(entity);
+            this.layer.systemManager._handleEntityAdded(entity);
         },
 
         /**
@@ -110,7 +108,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         removeComponent: function(entity, component)
         {
             this._removeFromComponentMap(entity, component);
-            this.systemManager._handleComponentRemoved(entity, component);
+            this.layer.systemManager._handleComponentRemoved(entity, component);
             entity._handleComponentRemoved(component);
             component._entity = null;
         },
@@ -157,7 +155,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         {
             if (entity.active) return;
 
-            this.systemManager._handleEntityAdded(entity);
+            this.layer.systemManager._handleEntityAdded(entity);
             entity.active = true;
         },
 
@@ -171,7 +169,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
 
             // remove from the systems - we still keep it in the entitymanager lists, but remove it
             // from the systems so it wont be processed anymore
-            this.systemManager._handleEntityRemoved(entity);
+            this.layer.systemManager._handleEntityRemoved(entity);
 
             // mark as inactive
             entity.active = false;
@@ -192,7 +190,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             for (var t=0; t < entity.tags.length; t++)
                 this.entitiesByTag.remove(entity.tags[t], entity);
 
-            this.systemManager._handleEntityRemoved(entity);
+            this.layer.systemManager._handleEntityRemoved(entity);
 
             entity.release();
         },
@@ -208,7 +206,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             // make sure this entity is in the correct component maps
             this._addToComponentMap(entity, component);
             entity._handleComponentAdded(component);
-            this.systemManager._handleComponentAdded(entity, component);
+            this.layer.systemManager._handleComponentAdded(entity, component);
             component._entity = entity;
             return component;
         },
