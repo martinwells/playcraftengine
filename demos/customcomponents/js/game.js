@@ -1,6 +1,4 @@
-/**
- * A sample game.js for you to work from
- */
+
 
 TheGame = pc.Game.extend('TheGame',
     { },

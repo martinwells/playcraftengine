@@ -46,7 +46,7 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('rect');
             this.color = pc.Color.create('#ffffff');
             this.lineColor = pc.Color.create('#888888');
             if (pc.valid(options))

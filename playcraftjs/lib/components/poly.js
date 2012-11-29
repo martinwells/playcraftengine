@@ -46,7 +46,7 @@ pc.components.Poly = pc.components.Component.extend('pc.components.Poly',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('poly');
             this.color = pc.Color.create('#ffffff');
             this.lineColor = null;
             if (pc.valid(options))

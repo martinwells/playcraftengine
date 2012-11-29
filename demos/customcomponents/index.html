@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Your Game</title>
+        <title>Playcraft - Custom Components</title>
         <meta name="viewport" content="user-scalable=no, maximum-scale=1.0, width=device-width, height=device-height"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -13,13 +13,11 @@
         <script>
             pc.start('pcGameCanvas', 'TheGame', 'js/',
                     [
-                        // add extra files here, e.g.
-                        // 'components/mycomponent.js',
+                        'components/mousehover.js',
+                        'systems/mousehover.js',
                         'gamescene.js',
                         'game.js'],
 
-                    // the relative path all files are prepended with (this is what the server needs to be
-                    // configured to provide static files to
                     '/playcraftjs/lib/');
         </script>
 

@@ -152,7 +152,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('physics');
             this.centerOfMass = pc.Point.create(0, 0);
             this.margin = { x:0, y:0 };
             if (pc.valid(options))

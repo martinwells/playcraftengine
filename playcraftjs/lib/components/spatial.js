@@ -53,7 +53,7 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
          */
         init: function(options)
         {
-            this._super(this.Class.shortName);
+            this._super('spatial');
 
             this.pos = pc.Point.create(0, 0);
             this.dim = pc.Dim.create(0, 0);

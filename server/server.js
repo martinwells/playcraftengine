@@ -13,6 +13,10 @@ app.configure(function()
     app.use(express.methodOverride());
     app.use(app.router);
     app.use(express.static('../'));
+
+    // if you want to make your own projects appear using different directories, add a static line here, e.g.
+    //app.use(express.static('/myprojects/mygame/'));
+
     app.use(express.static('static'));
     app.engine('html', require('ejs').renderFile);
 

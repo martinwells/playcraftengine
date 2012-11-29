@@ -40,7 +40,7 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
          */
         init: function(options)
         {
-            this._super(this.Class.shortName);
+            this._super('sprite');
             this.sprite = pc.Sprite.create();
             this.offset = pc.Point.create(0,0);
             if (pc.valid(options))

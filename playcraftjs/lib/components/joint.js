@@ -84,7 +84,7 @@ pc.components.Joint = pc.components.Component.extend('pc.components.Joint',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('joint');
             this.offset = pc.Point.create(0, 0);
             this.attachmentOffset = pc.Point.create(0, 0);
             if (pc.valid(options))

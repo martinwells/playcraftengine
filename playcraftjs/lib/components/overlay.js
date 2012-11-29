@@ -44,7 +44,7 @@ pc.components.Overlay = pc.components.Component.extend('pc.components.Overlay',
          */
         init: function(options)
         {
-            this._super(this.Class.shortName);
+            this._super('overlay');
             this.sprite = pc.Sprite.create();
             if (pc.valid(options))
                 this.config(options);

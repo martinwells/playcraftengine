@@ -64,7 +64,7 @@ pc.components.Scale = pc.components.Component.extend('pc.components.Scale',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('scale');
             if (pc.valid(options))
                 this.config(options);
         },

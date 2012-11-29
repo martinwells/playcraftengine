@@ -51,7 +51,7 @@ pc.components.Spin = pc.components.Component.extend('pc.components.Spin',
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('spin');
             if (pc.valid(options))
                 this.config(options);
         },

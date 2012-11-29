@@ -57,7 +57,7 @@ pc.components.Text = pc.components.Component.extend('pc.components.Text',
          */
         init: function(options)
         {
-            this._super(this.Class.shortName);
+            this._super('text');
             this.color = pc.Color.create('#ffffff');
             this.strokeColor = pc.Color.create('#888888');
             this.text = [];

@@ -41,7 +41,7 @@ pc.components.OriginShifter = pc.components.Component.extend('pc.components.Orig
          */
         init:function (options)
         {
-            this._super(this.Class.shortName);
+            this._super('originshifter');
             if (pc.valid(options))
                 this.config(options);
         },
