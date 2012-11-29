@@ -35,7 +35,7 @@ pc.components.Input = pc.components.Component.extend('pc.components.Input',
         /**
          * Constructs (or acquires from the pool) an input component.
          * @param {Array} options.states Array of states, e.g. states:['fire',['SPACE','D']];
-         * @param {Array} options.states Array of actions, e.g. actions:['fire',['SPACE','D']];
+         * @param {Array} options.actions Array of actions, e.g. actions:['fire',['SPACE','D']];
          * @param {pc.Entity} [options.target] Optional target entity. If set, actions and states will be set on this,
          * not the entity that contains the component. It will only be used for spatial positional.
          * @return {pc.components.Spatial} A shiny new input component
@@ -61,13 +61,10 @@ pc.components.Input = pc.components.Component.extend('pc.components.Input',
 
         /**
          * Constructs a new component. See create method for options
-         * @param {Object} options Options
          */
-        init:function (options)
+        init:function ()
         {
-            this._super(this.Class.shortName);
-            if (pc.valid(options))
-                this.config(options);
+            this._super('input');
         },
 
         /**

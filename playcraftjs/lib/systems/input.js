@@ -45,7 +45,12 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
                     {
                         var keys = input.states[i][1];
                         for (var k = 0; k < keys.length; k++)
-                            pc.device.input.bindState(eventTarget, input.states[i][0], keys[k], input.states[i][2] ? uiSpatial : null);
+                        {
+                            var ts = uiSpatial;
+                            if (pc.valid(input.states[i][2]) && input.states[i][2] == false)
+                                ts = null;
+                            pc.device.input.bindState(eventTarget, input.states[i][0], keys[k], ts);
+                        }
                     }
                 }
 
@@ -56,7 +61,12 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
                     {
                         keys = input.actions[i][1];
                         for (k = 0; k < keys.length; k++)
-                            pc.device.input.bindAction(eventTarget, input.actions[i][0], keys[k], input.actions[i][2] ? uiSpatial:null);
+                        {
+                            ts = uiSpatial;
+                            if (pc.valid(input.actions[i][2]) && input.actions[i][2] == false)
+                                ts = null;
+                            pc.device.input.bindAction(eventTarget, input.actions[i][0], keys[k], ts);
+                        }
                     }
                 }
 

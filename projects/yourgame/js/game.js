@@ -2,6 +2,44 @@
  * A sample game.js for you to work from
  */
 
+
+MouseHover = pc.components.Input.extend('MouseHover',
+    {
+        create:function()
+        {
+            return this._super({
+                states:[
+                    [ 'hover', ['MOUSE_MOVE'] ]
+            ]});
+        }
+    },
+    {
+        init:function()
+        {
+            this._super('input');
+        }
+    });
+
+
+MouseHoverSystem = pc.systems.Input.extend('MouseHoverSystem',
+    {
+    },
+    {
+        init:function ()
+        {
+            this._super([ 'input' ]);
+        },
+
+        process:function (entity)
+        {
+            this._super(entity);
+
+            if (this.isInputState(entity, 'hover'))
+                entity.getComponent("spatial").pos.x += 5;
+        }
+
+    });
+
 /**
  * GameScene
  * A template game scene
@@ -25,14 +63,16 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.addSystem(new pc.systems.Render());
             this.gameLayer.addSystem(new pc.systems.Effects());
             this.gameLayer.addSystem(new pc.systems.Physics({ debug:true }));
+            this.gameLayer.addSystem(new MouseHoverSystem());
 
             for (var i = 0; i < 10; i++)
             {
                 this.box = pc.Entity.create(this.gameLayer);
                 this.box.addComponent(pc.components.Rect.create({ color:[ pc.Math.rand(0, 255), pc.Math.rand(0, 255), pc.Math.rand(0, 255) ] }));
-                this.box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
-                this.box.addComponent(pc.components.Scale.create({ growX:0.02, growY:0.04 }));
+//                this.box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
+//                this.box.addComponent(pc.components.Scale.create({ growX:0.02, growY:0.04 }));
                 this.box.addComponent(pc.components.Spatial.create({ x:200 + (i * 50), y:200, w:100, h:100 }));
+                this.box.addComponent(MouseHover.create());
             }
 
             // a simple move action bound to the space key
