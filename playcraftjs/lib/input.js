@@ -342,7 +342,7 @@ pc.Input = pc.Base('pc.Input',
                 if (pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_LEFT_UP ||
                     pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_LEFT_DOWN ||
                     pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_RIGHT_UP ||
-                    pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_RIGHT_UP ||
+                    pc.InputType.getCode(binding.input) == pc.InputType.MOUSE_BUTTON_RIGHT_DOWN
                     )
                     continue;
 
