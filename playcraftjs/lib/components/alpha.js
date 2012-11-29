@@ -33,13 +33,10 @@ pc.components.Alpha = pc.components.Component.extend('pc.components.Alpha',
 
         /**
          * Constructs a new component. See create method for options
-         * @param {Object} options Options
          */
-        init:function (options)
+        init:function()
         {
-            this._super(this.Class.shortName);
-            if (pc.valid(options))
-                this.config(options);
+            this._super('alpha');
         },
 
         /**

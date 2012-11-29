@@ -51,14 +51,11 @@ pc.components.Layout = pc.components.Component.extend('pc.components.Layout',
 
         /**
          * Constructs a new component. See create method for options
-         * @param {Object} options Options
          */
-        init:function (options)
+        init:function ()
         {
-            this._super(this.Class.shortName);
+            this._super('layout');
             this.margin = {};
-            if (pc.valid(options))
-                this.config(options);
         },
 
         /**

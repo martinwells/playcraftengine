@@ -14,10 +14,10 @@ MouseHover = pc.components.Input.extend('MouseHover',
         }
     },
     {
-        init:function()
-        {
-            this._super('input');
-        }
+//        init:function()
+//        {
+//            this._super();
+//        }
     });
 
 

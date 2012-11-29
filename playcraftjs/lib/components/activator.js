@@ -56,14 +56,11 @@ pc.components.Activator = pc.components.Component.extend('pc.components.Activato
         _cacheLayer:null,
 
         /**
-         * Constructs (or acquires) a clipping component
-         * @param options
+         * Constructs a clipping component
          */
-        init:function (options)
+        init:function ()
         {
-            this._super(this.Class.shortName);
-            if (pc.valid(options))
-                this.config(options);
+            this._super('activator');
         },
 
         /**

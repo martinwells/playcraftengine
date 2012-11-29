@@ -60,9 +60,9 @@ pc.components.Input = pc.components.Component.extend('pc.components.Input',
         _bound: false,
 
         /**
-         * Constructs a new component. See create method for options
+         * Internal constructor: use .create
          */
-        init:function ()
+        init:function (options)
         {
             this._super('input');
         },
