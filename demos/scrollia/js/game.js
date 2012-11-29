@@ -11,7 +11,6 @@ CollisionType =
     WALL:0x0008
 };
 
-
 TheGame = pc.Game.extend('TheGame',
     {},
     {

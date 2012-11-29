@@ -12,10 +12,13 @@ HealthSystem = pc.systems.EntitySystem.extend('HealthSystem',
         process:function (entity)
         {
             var health = entity.getComponent('health');
-            if (pc.device.now - health._lastRegenTime > health.regenDelay)
+            if (entity.hasTag('player'))
             {
-                health._lastRegenTime = pc.device.now;
-                health.addHealth(1);
+                if (pc.device.now - health._lastRegenTime > health.regenDelay)
+                {
+                    health._lastRegenTime = pc.device.now;
+                    health.addHealth(1);
+                }
             }
         }
 

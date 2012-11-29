@@ -10,8 +10,8 @@ Health = pc.components.Component('Health',
     {
         hp:0,
         maxHP:0,
-        regenTime: 0,
-        _lastRegenTime: 0,
+        regenTime:0,
+        _lastRegenTime:0,
 
         init:function (hp, regenDelay)
         {
@@ -44,3 +44,4 @@ Health = pc.components.Component('Health',
         }
 
     });
+
