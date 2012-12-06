@@ -444,7 +444,15 @@ pc.Scene = pc.Base.extend('pc.Scene',
             var layers = xmlDoc.getElementsByTagName('layer');
             for (var m = 0; m < layers.length; m++)
             {
-                pc.TileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
+                switch(mapXML.getAttribute('orientation')) {
+                    case 'isometric':
+                        pc.IsoTileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
+                    break;
+
+                    default:
+                        pc.TileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
+                    break;
+                }
             }
 
             // load entity layers
