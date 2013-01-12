@@ -27,7 +27,12 @@ GameScene = pc.Scene.extend('GameScene',
                 box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
                 box.addComponent(pc.components.Scale.create({ growX:0.02, growY:0.04 }));
                 box.addComponent(pc.components.Spatial.create({ x:200 + (i * 50), y:200, w:100, h:100 }));
+
+                box.addTag('test');
+                box.removeTag('test');
             }
+
+
 
         },
 

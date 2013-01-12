@@ -20,7 +20,7 @@ pc.components.Text = pc.components.Component.extend('pc.components.Text',
          * @param {String} options.strokeColor Line color in the form of #RRGGBB
          * @param {Number} options.lineWidth Stroke width
          * @param {String} options.font Name of the font
-         * @param {Number} options.height Size/height of the font (i.e. 20 for 20pt)
+         * @param {Number} options.fontHeight Size/height of the font (i.e. 20 for 20pt)
          * @param {String} options.text String to display
          * @param {pc.Point} options.offset Object containing x, y properties. Offset position of the text.
          * @return {pc.components.Text} A text component

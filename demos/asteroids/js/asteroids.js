@@ -311,8 +311,8 @@ GameScene = pc.Scene.extend('GameScene',
                     e.addComponent(pc.components.Physics.create(
                         {
                             maxSpeed:{x:50, y:50},
-                            linearDamping:0.1,
-                            mass:20,
+                            linearDamping:0.01,
+                            mass:2,
                             shapes:[
                                 {
                                     shape:pc.CollisionShape.CIRCLE

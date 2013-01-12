@@ -52,6 +52,8 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         init:function (spriteSheet)
         {
+//            if (!spriteSheet.isA('SpriteSheet'))
+//                throw 'spriteSheet needs to be an object of type pc.SpriteSheet';
             this.tileSpriteSheet = spriteSheet;
             this.props = new Array(spriteSheet.totalFrames);
             for (var i = 0; i < this.props.length; i++)

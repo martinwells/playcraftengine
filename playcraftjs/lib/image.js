@@ -81,7 +81,9 @@ pc.Image = pc.Base.extend('pc.Image',
         },
 
         /**
-         * Change the x and/or y scale to draw the image at.
+         * Change the x and/or y scale to draw the image at. If you want to scale an image to a particular size,
+         * just generate the scale by dividing one size by another, e.g. current image size 500, 500 and you want to
+         * scale to 750, 750, then do setScale( 750/500, 750/500 ).
          * @param {Number} scaleX x-scale to draw at (2 = 200% wide, -1 = reversed normal on x)
          * @param {Number} scaleY y-scale to draw at (2 = 200% high, -1 = reversed normal on y)
          */
@@ -233,6 +235,15 @@ pc.Image = pc.Base.extend('pc.Image',
             this.height = this.image.height;
         },
 
+        /**
+         * Resizes an image using a given scale. This will create a new image internally, which can be
+         * expensive. Generally you should use setScale on the image to change it's size, which will let
+         * the hardware take care of it. If this is slow, or the results are not what you want, then you
+         * can use this method to do a nicer resize (but keep in mind it's slow and memory expensive)
+         * @param {Number} scaleX Scale to increase X by (can be negative)
+         * @param {Number} scaleY Scale to increase Y by (can be negative)
+         * @return {pc.Image} This image object
+         */
         resize:function (scaleX, scaleY)
         {
             var sw = this.width * scaleX;

@@ -463,6 +463,32 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         },
 
         /**
+         * Sets the linear damping
+         * @param {Number} d Amount of damping to apply
+         */
+        setLinearDamping:function (d)
+        {
+            if (this._body)
+            {
+                this._body.SetLinearDamping(a);
+                this._body.SetAwake(true);
+            }
+        },
+
+        /**
+         * Sets the friction
+         * @param {Number} f Amount of friction to apply
+         */
+        setFriction:function (f)
+        {
+            if (this._body)
+            {
+                this._body.SetFriction(f);
+                this._body.SetAwake(true);
+            }
+        },
+
+        /**
          * Change the collision category (changes all shapes)
          * @param {Number} c Category to change to
          */

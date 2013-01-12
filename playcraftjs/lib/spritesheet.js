@@ -89,6 +89,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
          * Constructs a new sprite sheet with options. You can use either framesWide or frameWidth, and the logical
          * default will be assumed. Frame width is assumed to be image.width / framesWide or frames wide will default to
          * image.width/frameWidth.
+         * @param {pc.Image} options.image Image to use for the sheet
          * @param {Number} options.framesWide Number of frames wide the sprite sheet is
          * @param {Number} options.framesHigh Number of frames high the sprite sheet is
          * @param {Number} options.frameHeight Height of each frame in pixels
