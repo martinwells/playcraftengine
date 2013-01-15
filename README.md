@@ -1,4 +1,4 @@
-## 0.5.6 (Work in Progress
+## 0.5.6 (Work in Progress)
 
 - components now use a static type naming, rather than dynamic this.Class.shortName to avoid inheritance typing issues
 - a new demo: customcomponent added to show a simple example of a mousehover (mostly coded by Leandro Ostera)
