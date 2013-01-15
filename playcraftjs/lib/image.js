@@ -174,7 +174,7 @@ pc.Image = pc.Base.extend('pc.Image',
                         ctx.translate(x + (width / 2), y + (height / 2));
 
                     ctx.rotate(rotationAngle * (Math.PI / 180));
-                    ctx.scale(this.scaleX, this.scaleY);
+//                    ctx.scale(this.scaleX, this.scaleY);
                     ctx.drawImage(this.image, sx, sy, width, height, (-width / 2), (-height / 2), width, height);
                     ctx.restore();
                 }

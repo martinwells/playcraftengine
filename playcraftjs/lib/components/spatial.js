@@ -119,10 +119,10 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
          */
         addScale:function(x, y)
         {
-            this.pos.x -= (this.dim.x * x);
-            this.pos.y -= (this.dim.y * y);
-            this.dim.x *= (1+x);
-            this.dim.y *= (1+y);
+            this.pos.x -= Math.abs((this.dim.x - (this.dim.x * x)) / 2);
+            this.pos.y -= Math.abs((this.dim.y - (this.dim.y * y)) / 2);
+            this.dim.x *= (x);
+            this.dim.y *= (y);
             this.scaleX += x;
             this.scaleY += y;
         },

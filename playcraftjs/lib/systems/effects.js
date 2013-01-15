@@ -93,13 +93,18 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                         if (scale.maxY != 0 && (scale.scaledYSoFar > 0 && scale.scaledYSoFar + sy >= scale.maxY))
                             sy = (scale.maxY - scale.scaledYSoFar);
 
-                        scale.scaledXSoFar += sx;
-                        scale.scaledYSoFar += sy;
-                        spatial.addScale(sx, sy);
+                        if (sx != 0 && sy != 0)
+                        {
+                            scale.scaledXSoFar += sx;
+                            scale.scaledYSoFar += sy;
+                            spatial.addScale(sx, sy);
+                        }
 
                         if ((scale.maxX != 0 && scale.scaledXSoFar >= scale.maxX) &&
                             (scale.maxY != 0 && scale.scaledYSoFar >= scale.maxY))
                             scale.scaling = false;
+
+                        scale._bound = true
                     }
                 }
 

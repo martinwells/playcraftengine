@@ -41,12 +41,21 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                     var drawX = entity.layer.screenX(spatial.pos.x);
                     var drawY = entity.layer.screenY(spatial.pos.y);
                     var unscaledPos = spatial.getUnscaledPos();
+                    var unscaledDim = spatial.getUnscaledDim();
+
+                    var ctx = pc.device.ctx;
+                    ctx.save();
+
+                    if (spatial.scaleX != 1 || spatial.scaleY != 1)
+                    {
+                        drawX = entity.layer.screenX(unscaledPos.x);
+                        drawY = entity.layer.screenY(unscaledPos.y);
+                        ctx.scale(spatial.scaleX, spatial.scaleY);
+                    }
 
                     // is it onscreen?
-                    if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y,0, spatial.dir))
+                    if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y, 0, spatial.dir))
                     {
-                        var ctx = pc.device.ctx;
-                        ctx.save();
 
                         if (clip)
                         {
@@ -67,13 +76,6 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             }
                             ctx.closePath();
                             ctx.clip();
-                        }
-
-                        if (spatial.scaleX != 1 || spatial.scaleY != 1)
-                        {
-                            ctx.scale(spatial.scaleX, spatial.scaleY);
-                            drawX = entity.layer.screenX(unscaledPos.x);
-                            drawY = entity.layer.screenY(unscaledPos.y);
                         }
 
                         var shifter = entity.getComponent('originshifter');
@@ -99,7 +101,11 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             spriteComponent.sprite.update(pc.device.elapsed);
                             if (alpha && alpha.level != 1 && alpha.level != 0)
                                 spriteComponent.sprite.alpha = alpha.level;
+                            if (spatial.scaleX != 1 || spatial.scaleY != 1)
+                                spriteComponent.sprite.setScale(spatial.scaleX, spatial.scaleY);
                             spriteComponent.sprite.draw(ctx, drawX+ spriteComponent.offset.x, drawY+ spriteComponent.offset.y, spatial.dir);
+                            if (spatial.scaleX != 1 || spatial.scaleY != 1)
+                                spriteComponent.sprite.setScale(1, 1);
                         }
 
                         var overlay = entity.getComponent('overlay');
@@ -122,7 +128,9 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             ctx.save();
                             if (alpha) ctx.globalAlpha = alpha.level;
 
-                            ctx.translate((drawX+(spatial.dim.x/2)), (drawY+(spatial.dim.y/2)));
+                            // translate to the center of the rectangle (so rotation works correctly)
+
+                            ctx.translate((drawX+(unscaledDim.x/2)), (drawY+(unscaledDim.y/2)));
                             ctx.rotate( spatial.dir * (Math.PI/180));
 
                             // rounded rectangle
@@ -157,13 +165,13 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                                 if (rect.color)
                                 {
                                     ctx.fillStyle = rect.color.color;
-                                    ctx.fillRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
+                                    ctx.fillRect(-unscaledDim.x/2, -unscaledDim.y/2, unscaledDim.x, unscaledDim.y);
                                 }
                                 if (rect.lineColor && rect.lineWidth)
                                 {
                                     ctx.lineWidth = rect.lineWidth;
                                     ctx.strokeStyle = rect.lineColor.color;
-                                    ctx.strokeRect(-spatial.dim.x/2, -spatial.dim.y/2, spatial.dim.x, spatial.dim.y);
+                                    ctx.strokeRect(-unscaledDim.x / 2, -unscaledDim.y / 2, unscaledDim.x, unscaledDim.y);
                                 }
                             }
 
