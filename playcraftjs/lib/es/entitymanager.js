@@ -134,7 +134,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         removeTag: function(entity, tag)
         {
             this.entitiesByTag.remove(tag.toLowerCase(), entity);
-            entity.tags.remove(tag.toLowerCase());
+            pc.Tools.arrayRemove(entity.tags, tag.toLowerCase());
         },
 
         /**
