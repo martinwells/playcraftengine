@@ -11,9 +11,11 @@ module.exports = function (grunt)
 
                     // externals
                     'packed.js', // included only when packing
-                    'ext/jquery171.js',
-                    'ext/gamecore.js/src/class.js',
+
+                    // gamecore
                     'ext/gamecore.js/src/gamecore.js',
+                    'ext/gamecore.js/src/class.js',
+                    'ext/gamecore.js/base.js'
                     'ext/gamecore.js/src/jhashtable.js',
                     'ext/gamecore.js/src/device.js',
                     'ext/gamecore.js/src/perf.js',
@@ -49,6 +51,10 @@ module.exports = function (grunt)
                     'loader.js',
                     'dataresource.js',
                     'components/component.js',
+                    'components/circle.js',
+                    'components/poly.js',
+                    'components/scale.js',
+                    'components/spin.js',
                     'components/physics.js',
                     'components/alpha.js',
                     'components/joint.js',
@@ -66,9 +72,9 @@ module.exports = function (grunt)
                     'components/sprite.js',
                     'components/layout.js',
                     'components/particleemitter.js',
-                    'systems/system.js',
                     'es/entitymanager.js',
                     'es/systemmanager.js',
+                    'systems/system.js',
                     'systems/entitysystem.js',
                     'systems/physics.js',
                     'systems/effects.js',
@@ -79,7 +85,7 @@ module.exports = function (grunt)
                     'systems/render.js',
                     'systems/layout.js'
                 ],
-                dest:'../dist/playcraft-0.5.11.min.js'
+                dest:'../dist/playcraft-0.5.6.min.js'
             }
         }//,
 //        uglify:{
