@@ -1,7 +1,11 @@
+//
+// Playcraft Engine Simpler Server
+// This is a simple example server to run games locally, it's not intended for production use
+//
+
 var requirejs = require('requirejs');
 var express = require('express');
 var app = express(2020);
-var watch = require('watch');
 
 // Configuration
 app.configure(function()
