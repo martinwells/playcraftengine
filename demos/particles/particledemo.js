@@ -84,7 +84,7 @@ GameScene = pc.Scene.extend('GameScene',
             // ------------------------------------------------------------------------------------
             // Setup the controls
             // ------------------------------------------------------------------------------------
-            pc.device.input.bindAction(this, 'next', 'MOUSE_LEFT_BUTTON');
+            pc.device.input.bindAction(this, 'next', 'MOUSE_BUTTON_LEFT_DOWN');
             pc.device.input.bindAction(this, 'next', 'TOUCH');
             pc.device.input.bindAction(this, 'next', 'space');
             pc.device.input.bindAction(this, 'stats', 'D');

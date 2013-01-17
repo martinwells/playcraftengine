@@ -128,7 +128,7 @@ pc.JSLoader = function()
 pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
 {
     var loader = new pc.JSLoader();
-    loader.setDisableCache();
+//    loader.setDisableCache();
 
     // if we're not packed/minified, then load the source directly here
     if (pc.packed == undefined)

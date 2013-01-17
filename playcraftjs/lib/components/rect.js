@@ -10,6 +10,12 @@
  * [Used in <a href='pc.systems.Render'>pc.systems.Render</a>]
  * <p>
  * Adds a rectangle to an entity.
+ * <p>
+ * To modify rectangle color at runtime, you can change the value of the lineColor and color
+ * members by calling set (they are instances of pc.Color). For example:
+ * <pre><code>
+ *     myEntity.getComponent('rect').lineColor.set( [128, 128, 128] )
+ * </code></pre>
  */
 pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
     /** @lends pc.components.Rect */

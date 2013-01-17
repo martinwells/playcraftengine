@@ -97,7 +97,7 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindState(this, 'thrusting', 'UP');
             pc.device.input.bindState(this, 'reversing', 'S');
             pc.device.input.bindState(this, 'reversing', 'DOWN');
-            pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
+            pc.device.input.bindState(this, 'firing', 'MOUSE_BUTTON_LEFT_DOWN');
             pc.device.input.bindState(this, 'firing', 'SPACE');
         },
 

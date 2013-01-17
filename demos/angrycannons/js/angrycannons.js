@@ -264,7 +264,7 @@ GameScene = pc.Scene.extend('GameScene',
             pc.device.input.bindAction(this, 'toggle layer 1', '1');
             pc.device.input.bindAction(this, 'toggle layer 2', '2');
             pc.device.input.bindAction(this, 'toggle layer 3', '3');
-            pc.device.input.bindState(this, 'firing', 'MOUSE_LEFT_BUTTON');
+            pc.device.input.bindState(this, 'firing', 'MOUSE_BUTTON_LEFT_DOWN');
             pc.device.input.bindState(this, 'firing', 'TOUCH');
             pc.device.input.bindState(this, 'firing', 'SPACE');
 

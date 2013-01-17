@@ -139,6 +139,8 @@ pc.Input = pc.Base('pc.Input',
         {
             if (obj.uniqueId == null)
                 throw "Oops, you can't bind a state to an object if it doesn't have a uniqueId function";
+            if (!pc.InputType.getCode(input))
+                throw "Unknown input code " + input + ' - see pc.InputType for a list of input names';
 
             input = input.toUpperCase();
             // There can be many bindings associated with a particular input, so we see
@@ -231,7 +233,7 @@ pc.Input = pc.Base('pc.Input',
          * var menuOption = new TextElement('New Game');    // a menu item
          *
          * // trigger the 'new game' action for the menuLayer, when a mouse click occurs within the menuOption element
-         * pc.device.input.bindAction(menuLayer, 'new game', 'MOUSE_LEFT_BUTTON', menuOption);
+         * pc.device.input.bindAction(menuLayer, 'new game', 'MOUSE_BUTTON_LEFT_DOWN', menuOption);
          * </code></pre>
          * Note: If the uiTarget element is not provided, the bounding rectangle of the obj is used (as long as
          * the object provides a getScreenRect() method, otherwise there is no checking

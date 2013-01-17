@@ -12,8 +12,11 @@ TheGame = pc.Game.extend('TheGame',
             this._super();
 
             // disable caching when developing
-            if (pc.device.devMode)
-                pc.device.loader.setDisableCache();
+//            if (pc.device.devMode)
+//                pc.device.loader.setDisableCache();
+
+            pc.device.loader.add(new pc.Image('rect100', 'images/rect100.png'));
+            pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
 
             /*
 

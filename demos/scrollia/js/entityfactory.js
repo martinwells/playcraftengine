@@ -404,7 +404,7 @@ EntityFactory = pc.EntityFactory.extend('EntityFactory',
                     e.addComponent(pc.components.Spatial.create({x:x, y:y, dir:0,
                         w:this.crate1Sheet.frameWidth, h:this.crate1Sheet.frameHeight}));
                     e.addComponent(pc.components.Input.create({ actions:[
-                        ['crate pressed', ['MOUSE_LEFT_BUTTON'], true]
+                        ['crate pressed', ['MOUSE_BUTTON_LEFT_DOWN'], true]
                     ]}));
                     e.addComponent(pc.components.Physics.create({
                         collisionCategory:CollisionType.FRIENDLY,

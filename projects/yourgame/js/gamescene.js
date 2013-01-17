@@ -6,6 +6,7 @@ GameScene = pc.Scene.extend('GameScene',
     { },
     {
         gameLayer:null,
+        box: null,
 
         init:function ()
         {
@@ -20,19 +21,28 @@ GameScene = pc.Scene.extend('GameScene',
             this.gameLayer.addSystem(new pc.systems.Render());
             this.gameLayer.addSystem(new pc.systems.Effects());
 
-            for (var i = 0; i < 10; i++)
+            this.box = pc.Entity.create(this.gameLayer);
+            this.box.addComponent(pc.components.Spatial.create({ x:300, y:300, w:100, h:100 }));
+            this.box.addComponent(pc.components.Sprite.create(
+                {
+                    spriteSheet:new pc.SpriteSheet({ image:pc.device.loader.get('rect100').resource, frameCount:1 })
+                }));
+
+            for (var i = 0; i < 1; i++)
             {
-                var box = pc.Entity.create(this.gameLayer);
-                box.addComponent(pc.components.Rect.create({ color:[ pc.Math.rand(0, 255), pc.Math.rand(0, 255), pc.Math.rand(0, 255) ] }));
-                box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
-                box.addComponent(pc.components.Scale.create({ growX:0.02, growY:0.04 }));
-                box.addComponent(pc.components.Spatial.create({ x:200 + (i * 50), y:200, w:100, h:100 }));
+                this.box = pc.Entity.create(this.gameLayer);
+                this.box.addComponent(pc.components.Spatial.create({ x:100, y:100, w:100, h:100 }));
+//                this.box.addComponent(pc.components.Spatial.create({ x:200 + (i * 50), y:200, w:100, h:100 }));
+//                this.box.addComponent(pc.components.Rect.create({ color:[ pc.Math.rand(0, 255), pc.Math.rand(0, 255), pc.Math.rand(0, 255) ] }));
+//                box.addComponent(pc.components.Spin.create({ rate:20, clockwise:true }));
 
-                box.addTag('test');
-                box.removeTag('test');
+                this.box.addComponent(pc.components.Sprite.create(
+                    {
+                        spriteSheet:new pc.SpriteSheet({ image:pc.device.loader.get('rect100').resource, frameCount:1 })
+                    }));
+
+                this.box.addComponent(pc.components.Scale.create({ x: 2, y:2 }));
             }
-
-
 
         },
 
@@ -43,6 +53,8 @@ GameScene = pc.Scene.extend('GameScene',
 
             // always call the super
             this._super();
+
+            this.box.getComponent('spatial').pos.x--;
 
             //
             // ... do extra processing in here

@@ -142,7 +142,7 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     target:this.player, // actions/states will be sent/set on the player, not this arrow
                     states:[
-                        ['moving left', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ['moving left', ['TOUCH', 'MOUSE_BUTTON_LEFT_DOWN'], true]
                     ]
                 }));
 
@@ -160,7 +160,7 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     target:this.player, // actions/states will be sent/set on the player, not this arrow
                     states:[
-                        ['moving right', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ['moving right', ['TOUCH', 'MOUSE_BUTTON_LEFT_DOWN'], true]
                     ]
                 }));
 
@@ -174,7 +174,7 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     target:this.player, // actions/states will be sent/set on the player, not this arrow
                     states:[
-                        ['jumping', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ['jumping', ['TOUCH', 'MOUSE_BUTTON_LEFT_DOWN'], true]
                     ]
                 }));
 
@@ -188,7 +188,7 @@ GameScene = pc.Scene.extend('GameScene',
                 {
                     target:this.player, // actions/states will be sent/set on the player, not this arrow
                     states:[
-                        ['casting', ['TOUCH', 'MOUSE_LEFT_BUTTON'], true]
+                        ['casting', ['TOUCH', 'MOUSE_BUTTON_LEFT_DOWN'], true]
                     ]
                 }));
 

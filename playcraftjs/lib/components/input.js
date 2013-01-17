@@ -17,7 +17,7 @@
  *      ['moving right', ['D', 'TOUCH', 'RIGHT']],
  *      ['moving left', ['A', 'LEFT']],
  *      ['jumping', ['W', 'UP']],
- *      ['jumping', ['MOUSE_LEFT_BUTTON', 'SPACE'], false],
+ *      ['jumping', ['MOUSE_BUTTON_LEFT_DOWN', 'SPACE'], false],
  * ],
  * actions:
  * [

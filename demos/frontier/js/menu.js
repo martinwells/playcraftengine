@@ -93,7 +93,7 @@ MenuLayer = pc.ElementLayer('MenuLayer',
                 this.menuElements.push(menuElement);
 
                 // setup the mouse/touch interaction
-                pc.system.input.bindAction(this, 'execute-' + this.menuOptions[i], 'MOUSE_LEFT_BUTTON', menuElement);
+                pc.system.input.bindAction(this, 'execute-' + this.menuOptions[i], 'MOUSE_BUTTON_LEFT_DOWN', menuElement);
                 pc.system.input.bindAction(this, 'execute-' + this.menuOptions[i], 'TOUCH', menuElement);
 
                 var fader = pc.FadeEffect.create({ fadeInTime:500, holdTime:100, fadeOutTime:500, loops:99999} );
