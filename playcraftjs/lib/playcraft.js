@@ -41,7 +41,7 @@
 if (!window.pc)
     window.pc = {};
 
-pc.VERSION = '0.5.5';
+pc.VERSION = '0.5.6';
 
 
 /**
@@ -107,6 +107,7 @@ pc.JSLoader = function()
             throw('Could not load javascript file: ' + script.src);
         };
 
+        console.log('Loading ' + src);
         document.getElementsByTagName("head")[0].appendChild(script);
     };
 
@@ -148,11 +149,11 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('ext/gamecore.js/src/hashlist.js');
         loader.add('ext/gamecore.js/src/stacktrace.js');
         loader.add('ext/gamecore.js/src/pooled.js');
-        loader.add('ext/base64.js');
         loader.add('ext/box2dweb.2.1a-pc.js');
 
         // Playcraft Engine
         loader.add('boot.js'); // <--- must be first for engine scripts (sets up some translations)
+        loader.add('ext/base64.js');
         loader.add('input.js');
         loader.add('hashmap.js');
         loader.add('tools.js');

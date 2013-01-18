@@ -96,6 +96,9 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
         init: function(layer)
         {
             this._super();
+            this.tags = [];
+            this.layer = null;
+            this.active = true;
             this._componentCache = new pc.Hashmap();
             if (pc.valid(layer))
                 this.config(layer);

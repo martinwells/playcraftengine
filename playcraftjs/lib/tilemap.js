@@ -33,7 +33,7 @@
  * If you do modify the tile map though, and you're using prerendering you will need to call prerender on the tile
  * layer so the prerendered images are updated.
  */
-
+ 
 pc.TileMap = pc.Base.extend('pc.TileMap',
     /** @lends pc.TileMap */
     {
@@ -195,7 +195,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
 
                 // trim
                 tileData = tileData.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-                var decoded = atob(tileData);
+                var decoded = pc.Base64.decode(tileData);
 
                 // decode as an array
                 var a = [];

@@ -24,6 +24,12 @@ pc.Hashmap = pc.Base.extend('pc.Hashmap',
     {},
     /** @lends pc.Hashmap.prototype */
     {
+        init:function()
+        {
+           this._super();//console.log(this.items.toString());
+           this.items = {};
+        },
+
         /** number of items in the map */
         length: 0,
         /** an object containing all the items as properties */

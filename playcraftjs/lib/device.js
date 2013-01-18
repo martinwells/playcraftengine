@@ -138,7 +138,7 @@ pc.Device = pc.Base.extend('pc.Device',
                         window.msRequestAnimationFrame ||
                         function (callback, element)
                         {
-                            window.setTimeout(callback, 1000 / this.fps);
+                            window.setTimeout(callback, 1000 / 60, Date.now());
                         };
 
                 // apply to our window global to avoid illegal invocations (it's a native)

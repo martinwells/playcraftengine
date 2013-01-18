@@ -5,8 +5,11 @@
 *
 **/
  
-var Base64 = {
- 
+
+
+	
+pc.Base64 = pc.Base.extend('pc.Base64',
+{ 
 	// private property
 	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
  
@@ -75,10 +78,7 @@ var Base64 = {
  
 		}
  
-//		output = Base64._utf8_decode(output);
-
-        output.join('');
-		return output;
+ 		return output.join('');
  
 	},
  
@@ -140,8 +140,9 @@ var Base64 = {
 		return string;
 	}
  
-};
+}, 
+{});
 
 // fix for browsers that don't natively support atob or btoa (ie. IE)
-if (!window.btoa) window.btoa = Base64.encode
-if (!window.atob) window.atob = Base64.decode
+if (!window.btoa) window.btoa = pc.Base64.encode
+if (!window.atob) window.atob = pc.Base64.decode
