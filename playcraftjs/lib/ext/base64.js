@@ -141,3 +141,7 @@ var Base64 = {
 	}
  
 };
+
+// fix for browsers that don't natively support atob or btoa (ie. IE)
+if (!window.btoa) window.btoa = Base64.encode
+if (!window.atob) window.atob = Base64.decode
