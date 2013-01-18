@@ -1,6 +1,7 @@
 ## 0.5.6 (Work in Progress)
 
 - a compatibility fix was added for IE9+ (property clones required init's -- still working on tracking down the issue)
+- fixed IE not wanting to load base64 encoded XML (i.e. levels in Scrollia)
 - fixed the timer function for non animation frame browsers
 - components now use a static type naming, rather than dynamic this.Class.shortName to avoid inheritance typing issues
 - a new demo: customcomponent added to show a simple example of a mousehover (mostly coded by Leandro Ostera)
