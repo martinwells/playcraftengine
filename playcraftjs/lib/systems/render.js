@@ -136,17 +136,21 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                             // rounded rectangle
                             if (rect.cornerRadius > 0)
                             {
+                                var topLeftX = -unscaledDim.x/2;
+                                var topLeftY = -unscaledDim.y/2;
+
                                 ctx.beginPath();
-                                ctx.moveTo(drawX + spatial.radius, drawY);
-                                ctx.lineTo(drawX + spatial.dim.x - spatial.radius, drawY);
-                                ctx.quadraticCurveTo(drawX + spatial.dim.x, drawY, drawX + spatial.dim.x, drawY + spatial.radius);
-                                ctx.lineTo(drawX + spatial.dim.x, drawY + spatial.dim.y - spatial.radius);
-                                ctx.quadraticCurveTo(drawX + spatial.dim.x, drawY + spatial.dim.y,
-                                    drawX + spatial.dim.x - spatial.radius, drawY + spatial.dim.y);
-                                ctx.lineTo(drawX + spatial.radius, drawY + spatial.dim.y);
-                                ctx.quadraticCurveTo(drawX, drawY + spatial.dim.y, drawX, drawY + spatial.dim.y - spatial.radius);
-                                ctx.lineTo(drawX, drawY + spatial.radius);
-                                ctx.quadraticCurveTo(drawX, drawY, drawX + spatial.radius, drawY);
+                                ctx.moveTo((-unscaledDim.x/2) + rect.cornerRadius, -unscaledDim.y);
+
+                                ctx.lineTo(drawX + unscaledDim.x - rect.cornerRadius, drawY);
+                                ctx.quadraticCurveTo(drawX + unscaledDim.x, drawY, drawX + unscaledDim.x, drawY + rect.cornerRadius);
+                                ctx.lineTo(drawX + unscaledDim.x, drawY + unscaledDim.y - rect.cornerRadius);
+                                ctx.quadraticCurveTo(drawX + unscaledDim.x, drawY + unscaledDim.y,
+                                    drawX + unscaledDim.x - rect.cornerRadius, drawY + unscaledDim.y);
+                                ctx.lineTo(drawX + rect.cornerRadius, drawY + unscaledDim.y);
+                                ctx.quadraticCurveTo(drawX, drawY + unscaledDim.y, drawX, drawY + unscaledDim.y - rect.cornerRadius);
+                                ctx.lineTo(drawX, drawY + rect.cornerRadius);
+                                ctx.quadraticCurveTo(drawX, drawY, drawX + rect.cornerRadius, drawY);
                                 ctx.closePath();
 
                                 if (rect.color)
