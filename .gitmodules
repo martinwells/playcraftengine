@@ -1,0 +1,3 @@
+[submodule "playcraftjs/lib/ext/gamecore.js"]
+	path = playcraftjs/lib/ext/gamecore.js
+	url = https://github.com/playcraft/gamecore.js
