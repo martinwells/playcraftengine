@@ -68,7 +68,7 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
     /**
      * Constructor for the tile layer
      * @param {String} name Name of the layer
-     * @param {Boolean} [usePrerendering] Whether prerendering should be used (defaults to true)
+     * @param {Boolean} [usePrerendering] Whether prerendering should be used (defaults to false)
      * @param {pc.TileMap} [tileMap] Tile map data used for the tile layer
      * @param {pc.TileSet} [tileSet] If no tile map is supplied, you can optional provide a tile set and a
      * tile map will be constructed using this tile set
