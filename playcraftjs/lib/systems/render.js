@@ -57,7 +57,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                     if (entity.layer.scene.viewPort.overlaps(drawX, drawY, spatial.dim.x, spatial.dim.y, 0, spatial.dir))
                     {
 
-                        if (clip)
+                        if (clip && clip.active)
                         {
                             ctx.beginPath();
                             if (clip.clipEntity)
@@ -79,7 +79,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var shifter = entity.getComponent('originshifter');
-                        if (shifter)
+                        if (shifter && shifter.active)
                         {
                             // if it has a shifter on it, adjust the position of the entity based on a ratio to
                             // the layer's origin
@@ -96,7 +96,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var spriteComponent = entity.getComponent('sprite');
-                        if (spriteComponent)
+                        if (spriteComponent && spriteComponent.active)
                         {
                             spriteComponent.sprite.update(pc.device.elapsed);
                             if (alpha && alpha.level != 1 && alpha.level != 0)
@@ -109,7 +109,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var overlay = entity.getComponent('overlay');
-                        if (overlay)
+                        if (overlay && overlay.active)
                         {
                             // update and draw the overlay sprite
                             overlay.sprite.update(pc.device.elapsed);
@@ -123,7 +123,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var rect = next.obj.getComponent('rect');
-                        if (rect)
+                        if (rect && rect.active)
                         {
                             ctx.save();
                             if (alpha) ctx.globalAlpha = alpha.level;
@@ -186,7 +186,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
 
 
                         var circle = next.obj.getComponent('circle');
-                        if (circle)
+                        if (circle && circle.active)
                         {
                             ctx.save();
                             ctx.lineWidth = circle.lineWidth;
@@ -217,7 +217,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var poly = next.obj.getComponent('poly');
-                        if (poly)
+                        if (poly && poly.active)
                         {
                             ctx.save();
                             if (alpha) ctx.globalAlpha = alpha.level;
@@ -254,7 +254,7 @@ pc.systems.Render = pc.systems.EntitySystem.extend('pc.systems.Render',
                         }
 
                         var text = entity.getComponent('text');
-                        if (text)
+                        if (text && text.active)
                         {
                             ctx.save();
                             var yAdd=0;

@@ -23,6 +23,8 @@ pc.systems.Expiration = pc.systems.EntitySystem.extend('pc.systems.Expiration',
         process: function(entity)
         {
             var c = entity.getComponent('expiry');
+            if (!c.active) return;
+
             c.decrease(pc.device.elapsed);
             if (c.hasExpired())
                 entity.remove();

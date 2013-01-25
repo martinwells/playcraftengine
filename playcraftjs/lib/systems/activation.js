@@ -33,6 +33,7 @@ pc.systems.Activation = pc.systems.EntitySystem.extend('pc.systems.Activation',
         process:function (entity)
         {
             var a = entity.getComponent('activator');
+            if (!a.active) return;
 
             if (entity.active && a.stayActive) return;
             if (!a._cacheLayer)

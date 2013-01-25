@@ -26,6 +26,7 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
         process:function (entity)
         {
             var input = entity.getComponent('input');
+            if (!input.active) return;
 
             if (!input._bound)
             {

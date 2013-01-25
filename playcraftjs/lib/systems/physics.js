@@ -153,6 +153,8 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
 
             var sp = entity.getComponent('spatial');
             var ph = entity.getComponent('physics');
+            if (!ph.active) return;
+
             var at = entity.getComponent('joint');
 
             if (!ph._body)

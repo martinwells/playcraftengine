@@ -30,6 +30,8 @@ pc.systems.Particles = pc.systems.EntitySystem.extend('pc.systems.Particles',
             if (!entity.active) return;
 
             var em = entity.getComponent('emitter');
+            if (!em.active) return;
+
             var sp = entity.getComponent('spatial');
             if (!sp)
                 sp = entity.addComponent(new pc.components.Spatial({}));

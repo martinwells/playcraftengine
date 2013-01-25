@@ -31,6 +31,9 @@ pc.components.Component = pc.Pooled.extend('pc.components.Component',
 
         _type:null,
 
+        /** whether the component is currently active */
+        active: true,
+
         /**
          * Constructs a new component using the given type string
          * @param {String} type The type to assign the component
@@ -39,6 +42,7 @@ pc.components.Component = pc.Pooled.extend('pc.components.Component',
         {
             this._super();
             this._type = type;
+            this.active = true;
         },
 
         /**

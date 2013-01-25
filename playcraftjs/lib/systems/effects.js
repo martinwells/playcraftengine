@@ -45,7 +45,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                 if (entity.active)
                 {
                     var fade = entity.getComponent('fade');
-                    if (fade)
+                    if (fade && fade.active)
                     {
                         var alpha = entity.getComponent('alpha');
                         if (!alpha)
@@ -58,7 +58,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                         }
                     }
                     var spin = entity.getComponent('spin');
-                    if (spin && spin.spinning)
+                    if (spin && spin.spinning && spin.active)
                     {
                         var spatial = entity.getComponent('spatial');
                         var a = spin.rate / pc.device.elapsed;
@@ -73,7 +73,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                     }
 
                     var scale = entity.getComponent('scale');
-                    if (scale && scale.scaling)
+                    if (scale && scale.scaling && scale.active)
                     {
                         spatial = entity.getComponent('spatial');
 
@@ -107,12 +107,6 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                         scale._bound = true
                     }
                 }
-
-//                var floatAway = entity.getComponent('float');
-//                if (float)
-//                {
-//                      this component could just modify physics over time?
-//                }
 
                 next = next.next();
             }
@@ -193,7 +187,7 @@ pc.systems.Effects = pc.systems.EntitySystem.extend('pc.systems.Effects',
                             if (fader.timeLimit > 0) alpha.setAlpha(0);
                         }
 
-                        if (fader.loopsSoFar >= fader.loops)
+                        if (fader.loopsSoFar >= fader.loops && fader.loops)
                         {
                            // all done, kill thyself
                            fader.state = this.Class.FadeState.DONE;
