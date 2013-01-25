@@ -64,7 +64,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
         /** Whether the scene is currently paused (read-only) */
         paused:false,
         /** Whether the scene is active (read-only) */
-        active:true,
+        active:false,
         /** pc.Rect of the current viewport */
         viewPort: null,
 
@@ -77,6 +77,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
         init:function (name)
         {
             this._super();
+            this.active = false;
             this.name = name;
             this.layersByName = new pc.Hashtable();
             this.layers = new pc.LinkedList();
