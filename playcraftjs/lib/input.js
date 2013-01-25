@@ -96,6 +96,12 @@ pc.Input = pc.Base('pc.Input',
                 r.y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
             }
 
+            if (pc.Tools.isValid(e.alpha))
+            {
+                r.x = e.alpha;
+                r.y = e.gamma;
+            }
+
             return r;
         }
 
@@ -114,6 +120,8 @@ pc.Input = pc.Base('pc.Input',
         mouseLeftButtonDown: false,
         /** indicates if the right mouse button is currently down */
         mouseRightButtonDown: false,
+        /** Current device orientation, updated continuously */
+        deviceOrientation: null,
 
         init:function ()
         {
@@ -122,6 +130,7 @@ pc.Input = pc.Base('pc.Input',
             this.states = new pc.Hashtable();
             this.actionBindings = new pc.Hashtable();
             this.mousePos = pc.Point.create(0,0);
+            this.deviceOrientation = pc.Point.create(0,0);
         },
 
         /**
@@ -284,6 +293,13 @@ pc.Input = pc.Base('pc.Input',
                     if (pc.InputType.isPositional(eventCode))
                     {
                         var pos = this.Class.getEventPosition(event);
+
+                        if (pc.InputType.isDeviceOrientation(eventCode))
+                        {
+                            obj.onAction(binding.actionName, event, pos, binding.uiTarget);
+                            return true;
+                        }
+
                         var er = null;
                         if (pc.valid(binding.uiTarget))
                             er = binding.uiTarget.getScreenRect();
@@ -320,6 +336,10 @@ pc.Input = pc.Base('pc.Input',
             // key input
             window.addEventListener('keydown', this._keyDown.bind(this), true);
             window.addEventListener('keyup', this._keyUp.bind(this), true);
+
+            // device orientation
+            window.addEventListener('deviceorientation', this._deviceOrientation.bind(this), true);
+
         },
 
         _positionals: [], // array of bindings that need to be checked against positional events like mouse move and touch
@@ -434,6 +454,8 @@ pc.Input = pc.Base('pc.Input',
 
         _lastMouseMove: null,
 
+        _lastDeviceOrientation: null,
+
         /**
          * Called by the pc.device main loop to process any move events received. We only handle events
          * here so they are processed once per cycle, not every time we get them (i.e. stop handling
@@ -447,6 +469,14 @@ pc.Input = pc.Base('pc.Input',
                 this.fireAction(pc.InputType.MOUSE_MOVE, this._lastMouseMove);
                 this.Class.getEventPosition(this._lastMouseMove, this.mousePos);
                 this._lastMouseMove = null;
+            }
+
+            if (this._lastDeviceOrientation)
+            {
+                this._changeState(pc.InputType.DEVICE_ORIENTATION, true, this._lastDeviceOrientation);
+                this.fireAction(pc.InputType.DEVICE_ORIENTATION, this._lastDeviceOrientation);
+                this.Class.getEventPosition(this._lastDeviceOrientation, this.deviceOrientation);
+                this._lastDeviceOrientation = null;
             }
         },
 
@@ -470,6 +500,12 @@ pc.Input = pc.Base('pc.Input',
         {
             if (this._changeState(event.keyCode, false, event))
                 event.preventDefault();
+        },
+
+        _deviceOrientation:function (event)
+        {
+            this._lastDeviceOrientation = event;
+            event.preventDefault();
         },
 
         _touchStart:function (event)
@@ -571,6 +607,7 @@ pc.InputType = pc.Base.extend('pc.InputType',
         MOUSE_WHEEL_UP:             1130,
         MOUSE_WHEEL_DOWN:           1131,
         TOUCH:                      1000,
+        DEVICE_ORIENTATION:         1020,
 
         init:function ()
         {
@@ -649,6 +686,8 @@ pc.InputType = pc.Base.extend('pc.InputType',
             this.addInput(221, ']');
             this.addInput(222, '\'');
 
+            this.addInput(this.DEVICE_ORIENTATION, 'DEVICE_ORIENTATION');
+
             this.addInput(this.TOUCH, 'TOUCH');
 //            this.addInput(1001, 'touchmove');
 //            this.addInput(1002, 'touchend');
@@ -662,6 +701,11 @@ pc.InputType = pc.Base.extend('pc.InputType',
             this.addInput(this.MOUSE_WHEEL_UP, 'MOUSE_WHEEL_UP');
             this.addInput(this.MOUSE_WHEEL_DOWN, 'MOUSE_WHEEL_DOWN');
             this.addInput(this.MOUSE_MOVE, 'MOUSE_MOVE');
+        },
+
+        isDeviceOrientation:function(inputCode)
+        {
+            return inputCode == this.DEVICE_ORIENTATION;
         },
 
         isTouch:function(inputCode)
