@@ -43,6 +43,9 @@
  * });
  * </code></pre>
  * <p>
+ * Events will continue to propagate through all active bindings. If you wish to stop handling of an action from
+ * within an onAction method you can optionally return false
+ * <p>
  * <h5>States</h5>
  * States are used to indicate when a key or input control is currently active or not. Typically a state is used
  * when you want to react for the entire time an input is engaged, such as holding down a key to accelerate a car.
@@ -291,9 +294,17 @@ pc.Input = pc.Base('pc.Input',
                             er = obj.getScreenRect ? obj.getScreenRect() : null;
 
                         if (er && er.containsPoint(pos))
-                            obj.onAction(binding.actionName, event, pos, binding.uiTarget);
+                        {
+                            var res = obj.onAction(binding.actionName, event, pos, binding.uiTarget);
+                            if (pc.valid(res) && !res)
+                                break;
+                        }
                     } else
-                        obj.onAction(binding.actionName);
+                    {
+                        var r = obj.onAction(binding.actionName);
+                        if (pc.valid(r) && !r)
+                            break;
+                    }
                 }
             }
             return true;
