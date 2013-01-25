@@ -1,18 +1,21 @@
 ## 0.5.6 (Work in Progress)
 
+- all components now have an active flag which disables a component, without having to remove it (e.g. entity.getComponent('fade').active = false)
+- yourgame sample project now demonstrates how to do multiple scenes and a simple menu system
+- yourgame sample project is more organized (moving towards it being a template)
 - a compatibility fix was added for IE9+ (property clones required init's -- still working on tracking down the issue)
 - fixed IE not wanting to load base64 encoded XML (i.e. levels in Scrollia)
-- fixed the timer function for non animation frame browsers
+- fixed the timer function for non-animation frame browsers (IE)
 - components now use a static type naming, rather than dynamic this.Class.shortName to avoid inheritance typing issues
-- a new demo: customcomponent added to show a simple example of a mousehover (mostly coded by Leandro Ostera)
-- yourgame sample project is more organized (moving towards it being a template)
+- a new demo: customcomponent added to show a simple example of a mousehover (thanks Leandro)
 - MOUSE_LEFT_BUTTON and MOUSE_RIGHT_BUTTON are now MOUSE_BUTTON_LEFT_UP, MOUSE_BUTTON_LEFT_DOWN etc (thanks Leandro)
-- pc.start will now by default disable caching for javascript
 - fixed pc.SpriteSheet image option left out of the API call docs
 - you can now set the friction and linear damping of physics components at runtime (setFriction and setLinearDamping)
 - pc.Image.resize exposed in the API. setScale has some better docs on how to scale to a particular pixel size
 - fixed bug in entity.removeTag
 - fixes for scaling (thanks David)
+- fixed fade component not correctly looping infinitely (when loops:0 used)
+- when adding a scene you can now specify to not make it active - addScene(scene, false);
 
 ## 0.5.5
 
