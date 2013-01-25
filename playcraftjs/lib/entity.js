@@ -73,7 +73,9 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
         create: function(layer)
         {
             var n = this._super();
-            pc.assert(layer, 'Entity requires a valid layer to be placed on');
+            if (!layer) throw 'Entity requires a valid layer to be placed on';
+            if (!layer.Class.isA) throw 'Entity requires a valid layer to be placed on';
+            if (!layer.Class.isA('pc.EntityLayer')) throw 'Entities can only be placed on pc.EntityLayer objects';
             n.config(layer);
             return n;
         }
