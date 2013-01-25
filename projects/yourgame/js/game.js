@@ -6,34 +6,31 @@ TheGame = pc.Game.extend('TheGame',
     { },
     {
         gameScene:null,
+        menuScene:null,
 
         onReady:function ()
         {
             this._super();
 
             // disable caching when developing
-//            if (pc.device.devMode)
-//                pc.device.loader.setDisableCache();
+            // if (pc.device.devMode)
+            //    pc.device.loader.setDisableCache();
 
-            pc.device.loader.add(new pc.Image('rect100', 'images/rect100.png'));
+            // no resources are loaded in this template, so this is all commented out
+            // pc.device.loader.add(new pc.Image('an id', 'images/an image.png'));
+
+            //if (pc.device.soundEnabled)
+            //   pc.device.loader.add(new pc.Sound('fire', 'sounds/fire', ['ogg', 'mp3'], 15));
+
+            // fire up the loader
             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
-
-            /*
-
-             // no resources are loaded in this template, so this is all commented out
-             pc.device.loader.add(new pc.Image('an id', 'images/an image.png'));
-
-             if (pc.device.soundEnabled)
-             pc.device.loader.add(new pc.Sound('fire', 'sounds/fire', ['ogg', 'mp3'], 15));
-
-             // fire up the loader
-             pc.device.loader.start(this.onLoading.bind(this), this.onLoaded.bind(this));
-
-             */
 
             // and instead, we just start the game (otherwise you should do it in the loader callback below)
             this.gameScene = new GameScene();
             this.addScene(this.gameScene);
+
+            this.menuScene = new MenuScene();
+            this.addScene(this.menuScene, false);
         },
 
         onLoading:function (percentageComplete)
@@ -45,8 +42,19 @@ TheGame = pc.Game.extend('TheGame',
         {
             // resources are all ready, start the main game scene
             // (or a menu if you have one of those)
-            this.gameScene = new GameScene();
-            this.addScene(this.gameScene);
+            this.activateScene(this.gameScene);
+        },
+
+        activateMenu:function()
+        {
+            this.deactivateScene(this.gameScene);
+            this.activateScene(this.menuScene);
+        },
+
+        deactivateMenu:function()
+        {
+            this.deactivateScene(this.menuScene);
+            this.activateScene(this.gameScene);
         }
     });
 
