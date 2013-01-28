@@ -183,6 +183,13 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 ph._body.SetUserData(entity);
                 ph._body._pc_bodyType = pc.BodyType.ENTITY;
 
+                if (ph.linearVelocity)
+                {
+                    ph._body.SetLinearVelocity(Box2D.Common.Math.b2Vec2.Get(
+                        ph.linearVelocity.x * pc.systems.Physics.SCALE,
+                        ph.linearVelocity.y * pc.systems.Physics.SCALE));
+                }
+
                 // custom gravity for the body (optional)
                 if (ph.gravity)
                     ph.setGravity(ph.gravity.x, ph.gravity.y);

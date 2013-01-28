@@ -74,6 +74,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
          * @param {Number} [options.impulse] Amount of impulse force to apply initially
          * @param {Number} [options.turn] Amount of initial spin to apply
          * @param {pc.Dim} [options.centerOfMass] Where to position the entities centerOfMass (x, y)
+         * @param {pc.Dim} [options.linearVelocity] Initial linear velocity (x, y)
          */
         create:function (options)
         {
@@ -98,6 +99,8 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
         friction:0,
         /** rate at which an object will slow down movement */
         linearDamping:0,
+        /** initial linear velocity */
+        linearVelocity: null,
         /** rate at which ab object will slow down its rate of spin */
         angularDamping:0,
         /** stop the entity from rotating */
@@ -155,6 +158,7 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             this._super('physics');
             this.centerOfMass = pc.Point.create(0, 0);
             this.margin = { x:0, y:0 };
+            this.linearVelocity = pc.Dim.create(0,0);
             if (pc.valid(options))
                 this.config(options);
             this._velReturn = pc.Dim.create(0, 0);
@@ -209,6 +213,16 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             }
 
             this.shapes = options.shapes;
+
+            if (options.linearVelocity)
+            {
+                this.linearVelocity.x = pc.checked(options.linearVelocity.x, 0);
+                this.linearVelocity.y = pc.checked(options.linearVelocity.y, 0);
+            } else
+            {
+                this.linearVelocity.x = 0;
+                this.linearVelocity.y = 0;
+            }
 
             if (!this.maxSpeed) this.maxSpeed = {};
             if (options.maxSpeed)
@@ -421,6 +435,10 @@ pc.components.Physics = pc.components.Component.extend('pc.components.Physics',
             {
                 this._body.SetLinearVelocity(Box2D.Common.Math.b2Vec2.Get(x * pc.systems.Physics.SCALE, y * pc.systems.Physics.SCALE));
                 this._body.SetAwake(true);
+            } else
+            {
+                this.linearVelocity.x = x;
+                this.linearVelocity.y = y;
             }
         },
 
