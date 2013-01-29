@@ -101,7 +101,7 @@ pc.Loader = pc.Base.extend('pc.Loader',
 
         /**
          * Sets a base URI to save you type. Applies to all resources added until the next setBaseURL is called.
-         * @param {String} url URI to preprend
+         * @param {String} url URI to prepend
          */
         setBaseUrl:function (url)
         {
@@ -141,7 +141,9 @@ pc.Loader = pc.Base.extend('pc.Loader',
         {
             var res = this.resources.get(name.toLowerCase());
             if (!res)
-                this.warn("Attempting to get a resource that hasn't been added: " + name);
+                throw "Attempting to get a resource that hasn't been added: " + name;
+            if (res.state < this.State.READY)
+                throw "Attempting to get a resource that hasn't been loaded yet (calling before onLoaded?)";
             return res;
         },
 
