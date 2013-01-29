@@ -197,7 +197,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
                 //
                 // Fixtures
                 //
-                pc.assert(ph.shapes.length, "You must specify at least one shapes for a physics entity");
+                pc.assert(ph.shapes.length, "You must specify at least one shape for a physics entity");
 
                 // configure the shapes as fixtures
                 for (var i = 0; i < ph.shapes.length; i++)
