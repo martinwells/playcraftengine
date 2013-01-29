@@ -1,6 +1,9 @@
 ## 0.5.6 (Work in Progress)
 
+- hex tile maps now supported using (pc.HexTileLayer)
+- spritesheets can now have frame relative draw offsets
 - all components now have an active flag which disables a component, without having to remove it (e.g. entity.getComponent('fade').active = false)
+- new input type DEVICE_ORIENTATION added to input.js (thanks natchiketa)
 - yourgame sample project now demonstrates how to do multiple scenes and a simple menu system
 - yourgame sample project is more organized (moving towards it being a template)
 - a compatibility fix was added for IE9+ (property clones required init's -- still working on tracking down the issue)
