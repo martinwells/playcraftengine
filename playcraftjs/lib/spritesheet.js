@@ -82,6 +82,9 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
         /** Hashtable of animations keyed by animation name */
         animations:null,
 
+        frameOffsetX:0,
+        frameOffsetY:0,
+
         _frameXPos:null,
         _frameYPos:null,
 
@@ -98,6 +101,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
          * @param {Number} options.scaleY Y Scale to draw the image at
          * @param {Number} options.sourceX Source x position in the image
          * @param {Number} options.sourceY Source y position in the image
+         * @param {Number} options.frameOffsetX Offset frame drawing on the x-axis
+         * @param {Number} options.frameOffsetY Offset frame drawing on the y-axis
          * @param {Number} options.alpha Alpha level to draw the image at (0.5 is 50% visible)
          * @param {Boolean} options.useRotation True means the canvas rotation will be used to draw images as an angle
          */
@@ -110,10 +115,13 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
             else
                 throw "No image supplied";
 
+            if (!this.image.width || !this.image.height)
+                throw "Invalid image (zero width or height)";
+
             if (!pc.valid(options.frameWidth))
             {
                 if (pc.valid(options.framesWide) && options.framesWide > 0)
-                    this.frameWidth = this.image.width / options.framesWide;
+                    this.frameWidth = Math.floor(this.image.width / options.framesWide);
                 else
                     this.frameWidth = this.image.width;
             } else
@@ -122,18 +130,20 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
             if (!pc.valid(options.frameHeight))
             {
                 if (pc.valid(options.framesHigh) && options.framesHigh > 0)
-                    this.frameHeight = this.image.height / options.framesHigh;
+                    this.frameHeight = Math.floor(this.image.height / options.framesHigh);
                 else
                     this.frameHeight = this.image.height;
             } else
                 this.frameHeight = options.frameHeight;
 
-            this.framesWide = pc.checked(options.framesWide, this.image.width / this.frameWidth);
-            this.framesHigh = pc.checked(options.framesHigh, this.image.height / this.frameHeight);
+            this.framesWide = Math.floor(pc.checked(options.framesWide, this.image.width / this.frameWidth));
+            this.framesHigh = Math.floor(pc.checked(options.framesHigh, this.image.height / this.frameHeight));
             this.scaleX = pc.checked(options.scaleX, 1);
             this.scaleY = pc.checked(options.scaleY, 1);
             this.sourceX = pc.checked(options.sourceX, 0);
             this.sourceY = pc.checked(options.sourceY, 0);
+            this.frameOffsetX = pc.checked(options.frameOffsetX, 0);
+            this.frameOffsetY = pc.checked(options.frameOffsetY, 0);
             this.alpha = pc.checked(options.alpha, 1);
             this.useRotation = pc.checked(options.useRotation, true);
 
@@ -278,7 +288,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
                 if (this.scaleX != 1 || this.scaleY != 1)
                     this.image.setScale(this.scaleX, this.scaleY);
                 this.image.draw(ctx, this.sourceX, this.sourceY,
-                    Math.round(x), Math.round(y), this.frameWidth, this.frameHeight,
+                    Math.round(x + this.frameOffsetX), Math.round(y + this.frameOffsetY),
+                    this.frameWidth + this.frameOffsetX, this.frameHeight + this.frameOffsetY,
                     this.useRotation ? dir : 0);
             } else
             {
@@ -297,8 +308,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
                     this.image.draw(ctx,
                         this.sourceX + this._frameXPos[fx],
                         this.sourceY + this._frameYPos[fy],
-                        state.currentAnim.offsetX + pc.Math.round(x),
-                        state.currentAnim.offsetY + pc.Math.round(y), this.frameWidth, this.frameHeight, dir);
+                        state.currentAnim.offsetX + pc.Math.round(x) + this.frameOffsetX,
+                        state.currentAnim.offsetY + pc.Math.round(y) + this.frameOffsetY, this.frameWidth, this.frameHeight, dir);
                 }
                 else
                 {
@@ -326,8 +337,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
                     this.image.draw(ctx,
                         this.sourceX + this._frameXPos[fx], this.sourceY + this._frameYPos[fy],
-                        state.currentAnim.offsetX + pc.Math.round(x),
-                        state.currentAnim.offsetY + pc.Math.round(y),
+                        state.currentAnim.offsetX + pc.Math.round(x) + this.frameOffsetX,
+                        state.currentAnim.offsetY + pc.Math.round(y) + this.frameOffsetY,
                         this.frameWidth, this.frameHeight);
 
                     if (state.currentAnim.scaleX != 1 || state.currentAnim.scaleY != 1 || this.scaleX != 1 || this.scaleY != 1)
@@ -371,7 +382,9 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
             this.image.draw(ctx,
                 this.sourceX + this._frameXPos[frameX],
-                this.sourceY + this._frameYPos[frameY], pc.Math.round(x), pc.Math.round(y),
+                this.sourceY + this._frameYPos[frameY],
+                pc.Math.round(x) + this.frameOffsetX,
+                pc.Math.round(y) + this.frameOffsetY,
                 this.frameWidth, this.frameHeight, angle);
 
             if (this.image.scaleX != 1 || this.image.scaleY != 1)
