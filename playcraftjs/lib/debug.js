@@ -229,8 +229,8 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
 
         this.bgCanvas.width = this.width;
         this.bgCanvas.height = this.height;
-        this.graphCanvas.width = this.graphWidth;
-        this.graphCanvas.height = this.graphHeight;
+        this.graphCanvas.width = Math.max(this.graphWidth, 1);
+        this.graphCanvas.height = Math.max(this.graphHeight, 1);
 
         // resize the data array?
         this.resizeDataArray(this.graphWidth, this.labels.length);
