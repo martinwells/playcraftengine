@@ -210,6 +210,7 @@ pc.Loader = pc.Base.extend('pc.Loader',
                 }
             }
             this.info('Started loading ' + this.totalBeingLoaded + ' resource(s).');
+            this._checkAllDone();
         },
 
         /**

@@ -108,7 +108,10 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
         init:function (name, usePrerendering, tileMap, tileSet)
         {
             this._super(name);
-            this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSet));
+            if (pc.valid(tileMap))
+                this.tileMap = tileMap;
+            else
+                this.tileMap = new pc.TileMap(tileSet);
 
             this.usePrerendering = pc.checked(usePrerendering, true);
             if (this.tileMap && this.tileMap.tileWidth > 256)

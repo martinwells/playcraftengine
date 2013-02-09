@@ -66,10 +66,10 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
         init:function (tileSet, tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
         {
             this.tiles = tiles;
-            this.tileWidth = pc.Math.round(tileWidth);
-            this.tileHeight = pc.Math.round(tileHeight);
             this.tilesWide = pc.Math.round(tilesWide);
             this.tilesHigh = pc.Math.round(tilesHigh);
+            this.tileWidth = Math.round(pc.checked(tileWidth, tileSet.tileSpriteSheet.frameWidth));
+            this.tileHeight = Math.round(pc.checked(tileHeight, tileSet.tileSpriteSheet.frameHeight));
             this.tileSet = tileSet;
         },
 

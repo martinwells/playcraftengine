@@ -531,15 +531,24 @@ pc.Input = pc.Base('pc.Input',
 
         _touchEnd:function (event)
         {
-            for(var i=0, len=event.changedTouches.length; i < len; i++)
-                this._changeState(pc.InputType.TOUCH, false, event.changedTouches[i]);
+            for (var i = 0, len = event.changedTouches.length; i < len; i++)
+            {
+                /** hacks from Marc**/
+                this._checkPositional(event.touches[i]);
+                this._changeState(pc.InputType.TOUCH_END, false, event.changedTouches[i]);
+                this.fireAction(pc.InputType.TOUCH_END, event.changedTouches[i]);
+            }
             event.preventDefault();
         },
 
         _touchMove:function (event)
         {
-            for(var i=0, len=event.touches.length; i < len; i++)
+            for (var i = 0, len = event.touches.length; i < len; i++)
+            {
                 this._checkPositional(event.touches[i]);
+                this._changeState(pc.InputType.TOUCH_MOVE, false, event.changedTouches[i]);
+                this.fireAction(pc.InputType.TOUCH_MOVE, event.touches[i]);
+            }
             event.preventDefault();
         },
 
@@ -589,8 +598,8 @@ pc.Input = pc.Base('pc.Input',
 
         _contextMenu: function(event)
         {
-            this._changeState(pc.InputType.MOUSE_RIGHT_BUTTON, true, event);
-            this.fireAction(pc.InputType.MOUSE_RIGHT_BUTTON, event);
+            this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_UP, true, event);
+            this.fireAction(pc.InputType.MOUSE_BUTTON_RIGHT_UP, event);
         },
 
         _mouseWheel:function (event)
@@ -618,6 +627,8 @@ pc.InputType = pc.Base.extend('pc.InputType',
         MOUSE_WHEEL_UP:             1130,
         MOUSE_WHEEL_DOWN:           1131,
         TOUCH:                      1000,
+        TOUCH_MOVE:                 1001,
+        TOUCH_END:                  1002,
         DEVICE_ORIENTATION:         1020,
 
         init:function ()
@@ -700,14 +711,17 @@ pc.InputType = pc.Base.extend('pc.InputType',
             this.addInput(this.DEVICE_ORIENTATION, 'DEVICE_ORIENTATION');
 
             this.addInput(this.TOUCH, 'TOUCH');
-//            this.addInput(1001, 'touchmove');
-//            this.addInput(1002, 'touchend');
-
+            this.addInput(this.TOUCH_MOVE, 'TOUCH_MOVE');
+            this.addInput(this.TOUCH_END, 'TOUCH_END');
 
             this.addInput(this.MOUSE_BUTTON_LEFT_DOWN, 'MOUSE_BUTTON_LEFT_DOWN');
             this.addInput(this.MOUSE_BUTTON_LEFT_UP, 'MOUSE_BUTTON_LEFT_UP');
             this.addInput(this.MOUSE_BUTTON_RIGHT_DOWN, 'MOUSE_BUTTON_RIGHT_DOWN');
             this.addInput(this.MOUSE_BUTTON_RIGHT_UP, 'MOUSE_BUTTON_RIGHT_UP');
+
+            // add some legacy support for the old MOUSE_BUTTON refs
+            this.nameToCode.put("MOUSE_LEFT_BUTTON", this.MOUSE_BUTTON_LEFT_UP);
+            this.nameToCode.put("MOUSE_RIGHT_BUTTON", this.MOUSE_BUTTON_RIGHT_UP);
 
             this.addInput(this.MOUSE_WHEEL_UP, 'MOUSE_WHEEL_UP');
             this.addInput(this.MOUSE_WHEEL_DOWN, 'MOUSE_WHEEL_DOWN');

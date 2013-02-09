@@ -36,6 +36,8 @@ cat $PLAYCRAFT_LIB/entitylayer.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/tileset.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/tilemap.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/tilelayer.js >> ${OUT_FILE}
+cat $PLAYCRAFT_LIB/isotilelayer.js >> ${OUT_FILE}
+cat $PLAYCRAFT_LIB/hextilelayer.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/entity.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/sprite.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/spritesheet.js >> ${OUT_FILE}

@@ -400,6 +400,15 @@ pc.Point = pc.Pooled('pc.Point',
         y:0,
 
         /**
+         * Tests whether one point is equal to another
+         * @param {pc.Point} other Other point to test against
+         */
+        equals:function(other)
+        {
+            return (this.x == other.x && this.y == other.y);
+        },
+
+        /**
          * Makes this point match another
          * @param {pc.Point} p The other point to match
          */
@@ -464,28 +473,7 @@ pc.Point = pc.Pooled('pc.Point',
          */
         dirTo:function (p)
         {
-            var a = Math.abs(p.x - this.x);
-            var b = Math.abs(p.y - this.y);
-            if (a == 0) a = 1;
-            if (b == 0) b = 1;
-
-            var bovera = b / a;
-            var angleInRadians = Math.atan(bovera);
-            var angle = pc.Math.radToDeg(angleInRadians);
-
-            if (p.x < this.x)
-            {
-                // left side
-                if (p.y < this.y)
-                    return angle + 180;
-                return (90 - angle) + 90;
-            } else
-            {
-                // right side
-                if (p.y < this.y)
-                    return (90 - angle) + 270;
-                return angle;
-            }
+            return Math.atan2(p.y-this.y, p.x-this.x) * 180 / Math.PI;
         },
 
         /**

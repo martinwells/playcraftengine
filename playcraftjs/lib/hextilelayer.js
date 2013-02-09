@@ -17,6 +17,10 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
     },
     /** @lends pc.HexTileLayer.prototype */
     {
+        _hexSide: 0,
+        _halfHexSide: 0,
+        _yInc: 0,
+
         /**
          * Constructor for the tile layer
          * @param {String} name Name of the layer
@@ -26,9 +30,31 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
          */
         init:function (name, tileMap, tileSet)
         {
-            this._super(name);
-            this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSet));
-            this.usePrerendering = false;
+            // call my parent, but force prerendering off
+            this._super(name, false, tileMap, tileSet);
+            this._hexSide = this.tileMap.tileHeight / Math.sqrt(3);
+            this._halfHexSide = this._hexSide / 2;
+            this._yInc = this.tileMap.tileHeight - this._halfHexSide;
+        },
+
+        _tileXY: null,
+        getTileXYAtScreenPoint:function(pos)
+        {
+            if (!this._tileXY)
+                this._tileXY = pc.Point.create(0,0);
+
+            // convert the screen position into a world relative position
+            var worldPos = this.worldPos(pos);
+
+            // figure out which tile is at that position
+            var ty = Math.round(worldPos.y / this._yInc);
+
+            if (ty % 2)
+                worldPos.x += Math.round(this.tileMap.tileWidth / 2);
+
+            this._tileXY.x = Math.round(worldPos.x / this.tileMap.tileWidth);
+            this._tileXY.y = ty;
+            return this._tileXY;
         },
 
         /**
@@ -48,7 +74,8 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
             for (var hy = ty, c = th + ty; hy < c + 1; hy++)
             {
-                var ypos = hy * this.tileMap.tileHeight;
+                // y is increased by a special amount relative to the hex size
+                var ypos = hy * this._yInc;
 
                 for (var hx = tx, d = tw + tx; hx < d; hx++)
                 {

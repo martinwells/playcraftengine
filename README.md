@@ -1,4 +1,4 @@
-## 0.5.6 (Work in Progress)
+## 0.5.6
 
 - hex tile maps now supported using (pc.HexTileLayer)
 - spritesheets can now have frame relative draw offsets
@@ -19,6 +19,8 @@
 - fixes for scaling (thanks David)
 - fixed fade component not correctly looping infinitely (when loops:0 used)
 - when adding a scene you can now specify to not make it active - addScene(scene, false);
+- loader will now correctly call onLoaded callback if no resources are being loaded
+- fixed a bug in pc.Point.dirTo not returning correct angles in some cases
 
 ## 0.5.5
 
