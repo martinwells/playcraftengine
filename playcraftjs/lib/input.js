@@ -534,7 +534,7 @@ pc.Input = pc.Base('pc.Input',
             for (var i = 0, len = event.changedTouches.length; i < len; i++)
             {
                 /** hacks from Marc**/
-                this._checkPositional(event.touches[i]);
+                this._checkPositional(event.changedTouches[i]);
                 this._changeState(pc.InputType.TOUCH_END, false, event.changedTouches[i]);
                 this.fireAction(pc.InputType.TOUCH_END, event.changedTouches[i]);
             }
