@@ -145,6 +145,7 @@ pc.Image = pc.Base.extend('pc.Image',
             if (this.compositeOperation != null)
                 ctx.globalCompositeOperation = this.compositeOperation;
 
+            // simple version of draw, no source x, y, just draw the image at x, y
             if (arguments.length == 3)
             {
                 ctx.save();

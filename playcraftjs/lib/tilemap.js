@@ -56,7 +56,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
 
         /**
          * Constructs a new tile map using the supplied dimensions and tile set
-         * @param {pc.TileSet} tileSet Tile set to use
+         * @param {pc.TileSet} tileSet Tiles to use
          * @param {Number} tilesWide Number of tiles the map is wide
          * @param {Number} tilesHigh Number of tiles the map is high
          * @param {Number} tileWidth Width of each tile (e.g. 32)
@@ -87,7 +87,6 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
                 return this.tileSet.hasProperty(tileNumber, property);
             return false;
         },
-
 
         /**
          * Generate a new tile map, optionally populating with a given tile type
@@ -168,6 +167,18 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
         },
 
         /**
+         * Draw a given tile from the tile map, at a given screen position
+         * @param tileX Tile x to draw (within the tile map)
+         * @param tileY Tile y to draw (within the tile map)
+         * @param x Screen X to draw the tile at
+         * @param y Screen Y to draw the tile at
+         */
+        drawTile:function(tileX, tileY, x, y)
+        {
+            this.tileSet.drawTile(pc.device.ctx, this.tiles[tileY][tileX], x, y);
+        },
+
+        /**
          * Loads a tile map from a TMX formatted data stream
          * @param {String} layerXML XML string loaded from a Tiled TMX file
          */
@@ -220,3 +231,9 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
 
 
     });
+
+
+
+
+
+

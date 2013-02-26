@@ -19,7 +19,6 @@ cat $PLAYCRAFT_LIB/ext/gamecore.js/src/linkedlist.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/ext/gamecore.js/src/hashlist.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/ext/gamecore.js/src/stacktrace.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/ext/gamecore.js/src/pooled.js >> ${OUT_FILE}
-cat $PLAYCRAFT_LIB/ext/base64.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/ext/box2dweb.2.1a-pc.js >> ${OUT_FILE}
 
 cat $PLAYCRAFT_LIB/boot.js >> ${OUT_FILE}

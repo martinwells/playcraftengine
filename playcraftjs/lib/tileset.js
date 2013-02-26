@@ -41,7 +41,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
     {},
     /** @lends pc.TileSet.prototype */
     {
-        /** spritesheet used for tiles */
+        /** sprite sheet used for tiles */
         tileSpriteSheet:null,
         /** pc.Hashmap of properties */
         props:null,
@@ -52,13 +52,14 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         init:function (spriteSheet)
         {
-//            if (!spriteSheet.isA('SpriteSheet'))
-//                throw 'spriteSheet needs to be an object of type pc.SpriteSheet';
-            this.tileSpriteSheet = spriteSheet;
-            this.props = new Array(spriteSheet.totalFrames);
-            for (var i = 0; i < this.props.length; i++)
+            this.tileSpriteSheet = pc.checked(spriteSheet, null);
+            if (this.tileSpriteSheet)
             {
-                this.props[i] = new pc.Hashmap();
+                this.props = new Array(spriteSheet.totalFrames);
+                for (var i = 0; i < this.props.length; i++)
+                {
+                    this.props[i] = new pc.Hashmap();
+                }
             }
         },
 
@@ -66,8 +67,8 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          * Draw a tile; typically for debugging or other strange purposes. Usually drawing is handled by the tile layer
          * @param {Object} ctx Context to draw the tile upon
          * @param {Number} tileNumber
-         * @param {Number} x Frame x position within the spritesheet
-         * @param {Number} y Frame y position within the spritesheet
+         * @param {Number} x Frame x position within the sprite sheet
+         * @param {Number} y Frame y position within the sprite sheet
          */
         drawTile:function (ctx, tileNumber, x, y)
         {
@@ -108,7 +109,30 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
         getProperties:function (tileNumber)
         {
             return this.props[tileNumber];
+        },
+
+        /**
+         * Returns the width of tiles in the tile set. By default this is the tile width from the sprite sheet, but
+         * feel free to override if you want to get all funky.
+         * @return {Number} width of tiles
+         */
+        getTileWidth:function()
+        {
+            return this.tileSpriteSheet.tileWidth;
+        },
+
+        /**
+         * Returns the height of tiles in the tile set. By default this is the tile height from the sprite sheet, but
+         * feel free to override if you want to get all funky.
+         * @return {Number} height of tiles
+         */
+        getTileHeight:function ()
+        {
+            return this.tileSpriteSheet.tileHeight;
         }
 
+
     });
+
+
 

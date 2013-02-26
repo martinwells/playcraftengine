@@ -8,7 +8,7 @@
  * @description
  * [Extends <a href='pc.Layer'>pc.Layer</a>]
  * <p>
- * A specialized tile layer capable of rendering 6-sided hex tiles.
+ * A specialized tile layer capable of rendering 6-sided (flat) hex tiles.
  */
 
 pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
@@ -37,7 +37,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
             this._yInc = this.tileMap.tileHeight - this._halfHexSide;
         },
 
-        _tileXY: null,
+        _tileXY: null, // cached, so we're not constructing/or pooling
         getTileXYAtScreenPoint:function(pos)
         {
             if (!this._tileXY)
@@ -49,11 +49,16 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
             // figure out which tile is at that position
             var ty = Math.round(worldPos.y / this._yInc);
 
-            if (ty % 2)
-                worldPos.x += Math.round(this.tileMap.tileWidth / 2);
+            if (!(ty % 2))
+            {
+                worldPos.x += Math.floor(this.tileMap.tileWidth / 2);
+                console.log('offset row');
+            }
 
-            this._tileXY.x = Math.round(worldPos.x / this.tileMap.tileWidth);
-            this._tileXY.y = ty;
+            this._tileXY.x = Math.floor(worldPos.x / this.tileMap.tileWidth);
+            this._tileXY.y = Math.floor(ty);
+
+            console.log("world=" + worldPos + " tileXY=" + this._tileXY);
             return this._tileXY;
         },
 
@@ -89,9 +94,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
                     if (tileType >= 0)  // -1 means no tile
                     {
-                        this.tileMap.tileSet.drawTile(
-                            pc.device.ctx, tileType,
-                            this.screenX(xpos), this.screenY(ypos));
+                        this.tileMap.drawTile(hx, hy, this.screenX(xpos), this.screenY(ypos));
                     }
                 }
             }
