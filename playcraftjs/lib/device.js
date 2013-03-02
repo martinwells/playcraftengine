@@ -196,6 +196,8 @@ pc.Device = pc.Base.extend('pc.Device',
                 this.canvasWidth = this.canvas.width;
                 this.canvasHeight = this.canvas.height;
 
+                if (this.screen != null)
+                    this.screen.release();
                 this.screen = pc.Dim.create(this.canvasWidth, this.canvasHeight);
 
             }
