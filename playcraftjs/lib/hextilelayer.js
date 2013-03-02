@@ -47,18 +47,13 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
             var worldPos = this.worldPos(pos);
 
             // figure out which tile is at that position
-            var ty = Math.round(worldPos.y / this._yInc);
-
-            if (!(ty % 2))
-            {
-                worldPos.x += Math.floor(this.tileMap.tileWidth / 2);
-                console.log('offset row');
-            }
+            var ty = Math.floor(worldPos.y / this._yInc);
+            if (ty % 2)
+                worldPos.x -= Math.floor(this.tileMap.tileWidth / 2);
 
             this._tileXY.x = Math.floor(worldPos.x / this.tileMap.tileWidth);
             this._tileXY.y = Math.floor(ty);
 
-            console.log("world=" + worldPos + " tileXY=" + this._tileXY);
             return this._tileXY;
         },
 
