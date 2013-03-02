@@ -153,7 +153,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
 
         // Playcraft Engine
         loader.add('boot.js'); // <--- must be first for engine scripts (sets up some translations)
-        loader.add('ext/base64.js');
+        loader.add('input.js');
         loader.add('input.js');
         loader.add('hashmap.js');
         loader.add('tools.js');
