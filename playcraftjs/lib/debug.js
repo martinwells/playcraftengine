@@ -212,10 +212,6 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
 
     resize:function (x, y, width, height)
     {
-        // if the current graph line data is too big we need to resize it down
-        if (this.width > width)
-            this.data = this.data.slice(this.width - width, width);
-
         this.width = Math.max(width, 1);
         this.height = Math.max(height, 1);
         this.x = x;
@@ -254,7 +250,7 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
             else
             {
                 // shrinking -- we cut from the begining
-                this.data.splice(0, newSize - this.data.length);
+                this.data.slice(0, newSize - this.data.length);
                 if (this.cursor > this.data.length - 1)
                     this.cursor = this.data.length - 1;
                 return; // job done, no new init needed (it's smaller)
