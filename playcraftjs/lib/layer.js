@@ -108,242 +108,251 @@
  */
 
 pc.Layer = pc.Base.extend('pc.Layer', {},
-    /** @lends pc.Layer.prototype */
+  /** @lends pc.Layer.prototype */
+  {
+    /** Name of the layer */
+    name: null,
+    /** whether the layer is presently paused */
+    paused: false,
+    /** whether the layer is active (isActive should be used over this as it also checks whether
+     * the scene is active */
+    active: false,
+    /** the scene this layer is within */
+    scene: null,
+    /** draw order of this layer, lower draws first (use setZIndex method to change in order to update the scene) */
+    zIndex: 0,
+    /** current origin track -- layer's origin will automatically match the origin of another layer */
+    originTrack: null,
+    /** ratio of origin tracking on X */
+    originTrackXRatio: 1,
+    /** ratio of origin tracking on Y */
+    originTrackYRatio: 1,
+
+    /**
+     * World coordinate origin for this layer
+     */
+    origin: null,
+
+    /**
+     * @constructs pc.Layer
+     * @param {String} name Name you want to give the layer
+     * @param {Number} zIndex Draw order for this layer within it's scene (lower draws earlier)
+     */
+    init: function (name, zIndex)
     {
-        /** Name of the layer */
-        name:null,
-        /** whether the layer is presently paused */
-        paused:false,
-        /** whether the layer is active (isActive should be used over this as it also checks whether
-         * the scene is active */
-        active:false,
-        /** the scene this layer is within */
-        scene:null,
-        /** draw order of this layer, lower draws first (use setZIndex method to change in order to update the scene) */
-        zIndex:0,
-        /** current origin track -- layer's origin will automatically match the origin of another layer */
-        originTrack:null,
-        /** ratio of origin tracking on X */
-        originTrackXRatio:1,
-        /** ratio of origin tracking on Y */
-        originTrackYRatio:1,
+      this._super();
 
-        /**
-         * World coordinate origin for this layer
-         */
-        origin:null,
+      this.name = name;
+      this.origin = pc.Point.create(0, 0);
+      this._worldPos = pc.Point.create(0, 0);
+      this._screenPos = pc.Point.create(0, 0);
+      this.zIndex = pc.checked(zIndex, 0);
+      this.originTrack = null;
+      this.originTrackXRatio = 0;
+      this.originTrackYRatio = 0;
+    },
 
-        /**
-         * @constructs pc.Layer
-         * @param {String} name Name you want to give the layer
-         * @param {Number} zIndex Draw order for this layer within it's scene (lower draws earlier)
-         */
-        init:function (name, zIndex)
-        {
-            this._super();
+    /**
+     * @return {String} A nice string representation of the layer
+     */
+    toString: function ()
+    {
+      return '' + this.name + ' (origin: ' + this.origin + ', zIndex: ' + this.zIndex + ')';
+    },
 
-            this.name = name;
-            this.origin = pc.Point.create(0, 0);
-            this._worldPos = pc.Point.create(0, 0);
-            this._screenPos = pc.Point.create(0, 0);
-            this.zIndex = pc.checked(zIndex, 0);
-            this.originTrack = null;
-            this.originTrackXRatio = 0;
-            this.originTrackYRatio = 0;
-        },
+    release: function ()
+    {
+      this.origin.release();
+    },
 
-        /**
-         * @return {String} A nice string representation of the layer
-         */
-        toString:function ()
-        {
-            return '' + this.name + ' (origin: ' + this.origin + ', zIndex: ' + this.zIndex + ')';
-        },
+    /**
+     * @return {Boolean} Is this layer active, and is it within a scene that is active
+     */
+    isActive: function ()
+    {
+      if (this.scene != null)
+        if (!this.scene.active) return false;
+      return this.active;
+    },
 
-        release:function ()
-        {
-            this.origin.release();
-        },
+    /**
+     * Make this layer active
+     */
+    setActive: function ()
+    {
+      this.scene.setLayerActive(this);
+    },
 
-        /**
-         * @return {Boolean} Is this layer active, and is it within a scene that is active
-         */
-        isActive:function ()
-        {
-            if (this.scene != null)
-                if (!this.scene.active) return false;
-            return this.active;
-        },
+    /**
+     * Make this layer inactive
+     */
+    setInactive: function ()
+    {
+      this.scene.setLayerInactive(this);
+    },
 
-        /**
-         * Make this layer active
-         */
-        setActive:function ()
-        {
-            this.scene.setLayerActive(this);
-        },
+    /**
+     * Change the z order drawing for this layer (lower draws earlier)
+     * @param {Number} z index as a value > 0
+     */
+    setZIndex: function (z)
+    {
+      this.zIndex = z;
+      if (this.scene)
+        this.scene.sortLayers();
+    },
 
-        /**
-         * Make this layer inactive
-         */
-        setInactive:function ()
-        {
-            this.scene.setLayerInactive(this);
-        },
+    _worldPos: null, // cached temp
 
-        /**
-         * Change the z order drawing for this layer (lower draws earlier)
-         * @param {Number} z index as a value > 0
-         */
-        setZIndex:function (z)
-        {
-            this.zIndex = z;
-            if (this.scene)
-                this.scene.sortLayers();
-        },
+    /**
+     * Gets the world position of a screen position.
+     * @param {pc.Point} pos World position of this layer (cached, so you don't need to release it)
+     * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
+     */
+    worldPos: function (pos, returnPos)
+    {
+      if (returnPos)
+      {
+        returnPos.x = pos.x + this.origin.x;
+        returnPos.y = pos.y + this.origin.y;
+        return this._worldPos;
+      } else
+      {
+        this._worldPos.x = pos.x + this.origin.x;
+        this._worldPos.y = pos.y + this.origin.y;
+        return this._worldPos;
+      }
+    },
 
-        _worldPos:null, // cached temp
+    /**
+     * @param {Number} x X position in world co-ordinates
+     * @return {Number} X position relative to the screen (based on the layer's current origin and the viewport
+     * of the scene)
+     */
+    screenX: function (x)
+    {
+      return x + this.scene.viewPort.x - this.origin.x;
+    },
 
-        /**
-         * Gets the world position of a screen position.
-         * @param pos {pc.Point} World position of this layer (cached, so you don't need to release it)
-         */
-        worldPos:function (pos)
-        {
-            this._worldPos.x = pos.x + this.origin.x;
-            this._worldPos.y = pos.y + this.origin.y;
-            return this._worldPos;
-        },
+    /**
+     * @param {Number} y Y position in world co-ordinates
+     * @return {Number} Y position relative to the screen (based on the layer's current origin and the viewport
+     * of the scene)
+     */
+    screenY: function (y)
+    {
+      return y + this.scene.viewPort.y - this.origin.y;
+    },
 
-        /**
-         * @param {Number} x X position in world co-ordinates
-         * @return {Number} X position relative to the screen (based on the layer's current origin and the viewport
-         * of the scene)
-         */
-        screenX:function (x)
-        {
-            return x + this.scene.viewPort.x - this.origin.x;
-        },
+    /**
+     * A layer uses whatever screen rectangle is defined by the scene it sits within,
+     * so this is just a helper method (and makes it compliant for things like input checking)
+     */
+    getScreenRect: function ()
+    {
+      return this.scene.getScreenRect();
+    },
 
-        /**
-         * @param {Number} y Y position in world co-ordinates
-         * @return {Number} Y position relative to the screen (based on the layer's current origin and the viewport
-         * of the scene)
-         */
-        screenY:function (y)
-        {
-            return y + this.scene.viewPort.y - this.origin.y;
-        },
+    /**
+     * Draw the layer's scene. Use the scene's viewport and origin members to correctly position things.
+     * Typical used for simple/custom layers with no entities or tiles.
+     */
+    draw: function ()
+    {
+    },
 
-        /**
-         * A layer uses whatever screen rectangle is defined by the scene it sits within,
-         * so this is just a helper method (and makes it compliant for things like input checking)
-         */
-        getScreenRect:function ()
-        {
-            return this.scene.getScreenRect();
-        },
+    /**
+     * Sets tracking for this origin to always follow the origin of another layer. The ratio can be used
+     * to parallax the layer.
+     * @param {pc.Layer} trackLayer Layer to track
+     * @param {Number} [xRatio] Ratio to track horizontally (i.e. trackLayer.origin.x * xRatio)
+     * @param {Number} [yRatio] Ratio to track vertically (i.e. trackLayer.origin.y * yRatio)
+     */
+    setOriginTrack: function (trackLayer, xRatio, yRatio)
+    {
+      this.originTrack = trackLayer;
+      this.originTrackXRatio = pc.checked(xRatio, 1);
+      this.originTrackYRatio = pc.checked(yRatio, 1);
+    },
 
-        /**
-         * Draw the layer's scene. Use the scene's viewport and origin members to correctly position things.
-         * Typical used for simple/custom layers with no entities or tiles.
-         */
-        draw:function ()
-        {
-        },
+    /**
+     * Sets the origin world point of the top left of this layer.
+     * @param {Number} x Set offset origin for the layer to x
+     * @param {Number} y Set offset origin for the layer to y
+     */
+    setOrigin: function (x, y)
+    {
+      if (this.origin.x == Math.round(x) && this.origin.y == Math.round(y))
+        return false;
+      this.origin.x = Math.round(x);
+      this.origin.y = Math.round(y);
+      return true;
+    },
 
-        /**
-         * Sets tracking for this origin to always follow the origin of another layer. The ratio can be used
-         * to parallax the layer.
-         * @param {pc.Layer} trackLayer Layer to track
-         * @param {Number} [xRatio] Ratio to track horizontally (i.e. trackLayer.origin.x * xRatio)
-         * @param {Number} [yRatio] Ratio to track vertically (i.e. trackLayer.origin.y * yRatio)
-         */
-        setOriginTrack:function (trackLayer, xRatio, yRatio)
-        {
-            this.originTrack = trackLayer;
-            this.originTrackXRatio = pc.checked(xRatio, 1);
-            this.originTrackYRatio = pc.checked(yRatio, 1);
-        },
+    /**
+     * Process the layer (if you overide this method make sure you call this._super();
+     */
+    process: function ()
+    {
+      if (this.originTrack)
+      {
+        this.setOrigin(this.originTrack.origin.x * this.originTrackXRatio,
+          this.originTrack.origin.y * this.originTrackYRatio);
+      }
+    },
 
-        /**
-         * Sets the origin world point of the top left of this layer.
-         * @param {Number} x Set offset origin for the layer to x
-         * @param {Number} y Set offset origin for the layer to y
-         */
-        setOrigin:function (x, y)
-        {
-            if (this.origin.x == Math.round(x) && this.origin.y == Math.round(y))
-                return false;
-            this.origin.x = Math.round(x);
-            this.origin.y = Math.round(y);
-            return true;
-        },
+    /**
+     * Pauses this layer
+     */
+    pause: function ()
+    {
+      this.paused = true;
+    },
 
-        /**
-         * Process the layer (if you overide this method make sure you call this._super();
-         */
-        process:function ()
-        {
-            if (this.originTrack)
-            {
-                this.setOrigin(this.originTrack.origin.x * this.originTrackXRatio,
-                    this.originTrack.origin.y * this.originTrackYRatio);
-            }
-        },
+    /**
+     * Resumes all active layers
+     */
+    resume: function ()
+    {
+      this.paused = false;
+    },
 
-        /**
-         * Pauses this layer
-         */
-        pause:function ()
-        {
-            this.paused = true;
-        },
+    /**
+     * Called when the layer changes size (triggered by a browser or device resize event)
+     * @param {Number} width New width of the underlying canvas
+     * @param {Number} height New height of the underlying canvas
+     */
+    onResize: function (width, height)
+    {
+    },
 
-        /**
-         * Resumes all active layers
-         */
-        resume:function ()
-        {
-            this.paused = false;
-        },
+    /**
+     * Notification call when this layer has been added to a scene
+     */
+    onAddedToScene: function ()
+    {
+    },
 
-        /**
-         * Called when the layer changes size (triggered by a browser or device resize event)
-         * @param {Number} width New width of the underlying canvas
-         * @param {Number} height New height of the underlying canvas
-         */
-        onResize:function (width, height)
-        {
-        },
+    /**
+     * Notification call when this layer has been removed from a scene
+     */
+    onRemovedFromScene: function ()
+    {
+    },
 
-        /**
-         * Notification call when this layer has been added to a scene
-         */
-        onAddedToScene:function ()
-        {
-        },
+    /**
+     * Fired when a bound event/action is triggered in the input system. Use bindAction
+     * to set one up. Override this in your layer to do something about it.
+     * @param {String} actionName The name of the action that happened
+     * @param {Object} event Raw event object
+     * @param {pc.Point} pos Position, such as a touch input or mouse position
+     * @param {pc.Base} uiTarget the uiTarget where the action occurred
+     */
+    onAction: function (actionName, event, pos, uiTarget)
+    {
+    }
 
-        /**
-         * Notification call when this layer has been removed from a scene
-         */
-        onRemovedFromScene:function ()
-        {
-        },
-
-        /**
-         * Fired when a bound event/action is triggered in the input system. Use bindAction
-         * to set one up. Override this in your layer to do something about it.
-         * @param {String} actionName The name of the action that happened
-         * @param {Object} event Raw event object
-         * @param {pc.Point} pos Position, such as a touch input or mouse position
-         * @param {pc.Base} uiTarget the uiTarget where the action occurred
-         */
-        onAction:function (actionName, event, pos, uiTarget)
-        {
-        }
-
-    });
+  });
 
 
 
