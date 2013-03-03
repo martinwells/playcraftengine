@@ -216,8 +216,8 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
         if (this.width > width)
             this.data = this.data.slice(this.width - width, width);
 
-        this.width = width;
-        this.height = height;
+        this.width = Math.max(width, 1);
+        this.height = Math.max(height, 1);
         this.x = x;
         this.y = y;
 
@@ -240,14 +240,14 @@ pc.CanvasLineGraph = pc.Base.extend('pc.CanvasLineGraph', {
     resizeDataArray:function (newSize, numDataPoints)
     {
         var start = 0;
-        if (newSize <= 0) return;
+        if (newSize <= 0) newSize = 1;
 
         if (this.data == null)
             this.data = [];
         else
         {
             // resize the array
-            if (newSize > this.data.length) // growing?
+            if (newSize+1 > this.data.length) // growing?
             {
                 start = this.data.length - 1;
             }
