@@ -20,6 +20,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
     _hexSide: 0,
     _halfHexSide: 0,
     _yInc: 0,
+    _debug: true,
 
     /**
      * Constructor for the tile layer
@@ -65,12 +66,13 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
     worldToTilePos: function(worldPos, returnPos)
     {
       if (!returnPos) returnPos = pc.Point.create(0,0);
+      this._worldPosTemp.set(worldPos);
 
       // figure out which tile is at that position
-      var ty = Math.floor(worldPos.y / this._yInc);
-      // offset for hex grid (every second row is off by a half tile wifth
+      var ty = Math.floor(this._worldPosTemp.y / this._yInc);
+      // offset for hex grid (every second row is off by a half tile width
       if (ty % 2)
-        worldPos.x -= Math.floor(this.tileMap.tileWidth / 2);
+        this._worldPosTemp.x -= Math.floor(this.tileMap.tileWidth / 2);
 
       returnPos.x = Math.floor(worldPos.x / this.tileMap.tileWidth);
       returnPos.y = Math.floor(ty);
@@ -128,11 +130,37 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
           if (tileType >= 0)  // -1 means no tile
           {
             this.tileMap.drawTile(hx, hy, this.screenX(xpos), this.screenY(ypos));
+
+            if (this.debug)
+            {
+              pc.device.ctx.fillStyle = '#888';
+              pc.device.ctx.font = 'Arial 7pt';
+              pc.device.ctx.fillText('' + hx + ',' + hy,
+                this.screenX(xpos)-8+(this.tileMap.tileWidth/2),
+                this.screenY(ypos)-10 + (this.tileMap.tileHeight/2))
+            }
           }
+
         }
       }
     }
 
 
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
