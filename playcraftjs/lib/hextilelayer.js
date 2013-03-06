@@ -69,7 +69,11 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
       this._worldPosTemp.set(worldPos);
 
       // figure out which tile is at that position
-      var ty = Math.floor(this._worldPosTemp.y / this._yInc);
+      // note that we fudge the offset to be an overlapping rectangle this is for simplicity and
+      // speed (rather than mapping the point to exact shape of the hex (the fudge is the height/7
+      // below -- we offset by a 7th to give the impression it's an overlapping select
+      // (one day if it's needed we could use this for broa
+      var ty = Math.floor((this._worldPosTemp.y-(this.tileMap.tileHeight/7)) / this._yInc);
       // offset for hex grid (every second row is off by a half tile width
       if (ty % 2)
         this._worldPosTemp.x -= Math.floor(this.tileMap.tileWidth / 2);
