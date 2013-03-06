@@ -466,7 +466,10 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 // partial construction
 
                 // fill in the rest using the data from the TMX file
-                pc.EntityLayer.loadFromTMX(this, objectGroups[i], entityFactory);
+                var group = objectGroups[i];
+                var tilesWide = parseInt(group.getAttribute('width'));
+                var tilesHigh = parseInt(group.getAttribute('height'));
+                pc.EntityLayer.loadFromTMX(this, group, entityFactory, tilesWide*tileWidth, tilesHigh*tileHeight);
             }
 
         }
