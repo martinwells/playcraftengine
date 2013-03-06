@@ -554,7 +554,18 @@ pc.Poly = pc.Pooled('pc.Poly',
 
         getBoundingRect:function()
         {
+          // todo
+        },
 
+        containsPoint:function(p)
+        {
+          for (var c = false, i = -1, l = this.points.length, j = l - 1; ++i < l; j = i)
+          {
+            ((this.points[i].y <= p.y && p.y < this.points[j].y) || (this.points[j].y <= p.y && p.y < this.points[i].y))
+              && (p.x < (this.points[j].x - this.points[i].x) * (p.y - this.points[i].y) / (this.points[j].y - this.points[i].y) + this.points[i].x)
+            && (c = !c);
+          }
+          return c;
         }
     });
 
