@@ -428,14 +428,17 @@ pc.Scene = pc.Base.extend('pc.Scene',
                 var tileId = parseInt(tile.getAttribute('id'));
 
                 var pr = tile.getElementsByTagName('properties')[0];
-                var props = pr.getElementsByTagName('property');
-
-                for (var b = 0; b < props.length; b++)
+                if(pr)
                 {
-                    var prop = props[b];
-                    var name = prop.getAttribute('name');
-                    var value = prop.getAttribute('value');
-                    tileSet.addProperty(tileId, name, value);
+                    var props = pr.getElementsByTagName('property');
+
+                    for (var b = 0; b < props.length; b++)
+                    {
+                        var prop = props[b];
+                        var name = prop.getAttribute('name');
+                        var value = prop.getAttribute('value');
+                        tileSet.addProperty(tileId, name, value);
+                    }
                 }
             }
 
