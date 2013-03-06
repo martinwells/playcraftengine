@@ -61,6 +61,7 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
 
             // create the new layer and add it to the scene - when you have the name
             var n = new pc.EntityLayer(layerName);
+            n.configFromTMX(groupXML);
             scene.addLayer(n);
 
             // Parse object xml instances and turn them into entities
