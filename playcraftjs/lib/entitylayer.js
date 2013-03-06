@@ -55,12 +55,12 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
          * @param {String} groupXML
          * @param {pc.EntityFactory} entityFactory
          */
-        loadFromTMX:function (scene, groupXML, entityFactory)
+        loadFromTMX:function (scene, groupXML, entityFactory, worldSizeX, worldSizeY)
         {
             var layerName = groupXML.getAttribute('name');
 
             // create the new layer and add it to the scene - when you have the name
-            var n = new pc.EntityLayer(layerName);
+            var n = new pc.EntityLayer(layerName, worldSizeX, worldSizeY, entityFactory);
             n.configFromTMX(groupXML);
             scene.addLayer(n);
 
