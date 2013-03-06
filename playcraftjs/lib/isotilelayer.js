@@ -60,6 +60,7 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
 
       // fill in the rest using the data from the TMX file
 
+      newLayer.configFromTMX(layerXML);
       newLayer.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
       scene.addLayer(newLayer);
     }
