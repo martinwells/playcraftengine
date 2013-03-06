@@ -86,7 +86,7 @@ pc.Game = pc.Base.extend('pc.Game', {},
         paused:false,
 
         /**
-         * Constructs a new game using the supplied canvas element ID and fps
+         * Constructs a new game object
          */
         init:function ()
         {
