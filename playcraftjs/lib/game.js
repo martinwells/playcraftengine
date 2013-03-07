@@ -86,11 +86,9 @@ pc.Game = pc.Base.extend('pc.Game', {},
         paused:false,
 
         /**
-         * Constructs a new game using the supplied canvas element ID and fps
-         * @param {String} canvasId Id of the canvas element that will serve as the game canvas
-         * @param {Number} fps Base frame rate in frames per second (fastest cycle time)
+         * Constructs a new game object
          */
-        init:function (canvasId, fps)
+        init:function ()
         {
             this._super();
 
