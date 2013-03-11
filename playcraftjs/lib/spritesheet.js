@@ -287,7 +287,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
             {
                 if (this.scaleX != 1 || this.scaleY != 1)
                     this.image.setScale(this.scaleX, this.scaleY);
-                this.image.draw(ctx, this.sourceX, this.sourceY,
+                this.image.draw(ctx,
+                  this.sourceX + this._frameXPos[state.currentFrame], this.sourceY+ this._frameYPos[state.currentFrame],
                     Math.round(x + this.frameOffsetX), Math.round(y + this.frameOffsetY),
                     this.frameWidth + this.frameOffsetX, this.frameHeight + this.frameOffsetY,
                     this.useRotation ? dir : 0);
