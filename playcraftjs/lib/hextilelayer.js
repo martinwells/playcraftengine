@@ -45,7 +45,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the tile x, y position given a screen position
-     * @param screenPos {pc.Point}
+     * @param {pc.Point} screenPos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
@@ -59,7 +59,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the tile x, y position given a world position
-     * @param worldPos {pc.Point}
+     * @param {pc.Point} worldPos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
@@ -85,7 +85,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the world position of a given tile x, y
-     * @param tilePos {pc.Point}
+     * @param {pc.Point} tilePos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
