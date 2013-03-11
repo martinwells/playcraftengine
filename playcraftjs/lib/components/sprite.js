@@ -31,7 +31,7 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
     {
         /** sprite object */
         sprite:null,
-        /** Offset position of the text relative to the entity spatial */
+        /** Offset position of the sprite relative to the entity spatial */
         offset:null,
 
         /**
