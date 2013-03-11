@@ -66,8 +66,8 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
         }
       }
 
-      this.drawOffsetX = drawOffsetX;
-      this.drawOffsetY = drawOffsetY;
+      this.drawOffsetX = pc.checked(drawOffsetX, 0);
+      this.drawOffsetY = pc.checked(drawOffsetY, 0);
     },
 
     /**
