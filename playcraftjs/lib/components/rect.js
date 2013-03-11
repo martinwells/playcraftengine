@@ -66,8 +66,12 @@ pc.components.Rect = pc.components.Component.extend('pc.components.Rect',
     config: function (options)
     {
       if (options.color)
+      {
+        if (this.color == null)
+          this.color = pc.Color.create();
+
         this.color.set(options.color); // can be null
-      else
+      } else
         this.color = null;
 
       if (options.lineColor)
