@@ -370,7 +370,7 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
           var name = prop.getAttribute('name');
           var value = prop.getAttribute('value');
           if(name.toLowerCase() == 'zindex') {
-            newLayer.setZIndex(parseInt(value));
+            this.setZIndex(parseInt(value));
           }
         }
       }
