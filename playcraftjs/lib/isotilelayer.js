@@ -53,13 +53,13 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
      * @param {String} layerXML XML data for layer
      * @param {Number} tileWidth Width of each tile
      * @param tileHeight Height of each tile
+     * @param tileSets {Array} Array of TileSets
      */
-    loadFromTMX: function (scene, layerXML, tileWidth, tileHeight, tileSet) {
+    loadFromTMX: function (scene, layerXML, tileWidth, tileHeight, tileSets) {
       var name = layerXML.getAttribute('name');
-      var newLayer = new pc.IsoTileLayer(name, true, null, tileSet);
+      var newLayer = new pc.IsoTileLayer(name, true, null, tileSets);
 
       // fill in the rest using the data from the TMX file
-
       newLayer.configFromTMX(layerXML);
       newLayer.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
       scene.addLayer(newLayer);
@@ -71,12 +71,12 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
      * @param {String} name Name of the layer
      * @param {Boolean} [usePrerendering] Whether prerendering should be used (defaults to false)
      * @param {pc.TileMap} [tileMap] Tile map data used for the tile layer
-     * @param {pc.TileSet} [tileSet] If no tile map is supplied, you can optional provide a tile set and a
+     * @param {Array} [tileSets] If no tile map is supplied, you can optional provide a tile set and a
      * tile map will be constructed using this tile set
      */
-    init: function (name, usePrerendering, tileMap, tileSet) {
+    init: function (name, usePrerendering, tileMap, tileSets) {
       this._super(name);
-      this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSet));
+      this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSets));
       this.usePrerendering = false;
     },
     

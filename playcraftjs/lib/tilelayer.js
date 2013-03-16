@@ -73,10 +73,10 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
          * @param {Number} tileWidth Width of each tile
          * @param tileHeight Height of each tile
          */
-        loadFromTMX:function (scene, layerXML, tileWidth, tileHeight, tileSet)
+        loadFromTMX:function (scene, layerXML, tileWidth, tileHeight, tileSets)
         {
             var name = layerXML.getAttribute('name');
-            var newLayer = new pc.TileLayer(name, true, null, tileSet);
+            var newLayer = new pc.TileLayer(name, true, null, tileSets);
 
             // fill in the rest using the data from the TMX file
 
@@ -106,13 +106,13 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
          * @param {pc.TileSet} [tileSet] If no tile map is supplied, you can optional provide a tile set and a
          * tile map will be constructed using this tile set
          */
-        init:function (name, usePrerendering, tileMap, tileSet)
+        init:function (name, usePrerendering, tileMap, tileSets)
         {
             this._super(name);
             if (pc.valid(tileMap))
                 this.tileMap = tileMap;
             else
-                this.tileMap = new pc.TileMap(tileSet);
+                this.tileMap = new pc.TileMap(tileSets);
 
             this.usePrerendering = pc.checked(usePrerendering, true);
             if (this.tileMap && this.tileMap.tileWidth > 256)
@@ -176,7 +176,7 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                                 var tileType = this.tileMap.getTile(x + tx, y + ty);
                                 if (tileType >= 0)  // -1 means no tile
                                 {
-                                    this.tileMap.tileSet.drawTile(
+                                    this.tileMap.drawTileByIdTo(
                                         ctx,
                                         tileType,
                                         (x * this.tileMap.tileWidth) - nx,

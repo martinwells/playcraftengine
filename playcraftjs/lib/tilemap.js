@@ -52,25 +52,25 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     /** Height of each tile */
     tileHeight: 0,
     /** Current tile set */
-    tileSet: null,
+    tileSets: null,
 
     /**
      * Constructs a new tile map using the supplied dimensions and tile set
-     * @param {pc.TileSet} tileSet Tiles to use
+     * @param {Array} tileSets Tile sets to use
      * @param {Number} tilesWide Number of tiles the map is wide
      * @param {Number} tilesHigh Number of tiles the map is high
      * @param {Number} tileWidth Width of each tile (e.g. 32)
      * @param {Number} tileHeight Height of each tile (e.g. 32)
      * @param {Array} tiles An array of tile data ordered by y then x
      */
-    init: function (tileSet, tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
+    init: function (tileSets, tilesWide, tilesHigh, tileWidth, tileHeight, tiles)
     {
       this.tiles = tiles;
       this.tilesWide = pc.Math.round(tilesWide);
       this.tilesHigh = pc.Math.round(tilesHigh);
-      this.tileWidth = Math.round(pc.checked(tileWidth, tileSet.tileSpriteSheet.frameWidth));
-      this.tileHeight = Math.round(pc.checked(tileHeight, tileSet.tileSpriteSheet.frameHeight));
-      this.tileSet = tileSet;
+      this.tileWidth = Math.round(pc.checked(tileWidth, tileSets[0].tileSpriteSheet.frameWidth));
+      this.tileHeight = Math.round(pc.checked(tileHeight, tileSets[0].tileSpriteSheet.frameHeight));
+      this.tileSets = tileSets;
     },
 
     /**
@@ -83,9 +83,13 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     {
       // get the number of the tile at tileX, tileY
       var tileNumber = this.getTile(tileX, tileY);
-      if (tileNumber >= 0)
-        return this.tileSet.hasProperty(tileNumber, property);
-      return false;
+      if (tileNumber == 0)
+        return false;
+
+      for(var i=0; i < this.tileSets.length; i++) {
+
+      }
+      return this.getTileSetForTileId(tileNumber).hasProperty(tileNumber, property);
     },
 
     /**
@@ -167,6 +171,30 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     },
 
     /**
+     * Given a tile id, locate the tile set it should be in.  For tile ID's that are out of range (too high)
+     * this should return the last tile set in the list.
+     *
+     * The tile set to use is the last tile set whose start offset is less than or equal to the given
+     * tile id.
+     *
+     * This assumes the tileSets list is not empty.
+     *
+     * @param tileId Tile ID we are looking for
+     */
+    getTileSetForTileId: function(tileId)
+    {
+      var i;
+      for(i=1; i < this.tileSets.length; i++)
+      {
+        var tileSet = this.tileSets[i];
+        if(tileSet.idOffset > tileId) {
+          break;
+        }
+      }
+      return this.tileSets[i-1];
+    },
+
+    /**
      * Draw a given tile from the tile map, at a given screen position
      * @param tileX Tile x to draw (within the tile map)
      * @param tileY Tile y to draw (within the tile map)
@@ -175,7 +203,23 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
      */
     drawTile: function (tileX, tileY, x, y)
     {
-      this.tileSet.drawTile(pc.device.ctx, this.tiles[tileY][tileX], x, y);
+      this.drawTileByIdTo(pc.device.ctx, this.tiles[tileY][tileX], x, y);
+    },
+
+    /**
+     * Draw a tile, given by id, using the given graphics context.
+     *
+     * Used for pre-rendering tiles, mainly.
+     *
+     * @param ctx Rendering context to draw with
+     * @param tileId Id of the tile to draw
+     * @param x X position to draw to
+     * @param y Y position to draw to
+     */
+    drawTileByIdTo: function(ctx, tileId, x, y)
+    {
+      var tileSet = this.getTileSetForTileId(tileId);
+      tileSet.drawTile(ctx, tileId, x, y);
     },
 
     /**
@@ -195,10 +239,11 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
       var data = layerXML.getElementsByTagName('data')[0];
       if (data.getAttribute('compression'))
       {
-        this.error('map: ' + name + ': TMX map compression not supported, use base64 encoding');
+        this.error('map: ' + name + ': TMX map compression not supported, use base64 (uncompressed)');
         return;
       }
 
+      this.tiles = new Array(this.tilesHigh);
       if (data.getAttribute('encoding') == 'base64')
       {
         // convert the base64 data to tiles
@@ -211,23 +256,24 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
         var decoded = pc.Base64.decode(tileData);
 
         // decode as an array
-        var a = [];
+        var row = null;
+        var atx = 0;
+        var aty = 0;
         for (var i = 0; i < decoded.length / 4; i++)
         {
-          a[i] = 0;
+          var b = 0;
           for (var j = 3; j >= 0; --j)
-            a[i] += decoded.charCodeAt((i * 4) + j) << (j << 3);
+            b += decoded.charCodeAt((i * 4) + j) << (j << 3);
+          if(atx == 0)
+            this.tiles[aty] = row = new Array(this.tilesWide);
+          row[atx] = b-1; // TMX uses zero for "no tile", playcraft uses -1
+          atx++;
+          if(atx == this.tilesWide)
+          {
+            atx = 0;
+            aty++;
+          }
         }
-      }
-
-      // todo: merge this with the above decode to speed up map setup
-      this.tiles = new Array(this.tilesHigh);
-
-      for (var aty = 0; aty < this.tilesHigh; aty++)
-      {
-        this.tiles[aty] = new Array(this.tilesWide);
-        for (var atx = 0; atx < this.tilesWide; atx++)
-          this.tiles[aty][atx] = a[aty * this.tilesWide + atx] - 1;
       }
     }
 

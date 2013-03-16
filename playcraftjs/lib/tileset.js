@@ -45,14 +45,17 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
         tileSpriteSheet:null,
         /** pc.Hashmap of properties */
         props:null,
+        /** First tile ID in this set */
+        idOffset:0,
 
         /**
          * Constructs a new tile set using the supplied tile sheet
          * @param {pc.SpriteSheet} spriteSheet Sprite sheet to use for tile images
          */
-        init:function (spriteSheet)
+        init:function (spriteSheet, idOffset)
         {
             this.tileSpriteSheet = pc.checked(spriteSheet, null);
+            this.idOffset = pc.checked(idOffset, 0);
             if (this.tileSpriteSheet)
             {
                 this.props = new Array(spriteSheet.totalFrames);
@@ -118,7 +121,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         getTileWidth:function()
         {
-            return this.tileSpriteSheet.tileWidth;
+            return this.tileSpriteSheet.frameWidth;
         },
 
         /**
@@ -128,7 +131,17 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         getTileHeight:function ()
         {
-            return this.tileSpriteSheet.tileHeight;
+            return this.tileSpriteSheet.frameHeight;
+        },
+
+        /**
+         * Returns the total number of tiles in the tile set.  By default this is the total number of tiles
+         * in the sprite sheet.
+         * @return {Number} count of tiles
+         */
+        getTotalTiles:function ()
+        {
+          return this.tileSpriteSheet.totalFrames;
         }
 
 
