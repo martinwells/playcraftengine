@@ -51,6 +51,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
         /**
          * Constructs a new tile set using the supplied tile sheet
          * @param {pc.SpriteSheet} spriteSheet Sprite sheet to use for tile images
+         * @param {Number} [idOffset] Offset to apply to ids
          */
         init:function (spriteSheet, idOffset)
         {
@@ -75,6 +76,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         drawTile:function (ctx, tileNumber, x, y)
         {
+            tileNumber -= this.idOffset;
             this.tileSpriteSheet.drawFrame(
                 ctx,
                 tileNumber % this.tileSpriteSheet.framesWide,
@@ -90,6 +92,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         addProperty:function (tileNumber, key, value)
         {
+            tileNumber -= this.idOffset;
             this.props[tileNumber].put(key, value);
         },
 
@@ -101,6 +104,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         hasProperty:function (tileNumber, key)
         {
+            tileNumber -= this.idOffset;
             return this.props[tileNumber].hasKey(key);
         },
 
@@ -111,6 +115,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
          */
         getProperties:function (tileNumber)
         {
+            tileNumber -= this.idOffset;
             return this.props[tileNumber];
         },
 
