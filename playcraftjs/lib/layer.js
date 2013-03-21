@@ -216,13 +216,13 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
     {
       if (returnPos)
       {
-        returnPos.x = pos.x + this.origin.x;
-        returnPos.y = pos.y + this.origin.y;
+        returnPos.x = pos.x + this.origin.x - this.offset.x;
+        returnPos.y = pos.y + this.origin.y - this.offset.y;
         return this._worldPos;
       } else
       {
-        this._worldPos.x = pos.x + this.origin.x;
-        this._worldPos.y = pos.y + this.origin.y;
+        this._worldPos.x = pos.x + this.origin.x - this.offset.x;
+        this._worldPos.y = pos.y + this.origin.y - this.offset.y;
         return this._worldPos;
       }
     },
