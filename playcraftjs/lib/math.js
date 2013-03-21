@@ -435,6 +435,15 @@ pc.Point = pc.Pooled('pc.Point',
     },
 
     /**
+     * Returns a new point with the same x, y as this one
+     * @returns {pc.Point} New point from the pool
+     */
+    clone: function()
+    {
+      return pc.Point.create(this.x, this.y);
+    },
+
+    /**
      * Makes this point match another
      * @param {pc.Point} p The other point to match
      */
