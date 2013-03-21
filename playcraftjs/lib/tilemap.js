@@ -203,7 +203,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
      */
     drawTile: function (tileX, tileY, x, y)
     {
-      this.drawTileByIdTo(pc.device.ctx, this.tiles[tileY][tileX], x, y);
+      this.drawTileByIdTo(pc.device.ctx, tileX, tileY, x, y);
     },
 
     /**
@@ -212,14 +212,19 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
      * Used for pre-rendering tiles, mainly.
      *
      * @param ctx Rendering context to draw with
-     * @param tileId Id of the tile to draw
+     * @param tileX Tile x to draw (within the tile map)
+     * @param tileY Tile y to draw (within the tile map)
      * @param x X position to draw to
      * @param y Y position to draw to
      */
-    drawTileByIdTo: function(ctx, tileId, x, y)
+    drawTileTo: function(ctx, tileX, tileY, x, y)
     {
-      var tileSet = this.getTileSetForTileId(tileId);
-      tileSet.drawTile(ctx, tileId, x, y);
+      var tileId = this.tiles[tileY][tileX];
+      if(!pc.valid(tileId)) console.log('drawTileTo', this, tileX, tileY, tileId);
+      if(tileId != -1) {
+        var tileSet = this.getTileSetForTileId(tileId);
+        tileSet.drawTile(ctx, tileId, x, y);
+      }
     },
 
     /**

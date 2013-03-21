@@ -173,15 +173,11 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                         {
                             if (x + tx < this.tileMap.tilesWide && y + ty < this.tileMap.tilesHigh)
                             {
-                                var tileType = this.tileMap.getTile(x + tx, y + ty);
-                                if (tileType >= 0)  // -1 means no tile
-                                {
-                                    this.tileMap.drawTileByIdTo(
-                                        ctx,
-                                        tileType,
-                                        (x * this.tileMap.tileWidth) - nx,
-                                        (y * this.tileMap.tileHeight) - ny);
-                                }
+                                  this.tileMap.drawTileTo(
+                                      ctx,
+                                      x + tx, y + ty,
+                                      (x * this.tileMap.tileWidth) - nx,
+                                      (y * this.tileMap.tileHeight) - ny);
                             }
                         }
                     }
@@ -227,13 +223,9 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
 
                 for (var x = tx, d = tx + tw; x < d; x++)
                 {
-                    var tileType = this.tileMap.tiles[y][x];
-                    if (tileType >= 0)  // -1 means no tile
-                    {
-                        this.tileMap.tileSet.drawTile(
-                            pc.device.ctx, tileType,
-                            this.screenX(x * this.tileMap.tileWidth), ypos);
-                    }
+                    this.tileMap.drawTileTo(
+                        pc.device.ctx, x, y,
+                        this.screenX(x * this.tileMap.tileWidth), ypos);
 
                     if (this.debugShowGrid)
                     {
