@@ -185,7 +185,7 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
          */
         removeComponentByType: function(componentType)
         {
-            this.removeComponent(this._componentCache.get(componentType));
+            this.removeComponent(this._componentCache.get(componentType.toLowerCase()));
         },
 
         /**
@@ -195,7 +195,7 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
          */
         getComponent: function(componentType)
         {
-            return this._componentCache.get(componentType);
+            return this._componentCache.get(componentType.toLowerCase());
         },
 
         /**
@@ -227,7 +227,7 @@ pc.Entity = pc.Pooled.extend('pc.Entity',
          */
         hasComponentOfType: function(componentType)
         {
-            return this._componentCache.hasKey(componentType);
+            return this._componentCache.hasKey(componentType.toLowerCase());
             //return this.layer.entityManager.hasComponentOfType(this, componentType);
         },
 

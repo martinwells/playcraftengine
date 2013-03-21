@@ -38,119 +38,115 @@
 
 
 pc.TileSet = pc.Base.extend('pc.TileSet',
-    {},
-    /** @lends pc.TileSet.prototype */
+  {},
+  /** @lends pc.TileSet.prototype */
+  {
+    /** sprite sheet used for tiles */
+    tileSpriteSheet: null,
+    /** pc.Hashmap of properties */
+    props: null,
+    drawOffsetX: 0,
+    drawOffsetY: 0,
+    /** First tile ID in this set */
+    idOffset:0,
+
+    /**
+     * Constructs a new tile set using the supplied tile sheet
+     * @param {pc.SpriteSheet} spriteSheet Sprite sheet to use for tile images
+     * @param {Number} drawOffsetX optional offset to draw tiles at
+     * @param {Number} drawOffsetY optional offset to draw tiles at
+     */
+    init: function (spriteSheet, drawOffsetX, drawOffsetY, idOffset)
     {
-        /** sprite sheet used for tiles */
-        tileSpriteSheet:null,
-        /** pc.Hashmap of properties */
-        props:null,
-        /** First tile ID in this set */
-        idOffset:0,
-
-        /**
-         * Constructs a new tile set using the supplied tile sheet
-         * @param {pc.SpriteSheet} spriteSheet Sprite sheet to use for tile images
-         * @param {Number} [idOffset] Offset to apply to ids
-         */
-        init:function (spriteSheet, idOffset)
+      this.tileSpriteSheet = pc.checked(spriteSheet, null);
+      if (this.tileSpriteSheet)
+      {
+        this.props = new Array(spriteSheet.totalFrames);
+        for (var i = 0; i < this.props.length; i++)
         {
-            this.tileSpriteSheet = pc.checked(spriteSheet, null);
-            this.idOffset = pc.checked(idOffset, 0);
-            if (this.tileSpriteSheet)
-            {
-                this.props = new Array(spriteSheet.totalFrames);
-                for (var i = 0; i < this.props.length; i++)
-                {
-                    this.props[i] = new pc.Hashmap();
-                }
-            }
-        },
-
-        /**
-         * Draw a tile; typically for debugging or other strange purposes. Usually drawing is handled by the tile layer
-         * @param {Object} ctx Context to draw the tile upon
-         * @param {Number} tileNumber
-         * @param {Number} x Frame x position within the sprite sheet
-         * @param {Number} y Frame y position within the sprite sheet
-         */
-        drawTile:function (ctx, tileNumber, x, y)
-        {
-            tileNumber -= this.idOffset;
-            this.tileSpriteSheet.drawFrame(
-                ctx,
-                tileNumber % this.tileSpriteSheet.framesWide,
-                pc.Math.floor(tileNumber / this.tileSpriteSheet.framesWide),
-                x, y);
-        },
-
-        /**
-         * Adds a key/value property to a tile type
-         * @param {Number} tileNumber Tile number to add the tile to
-         * @param {String} key Key string
-         * @param {String} value Value to add
-         */
-        addProperty:function (tileNumber, key, value)
-        {
-            tileNumber -= this.idOffset;
-            this.props[tileNumber].put(key, value);
-        },
-
-        /**
-         * Checks if a particular tile number (tile type) has a given property set
-         * @param {Number} tileNumber Tile number to check
-         * @param {String} key The key to test for
-         * @return {Boolean} true if the property is set
-         */
-        hasProperty:function (tileNumber, key)
-        {
-            tileNumber -= this.idOffset;
-            return this.props[tileNumber].hasKey(key);
-        },
-
-        /**
-         * Gets all the properties associated with a given tile number
-         * @param {Number} tileNumber Tile number to get properties for
-         * @return {pc.Hashmap} Hashmap of the properties
-         */
-        getProperties:function (tileNumber)
-        {
-            tileNumber -= this.idOffset;
-            return this.props[tileNumber];
-        },
-
-        /**
-         * Returns the width of tiles in the tile set. By default this is the tile width from the sprite sheet, but
-         * feel free to override if you want to get all funky.
-         * @return {Number} width of tiles
-         */
-        getTileWidth:function()
-        {
-            return this.tileSpriteSheet.frameWidth;
-        },
-
-        /**
-         * Returns the height of tiles in the tile set. By default this is the tile height from the sprite sheet, but
-         * feel free to override if you want to get all funky.
-         * @return {Number} height of tiles
-         */
-        getTileHeight:function ()
-        {
-            return this.tileSpriteSheet.frameHeight;
-        },
-
-        /**
-         * Returns the total number of tiles in the tile set.  By default this is the total number of tiles
-         * in the sprite sheet.
-         * @return {Number} count of tiles
-         */
-        getTotalTiles:function ()
-        {
-          return this.tileSpriteSheet.totalFrames;
+          this.props[i] = new pc.Hashmap();
         }
+      }
+
+      this.drawOffsetX = pc.checked(drawOffsetX, 0);
+      this.drawOffsetY = pc.checked(drawOffsetY, 0);
+      this.idOffset = pc.checked(idOffset, 0);
+    },
+
+    /**
+     * Draw a tile; typically for debugging or other strange purposes. Usually drawing is handled by the tile layer
+     * @param {Object} ctx Context to draw the tile upon
+     * @param {Number} tileNumber
+     * @param {Number} x Frame x position within the sprite sheet
+     * @param {Number} y Frame y position within the sprite sheet
+     */
+    drawTile: function (ctx, tileNumber, x, y)
+    {
+      tileNumber -= this.idOffset;
+      this.tileSpriteSheet.drawFrame(
+        ctx,
+        tileNumber % this.tileSpriteSheet.framesWide,
+        pc.Math.floor(tileNumber / this.tileSpriteSheet.framesWide),
+        x + this.drawOffsetX, y + this.drawOffsetY);
+    },
+
+    /**
+     * Adds a key/value property to a tile type
+     * @param {Number} tileNumber Tile number to add the tile to
+     * @param {String} key Key string
+     * @param {String} value Value to add
+     */
+    addProperty: function (tileNumber, key, value)
+    {
+      tileNumber -= this.idOffset;
+      this.props[tileNumber].put(key, value);
+    },
+
+    /**
+     * Checks if a particular tile number (tile type) has a given property set
+     * @param {Number} tileNumber Tile number to check
+     * @param {String} key The key to test for
+     * @return {Boolean} true if the property is set
+     */
+    hasProperty: function (tileNumber, key)
+    {
+      tileNumber -= this.idOffset;
+      return this.props[tileNumber].hasKey(key);
+    },
+
+    /**
+     * Gets all the properties associated with a given tile number
+     * @param {Number} tileNumber Tile number to get properties for
+     * @return {pc.Hashmap} Hashmap of the properties
+     */
+    getProperties: function (tileNumber)
+    {
+      tileNumber -= this.idOffset;
+      return this.props[tileNumber];
+    },
+
+    /**
+     * Returns the width of tiles in the tile set. By default this is the tile width from the sprite sheet, but
+     * feel free to override if you want to get all funky.
+     * @return {Number} width of tiles
+     */
+    getTileWidth: function ()
+    {
+      return this.tileSpriteSheet.tileWidth;
+    },
+
+    /**
+     * Returns the height of tiles in the tile set. By default this is the tile height from the sprite sheet, but
+     * feel free to override if you want to get all funky.
+     * @return {Number} height of tiles
+     */
+    getTileHeight: function ()
+    {
+      return this.tileSpriteSheet.tileHeight;
+    }
 
 
-    });
+  });
 
 
 

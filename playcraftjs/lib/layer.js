@@ -121,6 +121,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
     scene: null,
     /** draw order of this layer, lower draws first (use setZIndex method to change in order to update the scene) */
     zIndex: 0,
+    /** offset all drawing by this x, y amount */
+    offset: null,
     /** current origin track -- layer's origin will automatically match the origin of another layer */
     originTrack: null,
     /** ratio of origin tracking on X */
@@ -147,6 +149,7 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
       this._worldPos = pc.Point.create(0, 0);
       this._screenPos = pc.Point.create(0, 0);
       this.zIndex = pc.checked(zIndex, 0);
+      this.offset = pc.Point.create(0,0);
       this.originTrack = null;
       this.originTrackXRatio = 0;
       this.originTrackYRatio = 0;
@@ -231,7 +234,7 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     screenX: function (x)
     {
-      return x + this.scene.viewPort.x - this.origin.x;
+      return x + this.scene.viewPort.x - this.origin.x + this.offset.x;
     },
 
     /**
@@ -241,7 +244,18 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     screenY: function (y)
     {
-      return y + this.scene.viewPort.y - this.origin.y;
+      return y + this.scene.viewPort.y - this.origin.y + this.offset.y;
+    },
+
+    /**
+     * Adjust the offset for drawing the layer (think of it like the top left starting position for the layer
+     * @param x
+     * @param y
+     */
+    setOffset: function(x, y)
+    {
+      this.offset.x = x;
+      this.offset.y = y;
     },
 
     /**

@@ -57,7 +57,7 @@ pc.systems.Input = pc.systems.EntitySystem.extend('pc.systems.Input',
 
                 if (input.actions)
                 {
-                    eventTarget = this;
+                    //eventTarget = this;
                     for (i = 0; i < input.actions.length; i++)
                     {
                         keys = input.actions[i][1];

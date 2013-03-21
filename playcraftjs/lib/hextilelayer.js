@@ -20,7 +20,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
     _hexSide: 0,
     _halfHexSide: 0,
     _yInc: 0,
-    _debug: true,
+    _debug: false,
 
     /**
      * Constructor for the tile layer
@@ -33,9 +33,9 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
     {
       // call my parent, but force prerendering off
       this._super(name, false, tileMap, tileSet);
-      this._hexSide = this.tileMap.tileHeight / Math.sqrt(3);
+      this._hexSide = Math.round(this.tileMap.tileHeight / Math.sqrt(3));
       this._halfHexSide = this._hexSide / 2;
-      this._yInc = this.tileMap.tileHeight - this._halfHexSide;
+      this._yInc = this.tileMap.tileHeight - this._halfHexSide + 1;
 
       // temps
       this._worldPosTemp = pc.Point.create(0, 0);
@@ -45,7 +45,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the tile x, y position given a screen position
-     * @param screenPos {pc.Point}
+     * @param {pc.Point} screenPos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
@@ -59,7 +59,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the tile x, y position given a world position
-     * @param worldPos {pc.Point}
+     * @param {pc.Point} worldPos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
@@ -85,7 +85,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
 
     /**
      * Get the world position of a given tile x, y
-     * @param tilePos {pc.Point}
+     * @param {pc.Point} tilePos
      * @param {pc.Point} [returnPos] Optional return point (so you can pass in a point to be set)
      * @returns {pc.Point}
      */
@@ -135,7 +135,7 @@ pc.HexTileLayer = pc.TileLayer.extend('pc.HexTileLayer',
           {
             this.tileMap.drawTile(hx, hy, this.screenX(xpos), this.screenY(ypos));
 
-            if (this.debug)
+            if (this._debug)
             {
               pc.device.ctx.fillStyle = '#888';
               pc.device.ctx.font = 'Arial 7pt';
