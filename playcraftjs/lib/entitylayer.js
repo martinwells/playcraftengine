@@ -61,6 +61,7 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
 
             // create the new layer and add it to the scene - when you have the name
             var n = new pc.EntityLayer(layerName, worldSizeX, worldSizeY, entityFactory);
+            n.configFromTMX(groupXML);
             scene.addLayer(n);
 
             // Parse object xml instances and turn them into entities
@@ -69,7 +70,7 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
             for (var i = 0; i < objs.length; i++)
             {
                 var objData = objs[i];
-                var entityType = null;
+                var entityType = objData.getAttribute('type');
                 var x = parseInt(objData.getAttribute('x'));
                 var y = parseInt(objData.getAttribute('y'));
                 var w = parseInt(objData.getAttribute('width'));
@@ -78,6 +79,7 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
 
                 // either it's a polygon shape, or it's a rectangle (has w and h)
                 var polygon = objData.getElementsByTagName("polygon");
+                if(polygon.length == 0) polygon = objData.getElementsByTagName("polyline");
                 if (polygon.length > 0)
                 {
                     var pointsString = polygon[0].getAttribute('points');

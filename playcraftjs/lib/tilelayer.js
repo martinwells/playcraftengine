@@ -73,13 +73,14 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
          * @param {Number} tileWidth Width of each tile
          * @param tileHeight Height of each tile
          */
-        loadFromTMX:function (scene, layerXML, tileWidth, tileHeight, tileSet)
+        loadFromTMX:function (scene, layerXML, tileWidth, tileHeight, tileSets)
         {
             var name = layerXML.getAttribute('name');
-            var newLayer = new pc.TileLayer(name, true, null, tileSet);
+            var newLayer = new pc.TileLayer(name, true, null, tileSets);
 
             // fill in the rest using the data from the TMX file
 
+            newLayer.configFromTMX(layerXML);
             newLayer.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
             scene.addLayer(newLayer);
         }
@@ -105,13 +106,13 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
          * @param {pc.TileSet} [tileSet] If no tile map is supplied, you can optional provide a tile set and a
          * tile map will be constructed using this tile set
          */
-        init:function (name, usePrerendering, tileMap, tileSet)
+        init:function (name, usePrerendering, tileMap, tileSets)
         {
             this._super(name);
             if (pc.valid(tileMap))
                 this.tileMap = tileMap;
             else
-                this.tileMap = new pc.TileMap(tileSet);
+                this.tileMap = new pc.TileMap(tileSets);
 
             this.usePrerendering = pc.checked(usePrerendering, true);
             if (this.tileMap && this.tileMap.tileWidth > 256)
@@ -172,15 +173,11 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                         {
                             if (x + tx < this.tileMap.tilesWide && y + ty < this.tileMap.tilesHigh)
                             {
-                                var tileType = this.tileMap.getTile(x + tx, y + ty);
-                                if (tileType >= 0)  // -1 means no tile
-                                {
-                                    this.tileMap.tileSet.drawTile(
-                                        ctx,
-                                        tileType,
-                                        (x * this.tileMap.tileWidth) - nx,
-                                        (y * this.tileMap.tileHeight) - ny);
-                                }
+                                  this.tileMap.drawTileTo(
+                                      ctx,
+                                      x + tx, y + ty,
+                                      (x * this.tileMap.tileWidth) - nx,
+                                      (y * this.tileMap.tileHeight) - ny);
                             }
                         }
                     }
@@ -226,13 +223,9 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
 
                 for (var x = tx, d = tx + tw; x < d; x++)
                 {
-                    var tileType = this.tileMap.tiles[y][x];
-                    if (tileType >= 0)  // -1 means no tile
-                    {
-                        this.tileMap.tileSet.drawTile(
-                            pc.device.ctx, tileType,
-                            this.screenX(x * this.tileMap.tileWidth), ypos);
-                    }
+                    this.tileMap.drawTileTo(
+                        pc.device.ctx, x, y,
+                        this.screenX(x * this.tileMap.tileWidth), ypos);
 
                     if (this.debugShowGrid)
                     {

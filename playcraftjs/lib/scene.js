@@ -403,44 +403,54 @@ pc.Scene = pc.Base.extend('pc.Scene',
             // todo: add support for multiple tile sets
 
             //
-            // TILESET
+            // TILESETS
             //
-            var tileSetXML = xmlDoc.getElementsByTagName('tileset')[0];
-            var tsName = tileSetXML.getAttribute('name');
-            var tsImageWidth = tileSetXML.getAttribute('width');
-            var tsImageHeight = tileSetXML.getAttribute('height');
-            var tileSheet = pc.device.loader.get(tsName);
-            pc.assert(tileSheet, 'Unable to locate tile image resource: ' + tsName + '. It must match the tileset name in tiled.');
+            var tileSets = [];
+            var tileSetNodes = xmlDoc.getElementsByTagName('tileset');
+            for(var i=0; i < tileSetNodes.length; i++) {
+              var tileSetXML = tileSetNodes[i];
+              var tsName = tileSetXML.getAttribute('name');
+              var tsImageWidth = tileSetXML.getAttribute('width');
+              var tsImageHeight = tileSetXML.getAttribute('height');
+              var tsTileWidth = pc.checked(tileSetXML.getAttribute('tilewidth'), tileWidth);
+              var tsTileHeight = pc.checked(tileSetXML.getAttribute('tileheight'), tileHeight);
+              var tsIdOffset = parseInt(pc.checked(tileSetXML.getAttribute('firstgid'), '1'))-1;
+              var tileSheetLoaderItem = pc.device.loader.get(tsName);
+              pc.assert(tileSheetLoaderItem, 'Unable to locate tile image resource: ' + tsName + '. It must match the tileset name in tiled.');
 
-            var tsImageResource = pc.device.loader.get(tsName).resource;
-            var tsSpriteSheet = new pc.SpriteSheet({ image:tsImageResource, frameWidth:tileWidth, frameHeight:tileHeight });
+              var tsImageResource = tileSheetLoaderItem.resource;
+              var tsSpriteSheet = new pc.SpriteSheet({ image:tsImageResource, frameWidth:tsTileWidth, frameHeight:tsTileHeight });
 
-            // create a tileset object which marries (one or more spritesheet's) and contains tileproperty data
-            // pulled from tiled
 
-            var tileSet = new pc.TileSet(tsSpriteSheet);
+              // create a tileset object which marries (one or more spritesheet's) and contains tileproperty data
+              // pulled from tiled
 
-            // load all the tile properties
-            var tiles = xmlDoc.getElementsByTagName('tile');
-            for (var p = 0; p < tiles.length; p++)
-            {
+              var tileSet = new pc.TileSet(tsSpriteSheet, tsIdOffset);
+              tileSets.push(tileSet);
+
+              // load all the tile properties
+              var tiles = tileSetXML.getElementsByTagName('tile');
+              for (var p = 0; p < tiles.length; p++)
+              {
                 var tile = tiles[p];
                 var tileId = parseInt(tile.getAttribute('id'));
 
                 var pr = tile.getElementsByTagName('properties')[0];
                 if(pr)
                 {
-                    var props = pr.getElementsByTagName('property');
+                  var props = pr.getElementsByTagName('property');
 
-                    for (var b = 0; b < props.length; b++)
-                    {
-                        var prop = props[b];
-                        var name = prop.getAttribute('name');
-                        var value = prop.getAttribute('value');
-                        tileSet.addProperty(tileId, name, value);
-                    }
+                  for (var b = 0; b < props.length; b++)
+                  {
+                    var prop = props[b];
+                    var name = prop.getAttribute('name');
+                    var value = prop.getAttribute('value');
+                    tileSet.addProperty(tileId + tsIdOffset, name, value);
+                  }
                 }
+              }
             }
+
 
             //
             // LAYERS
@@ -450,11 +460,11 @@ pc.Scene = pc.Base.extend('pc.Scene',
             {
                 switch(mapXML.getAttribute('orientation')) {
                     case 'isometric':
-                        pc.IsoTileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
+                        pc.IsoTileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSets);
                     break;
 
                     default:
-                        pc.TileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSet);
+                        pc.TileLayer.loadFromTMX(this, layers[m], tileWidth, tileHeight, tileSets);
                     break;
                 }
             }
