@@ -47,6 +47,8 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
     props: null,
     drawOffsetX: 0,
     drawOffsetY: 0,
+    /** First tile ID in this set */
+    idOffset:0,
 
     /**
      * Constructs a new tile set using the supplied tile sheet
@@ -54,7 +56,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
      * @param {Number} drawOffsetX optional offset to draw tiles at
      * @param {Number} drawOffsetY optional offset to draw tiles at
      */
-    init: function (spriteSheet, drawOffsetX, drawOffsetY)
+    init: function (spriteSheet, drawOffsetX, drawOffsetY, idOffset)
     {
       this.tileSpriteSheet = pc.checked(spriteSheet, null);
       if (this.tileSpriteSheet)
@@ -68,6 +70,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
 
       this.drawOffsetX = pc.checked(drawOffsetX, 0);
       this.drawOffsetY = pc.checked(drawOffsetY, 0);
+      this.idOffset = pc.checked(idOffset, 0);
     },
 
     /**
@@ -79,6 +82,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
      */
     drawTile: function (ctx, tileNumber, x, y)
     {
+      tileNumber -= this.idOffset;
       this.tileSpriteSheet.drawFrame(
         ctx,
         tileNumber % this.tileSpriteSheet.framesWide,
@@ -94,6 +98,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
      */
     addProperty: function (tileNumber, key, value)
     {
+      tileNumber -= this.idOffset;
       this.props[tileNumber].put(key, value);
     },
 
@@ -105,6 +110,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
      */
     hasProperty: function (tileNumber, key)
     {
+      tileNumber -= this.idOffset;
       return this.props[tileNumber].hasKey(key);
     },
 
@@ -115,6 +121,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
      */
     getProperties: function (tileNumber)
     {
+      tileNumber -= this.idOffset;
       return this.props[tileNumber];
     },
 

@@ -364,6 +364,30 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     onAction: function (actionName, event, pos, uiTarget)
     {
+    },
+
+    /**
+     * Parse properties from the XML, such as zIndex.
+     *
+     * @param layerXML XML Node to load properties from
+     */
+    configFromTMX:function(layerXML)
+    {
+      var pr = layerXML.getElementsByTagName('properties')[0];
+      if(pr)
+      {
+        var props = pr.getElementsByTagName('property');
+
+        for (var b = 0; b < props.length; b++)
+        {
+          var prop = props[b];
+          var name = prop.getAttribute('name');
+          var value = prop.getAttribute('value');
+          if(name.toLowerCase() == 'zindex') {
+            this.setZIndex(parseInt(value));
+          }
+        }
+      }
     }
 
   });
