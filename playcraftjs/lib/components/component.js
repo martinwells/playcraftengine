@@ -21,7 +21,9 @@ pc.components.Component = pc.Pooled.extend('pc.components.Component',
          */
         create:function ()
         {
-            return this._super();
+          var c = this._super();
+          c.active = true;
+          return  c;
         }
     },
     /** @lends pc.components.Component.prototype */
