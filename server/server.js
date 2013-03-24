@@ -7,7 +7,8 @@ var requirejs = require('requirejs');
 var express = require('express');
 var app = express(2020);
 var path = require('path');
-var webRoot = path.resolve(process.env.PLAYCRAFT_WEBROOT || './');
+var webRoot = path.resolve(process.env.PLAYCRAFT_WEBROOT || '.');
+var playcraftHome = path.resolve(process.env.PLAYCRAFT_HOME || '..');
 
 // Configuration
 app.configure(function()
@@ -18,8 +19,9 @@ app.configure(function()
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
-  if(process.env.PLAYCRAFT_HOME)
-    app.use('/playcraftjs', express.static(path.resolve(process.env.PLAYCRAFT_HOME+'/playcraftjs')));
+  ['playcraftjs/lib', 'demos', 'projects'].forEach(function(p) {
+    app.use('/'+p, express.static(path.resolve(playcraftHome+'/'+p)));
+  });
   app.use(express.static(webRoot));
 
   // if you want to make your own projects appear using different directories, add a static line here, e.g.
@@ -56,13 +58,13 @@ app.get('/', function(req, res)
  */
 app.get('/demos/:demoName/', function (req, res)
 {
-    app.set('views', '../demos/' + req.params.demoName);
+    app.set('views', playcraftHome+'/demos/' + req.params.demoName);
     res.render('index.html');
 });
 
 app.get('/projects/:projectName/', function (req, res)
 {
-    app.set('views', '../projects/' + req.params.projectName);
+    app.set('views', playcraftHome+'/projects/' + req.params.projectName);
     res.render('index.html');
 });
 
@@ -101,7 +103,7 @@ watch.createMonitor('../', function (monitor)
 var port = 2020;
 app.listen(port, function ()
 {
-  console.log("Playcraft Engine is running from "+webRoot);
+  console.log("Playcraft Engine is running from "+webRoot+" with demos, projects, and lib in "+playcraftHome);
   console.log("Connect using http://localhost:"+port+" or http://127.0.0.1:"+port);
 });
 
