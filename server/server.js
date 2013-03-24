@@ -6,44 +6,48 @@
 var requirejs = require('requirejs');
 var express = require('express');
 var app = express(2020);
+var path = require('path');
+var webRoot = path.resolve(process.env.PLAYCRAFT_WEBROOT || './');
 
 // Configuration
 app.configure(function()
 {
-    app.use(express.logger());
-    app.set('view engine', 'jade');
-    app.set('view options', { doctype:'html', pretty:true, layout:false });
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(app.router);
-    app.use(express.static('../'));
+  app.use(express.logger());
+  app.set('view engine', 'jade');
+  app.set('view options', { doctype:'html', pretty:true, layout:false });
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  if(process.env.PLAYCRAFT_HOME)
+    app.use('/playcraftjs', express.static(path.resolve(process.env.PLAYCRAFT_HOME+'/playcraftjs')));
+  app.use(express.static(webRoot));
 
-    // if you want to make your own projects appear using different directories, add a static line here, e.g.
-    //app.use(express.static('/myprojects/mygame/'));
+  // if you want to make your own projects appear using different directories, add a static line here, e.g.
+  //app.use(express.static('/myprojects/mygame/'));
 
-    app.use(express.static('static'));
-    app.engine('html', require('ejs').renderFile);
+  app.use(express.static('static'));
+  app.engine('html', require('ejs').renderFile);
 
 });
 
 
 app.configure('development', function()
 {
-    app.use(express.logger());
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(express.logger());
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 app.configure('production', function()
 {
-    app.use(express.logger());
-    app.use(express.errorHandler());
+  app.use(express.logger());
+  app.use(express.errorHandler());
 });
 
 // Routes
 app.get('/', function(req, res)
 {
-    app.set('views', './');
-    res.render('index.html');
+  app.set('views', webRoot);
+  res.render('index.html');
 });
 
 /**
@@ -94,10 +98,11 @@ watch.createMonitor('../', function (monitor)
 
 
 // Start the app server
-app.listen(2020, function ()
+var port = 2020;
+app.listen(port, function ()
 {
-    console.log("Playcraft Engine is running");
-    console.log("Connect using http://localhost:2020");
+  console.log("Playcraft Engine is running from "+webRoot);
+  console.log("Connect using http://localhost:"+port+" or http://127.0.0.1:"+port);
 });
 
 
