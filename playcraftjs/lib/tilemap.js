@@ -224,6 +224,9 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
       if(tileId != -1) {
         var tileSet = this.getTileSetForTileId(tileId);
         tileSet.drawTile(ctx, tileId, x, y);
+        return true;
+      } else {
+        return false;
       }
     },
 
