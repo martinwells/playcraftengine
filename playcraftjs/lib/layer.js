@@ -154,8 +154,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
       this.zIndex = pc.checked(zIndex, 0);
       this.offset = pc.Point.create(0,0);
       this.originTrack = null;
-      this.originTrackXRatio = 0;
-      this.originTrackYRatio = 0;
+      this.originTrackXRatio = 1;
+      this.originTrackYRatio = 1;
     },
 
     /**
@@ -299,10 +299,12 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     setOrigin: function (x, y)
     {
-      if (this.origin.x == Math.round(x) && this.origin.y == Math.round(y))
+      var ix = Math.round(x);
+      var iy = Math.round(y);
+      if (this.origin.x == ix && this.origin.y == iy)
         return false;
-      this.origin.x = Math.round(x);
-      this.origin.y = Math.round(y);
+      this.origin.x = ix;
+      this.origin.y = iy;
       return true;
     },
 
@@ -311,11 +313,6 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     process: function ()
     {
-      if (this.originTrackName)
-      {
-        this.originTrack = this.scene.get(this.originTrackName);
-        this.originTrackName = null;
-      }
       if (this.originTrack)
       {
         this.setOrigin(this.originTrack.origin.x * this.originTrackXRatio,
