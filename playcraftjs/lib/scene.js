@@ -425,7 +425,7 @@ pc.Scene = pc.Base.extend('pc.Scene',
               // create a tileset object which marries (one or more spritesheet's) and contains tileproperty data
               // pulled from tiled
 
-              var tileSet = new pc.TileSet(tsSpriteSheet, tsIdOffset);
+              var tileSet = new pc.TileSet(tsSpriteSheet, 0,0, tsIdOffset);
               tileSets.push(tileSet);
 
               // load all the tile properties
