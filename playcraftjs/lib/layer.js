@@ -130,6 +130,9 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
     /** ratio of origin tracking on Y */
     originTrackYRatio: 1,
 
+    /** When loading from TMX we have a layer name first, then bind to an actual layer after */
+    originTrackName: null,
+
     /**
      * World coordinate origin for this layer
      */
@@ -308,6 +311,11 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     process: function ()
     {
+      if (this.originTrackName)
+      {
+        this.originTrack = this.scene.get(this.originTrackName);
+        this.originTrackName = null;
+      }
       if (this.originTrack)
       {
         this.setOrigin(this.originTrack.origin.x * this.originTrackXRatio,
@@ -383,8 +391,20 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
           var prop = props[b];
           var name = prop.getAttribute('name');
           var value = prop.getAttribute('value');
-          if(name.toLowerCase() == 'zindex') {
-            this.setZIndex(parseInt(value));
+          switch(name.toLowerCase())
+          {
+            case 'zindex': this.setZIndex(pc.checked(parseInt(value), this.zIndex)); break;
+            case 'tracklayer':
+              if(value != this.name)
+                  this.originTrackName = value;
+              break;
+            case 'trackratio':
+              this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio);
+              this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio);
+              break;
+            case 'trackxratio': this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio); break;
+            case 'trackyratio': this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio); break;
+
           }
         }
       }
