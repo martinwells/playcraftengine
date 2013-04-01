@@ -166,22 +166,24 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
                     canvas.width = prw;
                     canvas.height = prh;
                     var ctx = canvas.getContext('2d');
-
+                    var empty = true;
                     for (var x = 0; x < tw; x++)
                     {
                         for (var y = 0; y < th; y++)
                         {
                             if (x + tx < this.tileMap.tilesWide && y + ty < this.tileMap.tilesHigh)
                             {
-                                  this.tileMap.drawTileTo(
+                                  if(this.tileMap.drawTileTo(
                                       ctx,
                                       x + tx, y + ty,
                                       (x * this.tileMap.tileWidth) - nx,
-                                      (y * this.tileMap.tileHeight) - ny);
+                                      (y * this.tileMap.tileHeight) - ny))
+                                    empty = false;
                             }
                         }
                     }
 
+                    if(empty) canvas = null;
                     this.prerenders[cy][cx] = canvas;
                 }
             }
@@ -258,9 +260,15 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
             maxPY = Math.min(maxPY, this.prerenders.length);
 
             for (var cy = startPY; cy < maxPY; cy++)
+            {
                 for (var cx = startPX; cx < maxPX; cx++)
-                    pc.device.ctx.drawImage(this.prerenders[cy % this.prerenders.length][cx % this.prerenders[0].length],
-                        drawX + (cx * this.prerenderSize), drawY + (cy * this.prerenderSize));
+                {
+                   var prerender = this.prerenders[cy % this.prerenders.length][cx % this.prerenders[0].length];
+                   if(prerender)
+                      pc.device.ctx.drawImage(prerender,
+                          drawX + (cx * this.prerenderSize), drawY + (cy * this.prerenderSize));
+                }
+            }
         }
 
 
