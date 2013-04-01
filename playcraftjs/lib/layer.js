@@ -130,6 +130,9 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
     /** ratio of origin tracking on Y */
     originTrackYRatio: 1,
 
+    /** When loading from TMX we have a layer name first, then bind to an actual layer after */
+    originTrackName: null,
+
     /**
      * World coordinate origin for this layer
      */
@@ -151,8 +154,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
       this.zIndex = pc.checked(zIndex, 0);
       this.offset = pc.Point.create(0,0);
       this.originTrack = null;
-      this.originTrackXRatio = 0;
-      this.originTrackYRatio = 0;
+      this.originTrackXRatio = 1;
+      this.originTrackYRatio = 1;
     },
 
     /**
@@ -296,10 +299,12 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     setOrigin: function (x, y)
     {
-      if (this.origin.x == Math.round(x) && this.origin.y == Math.round(y))
+      var ix = Math.round(x);
+      var iy = Math.round(y);
+      if (this.origin.x == ix && this.origin.y == iy)
         return false;
-      this.origin.x = Math.round(x);
-      this.origin.y = Math.round(y);
+      this.origin.x = ix;
+      this.origin.y = iy;
       return true;
     },
 
@@ -383,8 +388,20 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
           var prop = props[b];
           var name = prop.getAttribute('name');
           var value = prop.getAttribute('value');
-          if(name.toLowerCase() == 'zindex') {
-            this.setZIndex(parseInt(value));
+          switch(name.toLowerCase())
+          {
+            case 'zindex': this.setZIndex(pc.checked(parseInt(value), this.zIndex)); break;
+            case 'tracklayer':
+              if(value != this.name)
+                  this.originTrackName = value;
+              break;
+            case 'trackratio':
+              this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio);
+              this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio);
+              break;
+            case 'trackxratio': this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio); break;
+            case 'trackyratio': this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio); break;
+
           }
         }
       }
