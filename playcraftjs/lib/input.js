@@ -281,7 +281,10 @@ pc.Input = pc.Base('pc.Input',
      */
     fireAction: function (eventCode, event)
     {
-      var bindingSet = this.actionBindings.get(pc.InputType.getName(eventCode));
+      var keyName = pc.InputType.getName(eventCode);
+      if(keyName == null) // Unsupported key code, ignore
+        return false;
+      var bindingSet = this.actionBindings.get(keyName);
       if (bindingSet == null) return false;
 
       // cycle through all the bindings against this input type and fire the object callbacks
@@ -413,7 +416,7 @@ pc.Input = pc.Base('pc.Input',
       var keyName = pc.InputType.getName(eventCode);
       if (keyName == null)
       {
-        this.log("Unknown keycode = " + eventCode);
+        this.warn("Unknown keycode = " + eventCode);
         return false;
       }
 
