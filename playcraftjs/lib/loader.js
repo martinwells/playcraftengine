@@ -230,6 +230,7 @@ pc.Loader = pc.Base.extend('pc.Loader',
         */
         _onLoad:function (resource)
         {
+            if(this.finished) return; // Ignore late/repeated notifications from looping sounds
             var res = this.resources.get(resource.name);
             if (res == null) {
                 this.error('Unable to get resource ['+resource.name+'] - Please make sure you are using all lowercase.');
@@ -247,6 +248,7 @@ pc.Loader = pc.Base.extend('pc.Loader',
 
         _onError:function (resource)
         {
+            if(this.finished) return; // Ignore late/repeated notifications from looping sounds
             var res = this.resources.get(resource.name);
             res.state = this.State.FAILED;
             this.progress++;
