@@ -99,7 +99,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
     addProperty: function (tileNumber, key, value)
     {
       tileNumber -= this.idOffset;
-      this.props[tileNumber].put(key, value);
+      this.props[tileNumber - 1].put(key, value);
     },
 
     /**
@@ -111,7 +111,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
     hasProperty: function (tileNumber, key)
     {
       tileNumber -= this.idOffset;
-      return this.props[tileNumber].hasKey(key);
+      return this.props[tileNumber - 1].hasKey(key);
     },
 
     /**
@@ -122,7 +122,7 @@ pc.TileSet = pc.Base.extend('pc.TileSet',
     getProperties: function (tileNumber)
     {
       tileNumber -= this.idOffset;
-      return this.props[tileNumber];
+      return this.props[tileNumber - 1];
     },
 
     /**
