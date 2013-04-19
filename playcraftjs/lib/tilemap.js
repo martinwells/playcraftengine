@@ -86,9 +86,9 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
       if (tileNumber == 0)
         return false;
 
-      for(var i=0; i < this.tileSets.length; i++) {
+      //for(var i=0; i < this.tileSets.length; i++) {
 
-      }
+      //}
       return this.getTileSetForTileId(tileNumber).hasProperty(tileNumber, property);
     },
 
@@ -187,7 +187,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
       for(i=1; i < this.tileSets.length; i++)
       {
         var tileSet = this.tileSets[i];
-        if(tileSet.idOffset > tileId) {
+        if(tileSet.idOffset >= tileId) {
           break;
         }
       }
