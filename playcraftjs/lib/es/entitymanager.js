@@ -218,7 +218,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
          */
         getComponent: function(entity, componentType)
         {
-            return this.componentsByEntityPlusType.get(entity.objectId + ':' + componentType);
+            return this.componentsByEntityPlusType.get(entity.uniqueId + ':' + componentType);
         },
 
         /**
@@ -228,7 +228,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
          */
         getComponents: function(entity)
         {
-            return this.componentsByEntity.get(entity.objectId);
+            return this.componentsByEntity.get(entity.uniqueId);
         },
 
         /**
@@ -238,7 +238,7 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
          */
         hasComponentOfType: function(entity, componentType)
         {
-            return this.componentsByEntityPlusType.containsKey(entity.objectId + ':' + componentType);
+            return this.componentsByEntityPlusType.containsKey(entity.uniqueId + ':' + componentType);
         },
 
         //
@@ -247,15 +247,15 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
         _addToComponentMap: function(entity, component)
         {
             // Seeing a getType error here? Likely, you didn't call .create on your component? just maybe? hint hint
-            if (this.componentsByEntityPlusType.get(entity.objectId + ':' + component.getType()))
+            if (this.componentsByEntityPlusType.get(entity.uniqueId + ':' + component.getType()))
             {
                 // multiple components of the same type are not supported due to performance reasons
                 throw ('adding component ' + component.getType() +
                     ' to entity ' + entity + ' when it already has one of that type');
             }
-            this.componentsByEntityPlusType.put(entity.objectId + ':' + component.getType(), component);
+            this.componentsByEntityPlusType.put(entity.uniqueId + ':' + component.getType(), component);
             // seeing a getType error above? -- you forgot to use .create when constructing the component
-            this.componentsByEntity.put(entity.objectId, component);
+            this.componentsByEntity.put(entity.uniqueId, component);
         },
 
         _removeFromComponentMap: function(entity, component)
@@ -263,8 +263,8 @@ pc.EntityManager = pc.Base.extend('pc.EntityManager',
             // need to handle removing an entity that has attachments, remove the attached entities as well
             component.onBeforeRemoved();
 
-            this.componentsByEntityPlusType.remove(entity.objectId + ':' + component.getType());
-            this.componentsByEntity.remove(entity.objectId);
+            this.componentsByEntityPlusType.remove(entity.uniqueId + ':' + component.getType());
+            this.componentsByEntity.remove(entity.uniqueId);
             component.release();
         }
 
