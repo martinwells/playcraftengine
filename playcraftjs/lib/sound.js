@@ -116,8 +116,13 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
         pause: function()
         {
             if (!this.canPlay()) return;
-            for (var i=0, len=this.sounds.length; i < len; i++)
-                this.sounds[i].pause();
+            for (var i=0, len=this.sounds.length; i < len; i++) {
+              var sound = this.sounds[i];
+              sound.pause();
+              if(pc.device.isCocoonJS) {
+                  sound.paused = true;
+              }
+            }
         },
 
         /**
@@ -197,6 +202,14 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                 var n = new Audio();
                 n.preload = 'auto';
 
+                if(pc.device.isCocoonJS) {
+                  (function(name, i, n) {
+                    n.ended = n.paused = true;
+                    n.addEventListener("ended", function() {
+                      console.log('ended '+name+'['+i+']');
+                      n.ended = true; });
+                  }(this.name,i,n));
+                }
                 // setup event handlers for this class -- we'll call the callbacks from there
                 n.addEventListener("canplaythrough", this.onLoad.bind(this), false);
                 n.addEventListener("error", this.onError.bind(this), false);
@@ -209,6 +222,7 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                 if (pc.device.isAppMobi)
                     // force an onload for appmodi -- since it wont create one and the load is almost instant
                     this.onLoad(null);
+
             }
         },
 
@@ -259,12 +273,17 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
             // find a free channel and play the sound (if there is one free)
             for (var i=0, len=this.sounds.length; i < len; i++)
             {
-                if (this.sounds[i].paused || this.sounds[i].ended)
+                var sound = this.sounds[i];
+                console.log('sound '+this.name+'['+i+'] paused? '+sound.paused+' ended? '+sound.ended);
+                if (sound.paused || sound.ended)
                 {
                     if (loop)
-                        this.sounds[i].loop = true;
-                    this.sounds[i].play();
-                    return this.sounds[i];
+                        sound.loop = true;
+                    sound.play();
+                    if(pc.device.isCocoonJS) {
+                        sound.ended = sound.paused = false;
+                    }
+                    return sound;
                 }
             }
 
