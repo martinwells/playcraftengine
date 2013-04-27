@@ -206,7 +206,6 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
                   (function(name, i, n) {
                     n.ended = n.paused = true;
                     n.addEventListener("ended", function() {
-                      console.log('ended '+name+'['+i+']');
                       n.ended = true; });
                   }(this.name,i,n));
                 }
@@ -274,7 +273,6 @@ pc.Sound = pc.Base.extend('pc.Sound', {},
             for (var i=0, len=this.sounds.length; i < len; i++)
             {
                 var sound = this.sounds[i];
-                console.log('sound '+this.name+'['+i+'] paused? '+sound.paused+' ended? '+sound.ended);
                 if (sound.paused || sound.ended)
                 {
                     if (loop)
