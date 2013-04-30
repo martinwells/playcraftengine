@@ -335,19 +335,20 @@ pc.Input = pc.Base('pc.Input',
     _onReady: function ()
     {
       // touch input
-      pc.device.canvas.addEventListener('touchstart', this._touchStart.bind(this), true);
-      pc.device.canvas.addEventListener('touchend', this._touchEnd.bind(this), true);
-      pc.device.canvas.addEventListener('touchmove', this._touchMove.bind(this), true);
+      var eventSource = pc.device.isCocoonJS ? document.body : pc.device.canvas;
+      eventSource.addEventListener('touchstart', this._touchStart.bind(this), true);
+      eventSource.addEventListener('touchend', this._touchEnd.bind(this), true);
+      eventSource.addEventListener('touchmove', this._touchMove.bind(this), true);
 
       // mouse input
-      pc.device.canvas.addEventListener('mouseup', this._mouseUp.bind(this), true);
-      pc.device.canvas.addEventListener('mousedown', this._mouseDown.bind(this), true);
-      pc.device.canvas.addEventListener('mousemove', this._mouseMove.bind(this), true);
+      eventSource.addEventListener('mouseup', this._mouseUp.bind(this), true);
+      eventSource.addEventListener('mousedown', this._mouseDown.bind(this), true);
+      eventSource.addEventListener('mousemove', this._mouseMove.bind(this), true);
 
       if (!pc.device.isCocoonJS)
       {
-        pc.device.canvas.addEventListener('mousewheel', this._mouseWheel.bind(this), true);
-        pc.device.canvas.addEventListener('contextmenu', this._contextMenu.bind(this), true);
+        eventSource.addEventListener('mousewheel', this._mouseWheel.bind(this), true);
+        eventSource.addEventListener('contextmenu', this._contextMenu.bind(this), true);
 
         // key input
         window.addEventListener('keydown', this._keyDown.bind(this), true);
