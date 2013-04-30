@@ -213,7 +213,8 @@ pc.Device = pc.Base.extend('pc.Device',
       if (this.isiOS)
       {
         this.showDebug = false;
-        this.soundEnabled = false;
+        if(!this.isCocoonJS)
+          this.soundEnabled = false;
       }
 
       if (this.started) return; // check we haven't already started
