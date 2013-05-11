@@ -11,11 +11,14 @@ pc.components.Mover = pc.components.Component.extend('pc.components.Mover',
     }
   },
   {
+    _bound: false,
+
     targetPos:0, // where am I headed
     time:0, // time frame to move over (how fast we move)
+    speed:0, // speed to move at
     onComplete: null, // optional callback when completed movement
 
-    _timeLeft: 0,
+    _distanceLeft: 0,
 
     init:function (options)
     {
@@ -27,9 +30,13 @@ pc.components.Mover = pc.components.Component.extend('pc.components.Mover',
     config:function (options)
     {
       this.targetPos = options.targetPos;
-      this.time = pc.checked(options.time, 500);
+      this.time = options.time;
+      this.speed = options.speed;
+      if (this.speed != null && this.time != null)
+        throw 'Use either time or speed, not both';
+      if (this.speed)
+        this.speed /= 100;
       this.onComplete = options.onComplete;
-      this._timeLeft = this.time;
     }
   });
 

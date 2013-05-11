@@ -22,13 +22,28 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
       var mover = entity.getComponent('mover');
       var spatial = entity.getComponent('spatial');
 
-      // how far left to move
-      var distancePerMS = spatial.pos.distance(mover.targetPos) / mover.time;
+      if (!mover._bound)
+      {
+        // set the distance we need to cover on the first run through
+        mover._distanceLeft = spatial.pos.distance(mover.targetPos);
+      }
+
+      var speed = mover.speed;
+      if (mover.time)
+        speed = spatial.pos.distance(mover.targetPos) / mover.time;
 
       var dir = spatial.pos.dirTo(mover.targetPos);
-      spatial.pos.moveInDir(dir, distancePerMS * pc.device.elapsed);
 
-      if (spatial.pos == mover.targetPos)
+      // figure out how far to move this cycle
+      var distanceThisCycle = speed * pc.device.elapsed;
+      // check we aren't jumping over where we need to be
+      if (mover._distanceLeft - distanceThisCycle < 0)
+        distanceThisCycle = mover._distanceLeft;
+
+      spatial.pos.moveInDir(dir, distanceThisCycle);
+      mover._distanceLeft -= distanceThisCycle;
+
+      if (mover._distanceLeft < 0)
       {
         mover.active = false;
         if (mover.onComplete)
