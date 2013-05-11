@@ -1,7 +1,7 @@
 
 
 // Moves an entity to a target location over time
-Mover = pc.components.Component.extend('Mover',
+pc.components.Mover = pc.components.Component.extend('pc.components.Mover',
   {
     create: function (options)
     {
