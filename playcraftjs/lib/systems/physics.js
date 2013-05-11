@@ -678,7 +678,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
       if (ph._body)
       {
         this.world.DestroyBody(ph._body);
-        var at = entity.getComponent('attachment');
+        var at = entity.getComponent('joint');
         if (at)
         {
           this.world.DestroyJoint(at._joint);
