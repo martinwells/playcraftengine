@@ -26,6 +26,7 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
       {
         // set the distance we need to cover on the first run through
         mover._distanceLeft = spatial.pos.distance(mover.targetPos);
+        mover._bound = true;
       }
 
       var speed = mover.speed;
@@ -43,7 +44,7 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
       spatial.pos.moveInDir(dir, distanceThisCycle);
       mover._distanceLeft -= distanceThisCycle;
 
-      if (mover._distanceLeft < 0)
+      if (mover._distanceLeft <= 0)
       {
         mover.active = false;
         if (mover.onComplete)
