@@ -27,9 +27,8 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
 
       var dir = spatial.pos.dirTo(mover.targetPos);
       spatial.pos.moveInDir(dir, distancePerMS * pc.device.elapsed);
-      mover._timeLeft -= pc.device.elapsed;
 
-      if (mover._timeLeft <= 0)
+      if (spatial.pos == mover.targetPos)
       {
         mover.active = false;
         if (mover.onComplete)
