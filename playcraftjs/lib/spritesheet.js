@@ -375,7 +375,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     drawFrame: function (ctx, frameX, frameY, x, y, angle)
     {
       if (!this.image.loaded) return;
-      if (this.alpha < 1) ctx.globalAlpha = this.alpha;
+      if (this.alpha != 1)
+        ctx.globalAlpha = this.alpha;
 
       if (this.scaleX != 1 || this.scaleY != 1)
         this.image.setScale(this.scaleX, this.scaleY);
@@ -392,7 +393,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
       if (this.image.scaleX != 1 || this.image.scaleY != 1)
         this.image.setScale(1, 1);
-      if (this.alpha < 1) ctx.globalAlpha = 1;
+      if (this.alpha != 1) ctx.globalAlpha = 1;
       if (this.compositeOperation != null)
         this.image.setCompositeOperation('source-over');
     },

@@ -415,6 +415,13 @@ pc.Point = pc.Pooled('pc.Point',
     /** y position of the point */
     y: 0,
 
+    init: function(x, y)
+    {
+      this._super();
+      this.x = x;
+      this.y = y;
+    },
+
     /**
      * Tests whether one point is equal to another
      * @param {pc.Point} other Other point to test against
@@ -467,12 +474,19 @@ pc.Point = pc.Pooled('pc.Point',
 
     /**
      * Adds to the point
-     * @param {Number} x Amount to add to x
+     * @param {Number|pc.Point} xOrPoint Amount to add to x (or alternatively a pc.Point to add)
      * @param {Number} y Amount to add to y
      * @return {pc.Point} This point
      */
-    add: function (x, y)
+    add: function (xOrPoint, y)
     {
+      if (arguments.length == 1)
+      {
+        this.x += xOrPoint.x;
+        this.y += xOrPoint.y;
+        return this;
+      }
+
       this.x += x;
       this.y += y;
       return this;

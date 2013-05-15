@@ -166,7 +166,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
      */
     getTile: function (tx, ty)
     {
-      if (!this.isOnMap(tx, ty)) return -1;
+      if (!this.isValidTile(tx, ty)) return -1;
       return this.tiles[ty][tx];
     },
 
