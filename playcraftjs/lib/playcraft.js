@@ -196,6 +196,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('components/text.js');
         loader.add('components/sprite.js');
         loader.add('components/layout.js');
+        loader.add('components/mover.js');
         loader.add('components/particleemitter.js');
         loader.add('systems/system.js');
         loader.add('es/entitymanager.js');
@@ -204,6 +205,7 @@ pc.start = function(canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
         loader.add('systems/physics.js');
         loader.add('systems/effects.js');
         loader.add('systems/particles.js');
+        loader.add('systems/mover.js');
         loader.add('systems/input.js');
         loader.add('systems/expiry.js');
         loader.add('systems/activation.js');

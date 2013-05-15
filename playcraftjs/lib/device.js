@@ -171,18 +171,22 @@ pc.Device = pc.Base.extend('pc.Device',
       {
         if (this.screen != null)
           this.screen.release();
-        this.screen = pc.Dim.create(document.body.offsetWidth, document.body.offsetHeight);
+
+        this.screen = pc.Dim.create(window.innerWidth, window.innerHeight);
 
         this.canvas.width = this.screen.x;
         this.canvas.height = this.screen.y;
-        this.canvas.innerWidth = this.screen.x;
-        this.canvas.innerHeight = this.screen.y;
+        if (!this.isCocoonJS)
+        {
+          this.canvas.innerWidth = this.screen.x;
+          this.canvas.innerHeight = this.screen.y;
+        }
         this.canvasWidth = this.screen.x;
         this.canvasHeight = this.screen.y;
       } else
       {
         // if the game canvas is in a surrounding div, size based on that
-        if (this.isiPad || this.isiPhone)
+        if (this.isiPad || this.isiPhone || this.isCocoonJS)
         {
           this.canvas.width = window.innerWidth;
           this.canvas.height = window.innerHeight;
@@ -213,7 +217,8 @@ pc.Device = pc.Base.extend('pc.Device',
       if (this.isiOS)
       {
         this.showDebug = false;
-        this.soundEnabled = false;
+        if(!this.isCocoonJS)
+          this.soundEnabled = false;
       }
 
       if (this.started) return; // check we haven't already started
@@ -222,24 +227,34 @@ pc.Device = pc.Base.extend('pc.Device',
         throw "Invalid game class";
 
       if (this.isCocoonJS)
+      {
         this.canvas = document.createElement('screencanvas');
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
       else
+      {
         this.canvas = document.getElementById(this.canvasId);
+
+        if (!this.canvas)
+        {
+          // no canvas supplied, let's make one and fill the screen with it
+          this.canvas = document.createElement('canvas');
+//          this.canvas.width = window.innerWidth;
+//          this.canvas.height = window.innerHeight;
+        }
+      }
 
       if (!this.canvas)
         throw 'Abort! Could not attach to a canvas element using the id [' + this.canvasId + ']. ' +
           'Add a canvas element to your HTML, such as <canvas id="pcGameCanvas"></canvas>';
-      this.input._onReady();
+
       this.ctx = this.canvas.getContext('2d');
 
       // automatically resize to match my parent container
       this.panelElement = this.canvas.parentNode;
       this.onResize();
       this.info('Canvas is ' + this.screen);
-
-      // experimental webgl renderer
-      // WebGL2D.enable(this.canvas); // adds "webgl-2d" to cvs
-      // this.ctx = this.canvas.getContext('webgl-2d');
 
       // init the debug panel
       if (this.showDebug)
@@ -254,6 +269,7 @@ pc.Device = pc.Base.extend('pc.Device',
       // give the game a chance to do something at the start
       // construct the game class and fire onReady
 
+      this.input._onReady();
       this.game.onReady();
 
       // start the central game timer

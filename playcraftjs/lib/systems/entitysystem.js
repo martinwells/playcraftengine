@@ -73,7 +73,10 @@ pc.systems.EntitySystem = pc.systems.System.extend('pc.systems.EntitySystem',
 
         /**
          * Removes an entity from this system, but checks to see if it still matches first (has a component of
-         * the correct type). This is called by the entity manager when a component is removed
+         * the correct type). This is called by the entity manager when a component is removed. Typically
+         * this is called after a component has been removed. We then check if it's ok to pull the entity which
+         * contained the component from the system, but we have to make sure there isn't another component on the
+         * entity that still matches for this system (in which case we don't remove it).
          * @param {pc.Entity} entity Entity to remove
          */
         removeIfNotMatched: function(entity)

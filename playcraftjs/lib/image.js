@@ -3,6 +3,137 @@
  * See licence.txt for details
  */
 
+
+pc.BaseImage = pc.Base.extend('pc.BaseImage',
+    {},
+    {
+      /** Width of the image; set upon loading, can be overridden after load */
+      width:0,
+      /** Height of the image; set upon loading, can be overridden after load */
+      height:0,
+      /** Source image element */
+      image:null,
+      /** x-scale to draw the image at */
+      scaleX:1,
+      /** y-scale to draw the image at */
+      scaleY:1,
+      /** alpha level to draw the image at (0.5=50% transparent) */
+      alpha:1,
+      /** Composite operation to draw the image with, e.g. 'lighter' */
+      compositeOperation:null,
+
+
+      /**
+       * Change the alpha level to draw the image at (0.5 = 50% transparent)
+       * @param {Number} a Alpha level
+       */
+      setAlpha:function (a)
+      {
+        this.alpha = a;
+      },
+
+      /**
+       * Change the x and/or y scale to draw the image at. If you want to scale an image to a particular size,
+       * just generate the scale by dividing one size by another, e.g. current image size 500, 500 and you want to
+       * scale to 750, 750, then do setScale( 750/500, 750/500 ).
+       * @param {Number} scaleX x-scale to draw at (2 = 200% wide, -1 = reversed normal on x)
+       * @param {Number} scaleY y-scale to draw at (2 = 200% high, -1 = reversed normal on y)
+       */
+      setScale:function (scaleX, scaleY)
+      {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+      },
+
+      /**
+       * Sets the componsite drawing operation for this image.
+       * @param {String} o Operation to use (e.g. 'lighter')
+       */
+      setCompositeOperation:function (o)
+      {
+        this.compositeOperation = o;
+      },
+
+      /**
+       * Draw the image onto a context
+       * @param {Context} ctx Context to draw the sprite image on
+       * @param {Number} sx Source position in the image (or detination x if only 3 params)
+       * @param {Number} sy Source position in the image (or destination y if only 3 params)
+       * @param {Number} x x-position destination x position to draw the image at
+       * @param {Number} y y-position destination y position to draw the image at
+       * @param {Number} width Width to draw (will clip the image edge)
+       * @param {Number} height Height to draw (will clip the image edge)
+       * @param {Number} rotationAngle Angle to draw the image at
+       */
+      draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
+      {
+        // scale testing
+        if (this.compositeOperation != null)
+          ctx.globalCompositeOperation = this.compositeOperation;
+
+        // simple version of draw, no source x, y, just draw the image at x, y
+        if (arguments.length == 3)
+        {
+          ctx.save();
+          if (this.alpha != 1)
+            ctx.globalAlpha = this.alpha;
+          ctx.translate(sx + (this.width / 2), sy + (this.height / 2));
+          ctx.scale(this.scaleX, this.scaleY);
+          ctx.drawImage(this.image, 0, 0, this.width, this.height, (-this.width / 2),
+              (-this.height / 2), this.width, this.height);
+          ctx.restore();
+        }
+        else
+        {
+          if (pc.valid(rotationAngle))
+          {
+            ctx.save();
+
+            if (this.alpha != 1)
+              ctx.globalAlpha = this.alpha;
+            if (this.scaleX < 0 || this.scaleY < 0)
+            {
+              var yf = this.scaleY == 1 ? 0 : this.scaleY;
+              var xf = this.scaleX == 1 ? 0 : this.scaleX;
+
+              ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
+            } else
+              ctx.translate(x + (width / 2), y + (height / 2));
+
+            ctx.rotate(rotationAngle * (Math.PI / 180));
+            ctx.scale(this.scaleX, this.scaleY);
+            ctx.drawImage(this.image, sx, sy, width, height, (-width / 2), (-height / 2), width, height);
+            ctx.restore();
+          }
+          else
+          {
+            ctx.save();
+
+            if (this.alpha != 1)
+              ctx.globalAlpha = this.alpha;
+            if (this.scaleX < 0 || this.scaleY < 0)
+            {
+              var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
+              var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
+
+              ctx.translate(x + (-(width / 2) * xf2), y + (-(height / 2) * yf2));
+            } else
+              ctx.translate(x, y);
+
+            ctx.scale(this.scaleX, this.scaleY);
+            ctx.drawImage(this.image, sx, sy, width, height, 0, 0, width, height);
+            ctx.restore();
+          }
+        }
+
+        if (this.compositeOperation != null)
+          ctx.globalCompositeOperation = 'source-over';
+        pc.device.elementsDrawn++;
+
+      },
+
+
+    })
 /**
  * @class pc.Image
  * @description
@@ -11,17 +142,11 @@
  * A basic image resource. You can use this class to acquire images (loaded from a URI) and then draw them on-screen
  * with effects such as scaling, rotation, compositing and alpha.<p>
  */
-pc.Image = pc.Base.extend('pc.Image',
+pc.Image = pc.BaseImage.extend('pc.Image',
     /** @lends pc.Image */
     {},
     /** @lends pc.Image.prototype */
     {
-        /** Width of the image; set upon loading, can be overridden after load */
-        width:0,
-        /** Height of the image; set upon loading, can be overridden after load */
-        height:0,
-        /** Source image element */
-        image:null,
         /** Source URI used to load the image */
         src:null,
         /** Resource name */
@@ -32,18 +157,13 @@ pc.Image = pc.Base.extend('pc.Image',
         onLoadCallback:null,
         /** Optional function called if this image fails to load */
         onErrorCallback:null,
-        /** x-scale to draw the image at */
-        scaleX:1,
-        /** y-scale to draw the image at */
-        scaleY:1,
-        /** alpha level to draw the image at (0.5=50% transparent) */
-        alpha:1,
-        /** Composite operation to draw the image with, e.g. 'lighter' */
-        compositeOperation:null,
 
         /**
          * Constructs a new pc.Image. If the pc.device.loader has already started then the image will be
          * immediately loaded, otherwise it will wait for the resource loader to handle the loading.
+         *
+         * Width and height will be set automatically on load.
+         *
          * @param {String} name Name to give the image resource
          * @param {String} src URI for the image
          * @param {Function} onLoadCallback Function to be called once the image has been loaded
@@ -72,37 +192,6 @@ pc.Image = pc.Base.extend('pc.Image',
         },
 
         /**
-         * Change the alpha level to draw the image at (0.5 = 50% transparent)
-         * @param {Number} a Alpha level
-         */
-        setAlpha:function (a)
-        {
-            this.alpha = a;
-        },
-
-        /**
-         * Change the x and/or y scale to draw the image at. If you want to scale an image to a particular size,
-         * just generate the scale by dividing one size by another, e.g. current image size 500, 500 and you want to
-         * scale to 750, 750, then do setScale( 750/500, 750/500 ).
-         * @param {Number} scaleX x-scale to draw at (2 = 200% wide, -1 = reversed normal on x)
-         * @param {Number} scaleY y-scale to draw at (2 = 200% high, -1 = reversed normal on y)
-         */
-        setScale:function (scaleX, scaleY)
-        {
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-        },
-
-        /**
-         * Sets the componsite drawing operation for this image.
-         * @param {String} o Operation to use (e.g. 'lighter')
-         */
-        setCompositeOperation:function (o)
-        {
-            this.compositeOperation = o;
-        },
-
-        /**
          * Load an image directly
          * @param {Function} onLoadCallback Function to be called once the image has been loaded
          * @param {Function} onErrorCallback Function to be called if the image fails to load
@@ -126,84 +215,6 @@ pc.Image = pc.Base.extend('pc.Image',
         {
             this.loaded = false;
             this.load();
-        },
-
-        /**
-         * Draw the image onto a context
-         * @param {Context} ctx Context to draw the sprite image on
-         * @param {Number} sx Source position in the image (or detination x if only 3 params)
-         * @param {Number} sy Source position in the image (or destination y if only 3 params)
-         * @param {Number} x x-position destination x position to draw the image at
-         * @param {Number} y y-position destination y position to draw the image at
-         * @param {Number} width Width to draw (will clip the image edge)
-         * @param {Number} height Height to draw (will clip the image edge)
-         * @param {Number} rotationAngle Angle to draw the image at
-         */
-        draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
-        {
-            // scale testing
-            if (this.compositeOperation != null)
-                ctx.globalCompositeOperation = this.compositeOperation;
-
-            // simple version of draw, no source x, y, just draw the image at x, y
-            if (arguments.length == 3)
-            {
-                ctx.save();
-                if (this.alpha != 1)
-                    ctx.globalAlpha = this.alpha;
-                ctx.translate(sx + (this.width / 2), sy + (this.height / 2));
-                ctx.scale(this.scaleX, this.scaleY);
-                ctx.drawImage(this.image, 0, 0, this.width, this.height, (-this.width / 2),
-                    (-this.height / 2), this.width, this.height);
-                ctx.restore();
-            }
-            else
-            {
-                if (pc.valid(rotationAngle))
-                {
-                    ctx.save();
-
-                    if (this.alpha != 1)
-                        ctx.globalAlpha = this.alpha;
-                    if (this.scaleX < 0 || this.scaleY < 0)
-                    {
-                        var yf = this.scaleY == 1 ? 0 : this.scaleY;
-                        var xf = this.scaleX == 1 ? 0 : this.scaleX;
-
-                        ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
-                    } else
-                        ctx.translate(x + (width / 2), y + (height / 2));
-
-                    ctx.rotate(rotationAngle * (Math.PI / 180));
-                    ctx.scale(this.scaleX, this.scaleY);
-                    ctx.drawImage(this.image, sx, sy, width, height, (-width / 2), (-height / 2), width, height);
-                    ctx.restore();
-                }
-                else
-                {
-                    ctx.save();
-
-                    if (this.alpha != 1)
-                        ctx.globalAlpha = this.alpha;
-                    if (this.scaleX < 0 || this.scaleY < 0)
-                    {
-                        var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
-                        var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
-
-                        ctx.translate(x + (-(width / 2) * xf2), y + (-(height / 2) * yf2));
-                    } else
-                        ctx.translate(x, y);
-
-                    ctx.scale(this.scaleX, this.scaleY);
-                    ctx.drawImage(this.image, sx, sy, width, height, 0, 0, width, height);
-                    ctx.restore();
-                }
-            }
-
-            if (this.compositeOperation != null)
-                ctx.globalCompositeOperation = 'source-over';
-            pc.device.elementsDrawn++;
-
         },
 
         _onLoad:function ()
@@ -284,31 +295,70 @@ pc.Image = pc.Base.extend('pc.Image',
 
     });
 
-// todo: this should be derived from image (or at least a common base -- merge things like scaling factor api)
-pc.CanvasImage = pc.Base.extend('pc.CanvasImage', {},
+/**
+ * A wrapper around a Canvas element supporting the same API as pc.Image.  It can
+ * be used to render or pre-render graphics that can be used in APIs that expect an
+ * Image object.
+ */
+pc.CanvasImage = pc.BaseImage.extend('pc.CanvasImage', {},
     {
 
-        width:0,
-        height:0,
         canvas:null,
         loaded:true,
-        scaleX:1,
-        scaleY:1,
 
         init:function (canvas)
         {
-            this.canvas = canvas;
+            this.canvas = this.image = canvas;
             this.width = canvas.width;
             this.height = canvas.height;
+            this.loaded = true;
         },
 
-        draw:function (ctx, sx, sy, x, y, width, height)
+        draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
         {
             if (width == undefined || height == undefined || width == 0 || height == 0)
                 ctx.drawImage(this.canvas, sx, sy);
-            else
-                ctx.drawImage(this.canvas, sx, sy, width, height, x * this.scaleX, y * this.scaleY,
-                    width * this.scaleX, height * this.scaleY);
+            else {
+              if (pc.valid(rotationAngle))
+              {
+                ctx.save();
+
+                if (this.alpha != 1)
+                  ctx.globalAlpha = this.alpha;
+                if (this.scaleX < 0 || this.scaleY < 0)
+                {
+                  var yf = this.scaleY == 1 ? 0 : this.scaleY;
+                  var xf = this.scaleX == 1 ? 0 : this.scaleX;
+
+                  ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
+                } else
+                  ctx.translate(x + (width / 2), y + (height / 2));
+
+                ctx.rotate(rotationAngle * (Math.PI / 180));
+                ctx.scale(this.scaleX, this.scaleY);
+                ctx.drawImage(this.canvas, sx, sy, width, height, (-width / 2), (-height / 2), width, height);
+                ctx.restore();
+              }
+              else
+              {
+                ctx.save();
+
+                if (this.alpha != 1)
+                  ctx.globalAlpha = this.alpha;
+                if (this.scaleX < 0 || this.scaleY < 0)
+                {
+                  var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
+                  var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
+
+                  ctx.translate(x + (-(width / 2) * xf2), y + (-(height / 2) * yf2));
+                } else
+                  ctx.translate(x, y);
+
+                ctx.scale(this.scaleX, this.scaleY);
+                ctx.drawImage(this.canvas, sx, sy, width, height, 0, 0, width, height);
+                ctx.restore();
+              }
+            }
         },
 
         setScale:function (scaleX, scaleY)
@@ -358,3 +408,105 @@ pc.ImageTools = pc.Base.extend('pc.ImageTools',
 
     },
     {});
+
+pc.Subimage = pc.BaseImage.extend('pc.Subimage', {},
+    {
+      /** X offset into the base image */
+      sourceX:0,
+      /** Y offset into the base image */
+      sourceY:0,
+
+      /** Base image */
+      baseImage:null,
+
+      init:function(baseImage, config) {
+        this.baseImage = baseImage;
+        this.loaded = true;
+        if(!pc.valid(baseImage)) throw new Error('Subimage without base image!');
+        this.sourceX = pc.checked(config.x, 0);
+        this.sourceY = pc.checked(config.y, 0);
+        this.width = pc.checked(config.w, 0);
+        this.height = pc.checked(config.h, 0);
+        this.scaleX = pc.checked(config.scaleX, 1.0);
+        this.scaleY = pc.checked(config.scaleY, 1.0);
+        this.alpha = pc.checked(config.alpha, 1.0);
+        if(!baseImage.loaded) console.log("Warning: Subimage of not-loaded image");
+        this.compositeOperation = pc.checked(config.compositeOperation, null);
+      },
+
+      /**
+       * Change the alpha level to draw the image at (0.5 = 50% transparent)
+       * @param {Number} a Alpha level
+       */
+      setAlpha:function (a)
+      {
+        this.alpha = a;
+      },
+
+      /**
+       * Change the x and/or y scale to draw the image at. If you want to scale an image to a particular size,
+       * just generate the scale by dividing one size by another, e.g. current image size 500, 500 and you want to
+       * scale to 750, 750, then do setScale( 750/500, 750/500 ).
+       * @param {Number} scaleX x-scale to draw at (2 = 200% wide, -1 = reversed normal on x)
+       * @param {Number} scaleY y-scale to draw at (2 = 200% high, -1 = reversed normal on y)
+       */
+      setScale:function (scaleX, scaleY)
+      {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+      },
+
+      /**
+       * Sets the componsite drawing operation for this image.
+       * @param {String} o Operation to use (e.g. 'lighter')
+       */
+      setCompositeOperation:function (o)
+      {
+        this.compositeOperation = o;
+      },
+
+      /**
+       * Draw the image onto a context
+       * @param {Context} ctx Context to draw the sprite image on
+       * @param {Number} sx Source position in the image (or detination x if only 3 params)
+       * @param {Number} sy Source position in the image (or destination y if only 3 params)
+       * @param {Number} x x-position destination x position to draw the image at
+       * @param {Number} y y-position destination y position to draw the image at
+       * @param {Number} width Width to draw (will clip the image edge)
+       * @param {Number} height Height to draw (will clip the image edge)
+       * @param {Number} rotationAngle Angle to draw the image at
+       */
+      draw:function (ctx, sx, sy, x, y, width, height, rotationAngle)
+      {
+        if (!this.baseImage.loaded) return;
+
+        if (this.scaleX != 1 || this.scaleY != 1)
+          this.baseImage.setScale(this.scaleX, this.scaleY);
+
+        if (this.alpha != 1)
+          this.baseImage.setAlpha(this.alpha);
+
+        if (this.compositeOperation != null)
+          this.baseImage.setCompositeOperation(this.compositeOperation);
+
+        if(arguments.length == 3) {
+          this.baseImage.draw(ctx, this.sourceX, this.sourceY, sx, sy, this.width, this.height, rotationAngle);
+        } else {
+          this.baseImage.draw(ctx, this.sourceX+sx, this.sourceY+sy, x, y,
+              Math.min(width, this.width-sx),
+              Math.min(height, this.height-sy),
+              rotationAngle);
+        }
+
+        // restore scaling (as images can be used amongst spritesheets, we need to be nice)
+        if (this.scaleX != 1 || this.scaleY != 1)
+          this.baseImage.setScale(1, 1);
+
+        // set the alpha back to normal
+        if (this.alpha != 1)
+          this.baseImage.setAlpha(1);
+
+        if (this.compositeOperation != null)
+          this.baseImage.setCompositeOperation('source-over');
+      }
+});
