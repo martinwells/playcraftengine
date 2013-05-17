@@ -75,9 +75,7 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
      * tile map will be constructed using this tile set
      */
     init: function (name, usePrerendering, tileMap, tileSets) {
-      this._super(name);
-      this.tileMap = pc.checked(tileMap, new pc.TileMap(tileSets));
-      this.usePrerendering = false;
+      this._super(name, pc.checked(usePrerendering, false), tileMap, tileSets);
     },
     
     /**
@@ -103,21 +101,26 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
 
       var screen_center = this.scene.viewPort.w / 2 - tile_width / 2;
 
-      var x, y, factor = 0.5;
-      for (y = tile_y - 1; y >= 0; y--) {
-
-        for (x = tile_x - 1; x >= 0; x--) {
-          var tileType = this.tileMap.tiles[y][x];
-
-          if (x < y) {
-            this.tileMap.tileSet.drawTile(pc.device.ctx, tileType, screen_center + tile_width * (x - y) * factor, tile_height * (y + x) * factor);
-
-          } else if (x > y) {
-            this.tileMap.tileSet.drawTile(pc.device.ctx, tileType, screen_center - tile_width * (y - x) * factor, tile_height * (x + y) * factor);
-
-          } else {
-            this.tileMap.tileSet.drawTile(pc.device.ctx, tileType, screen_center, tile_height * y); //centre row
-          }
+      var x, y, factor = 0.25;
+      for (y = 0; y < tile_y; y++) {
+        var ypos = tile_height * (y + x) * factor;
+        for (x = 0; x < tile_x; x++) {
+          var xpos;
+//          if (x < y) {
+//            xpos = screen_center + tile_width * (x - y) * factor;
+//            ypos = tile_height * (y + x) * factor;
+//          } else if (x > y) {
+//            xpos = screen_center - tile_width * (y - x) * factor;
+//            ypos = tile_height * (x + y) * factor;
+//          } else {
+//            xpos = screen_center;
+//            ypos = tile_height * y;
+//          }
+          xpos = (x - y) * tile_width/2 + screen_center;
+          ypos = (x + y) * tile_height * factor;
+          this.tileMap.drawTileTo(
+              pc.device.ctx, x, y,
+              this.screenX(xpos), this.screenY(ypos));
         }
       }
     }
