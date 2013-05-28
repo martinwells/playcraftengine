@@ -47,6 +47,10 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
       if (mover._distanceLeft <= 0)
       {
         mover.active = false;
+
+        // force a move to the final position (to be exact)
+        spatial.pos = mover.targetPos;
+
         if (mover.onComplete)
           mover.onComplete(entity);
         entity.removeComponent(mover);
