@@ -29,6 +29,9 @@ pc.components.Mover = pc.components.Component.extend('pc.components.Mover',
 
     config:function (options)
     {
+      this._distanceLeft = 0;
+      this._bound = false;
+
       this.targetPos = options.targetPos;
       this.time = options.time;
       this.speed = options.speed;
