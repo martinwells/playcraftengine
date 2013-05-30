@@ -628,3 +628,234 @@ pc.Dim = pc.Point;
 pc.Vector = pc.Point;
 
 
+/**
+ * @class pc.Easing
+ * @description
+ * <p>
+ * A collection of useful easing functions - partially from https://github.com/sole/tween.js
+ */
+
+pc.Easing = {
+
+  LINEAR: 0,
+  QUADRATIC_IN: 1,
+  QUADRATIC_OUT: 2,
+  QUADRATIC_IN_OUT: 3,
+  CUBIC_IN: 4,
+  CUBIC_OUT: 5,
+  CUBIC_IN_OUT: 6,
+  EXPONENTIAL_IN: 7,
+  EXPONENTIAL_OUT: 8,
+  EXPONENTIAL_IN_OUT: 9,
+  CIRCULAR_IN: 10,
+  CIRCULAR_OUT: 11,
+  CIRCULAR_IN_OUT: 12,
+  ELASTIC_IN: 13,
+  ELASTIC_OUT: 14,
+  ELASTIC_IN_OUT: 15,
+  BOUNCE_IN: 16,
+  BOUNCE_OUT: 17,
+  BOUNCE_IN_OUT: 18,
+  BACK_IN: 19,
+  BACK_OUT: 20,
+  BACK_IN_OUT: 21,
+
+  ease: function(type, k)
+  {
+    switch (type)
+    {
+      case this.LINEAR: return this.linear(k);
+      case this.QUADRATIC_IN: return this.quadraticIn(k);
+      case this.QUADRATIC_OUT: return this.quadraticOut(k);
+      case this.QUADRATIC_IN_OUT: return this.quadraticInOut(k);
+      case this.CUBIC_IN: return this.cubicIn(k);
+      case this.CUBIC_OUT: return this.cubicOut(k);
+      case this.CUBIC_IN_OUT: return this.cubicInOut(k);
+      case this.EXPONENTIAL_IN: return this.exponentialIn(k);
+      case this.EXPONENTIAL_OUT: return this.exponentialOut(k);
+      case this.EXPONENTIAL_IN_OUT: return this.exponentialInOut(k);
+      case this.CIRCULAR_IN: return this.circularIn(k);
+      case this.CIRCULAR_OUT: return this.circularOut(k);
+      case this.CIRCULAR_IN_OUT: return this.circularInOut(k);
+      case this.ELASTIC_IN: return this.elasticIn(k);
+      case this.ELASTIC_OUT: return this.elasticOut(k);
+      case this.ELASTIC_IN_OUT: return this.elasticInOut(k);
+      case this.BOUNCE_IN: return this.bounceIn(k);
+      case this.BOUNCE_OUT: return this.bounceOut(k);
+      case this.BOUNCE_IN_OUT: return this.bounceInOut(k);
+      case this.BACK_IN: return this.backIn(k);
+      case this.BACK_OUT: return this.backOut(k);
+      case this.BACK_IN_OUT: return this.backInOut(k);
+    }
+
+    return this.linear(k);
+
+  },
+
+  linear: function (k)
+  {
+    return k;
+  },
+
+  quadraticIn: function (k)
+  {
+    return k * k;
+  },
+
+  quadraticOut: function (k)
+  {
+    return k * ( 2 - k );
+  },
+
+  quadraticInOut: function (k)
+  {
+    if (( k *= 2 ) < 1) return 0.5 * k * k;
+    return -0.5 * ( --k * ( k - 2 ) - 1 );
+  },
+
+  cubicIn: function (k)
+  {
+    return k * k * k;
+  },
+
+  cubicOut: function (k)
+  {
+    return --k * k * k + 1;
+  },
+
+  cubicInOut: function (k)
+  {
+    if (( k *= 2 ) < 1) return 0.5 * k * k * k;
+    return 0.5 * ( ( k -= 2 ) * k * k + 2 );
+  },
+
+  exponentialIn: function (k)
+  {
+    return k === 0 ? 0 : Math.pow(1024, k - 1);
+  },
+
+  exponentialOut: function (k)
+  {
+    return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+  },
+
+  exponentialInOut: function (k)
+  {
+    if (k === 0) return 0;
+    if (k === 1) return 1;
+    if (( k *= 2 ) < 1) return 0.5 * Math.pow(1024, k - 1);
+    return 0.5 * ( -Math.pow(2, -10 * ( k - 1 )) + 2 );
+  },
+
+  circularIn: function ( k )
+  {
+    return 1 - Math.sqrt( 1 - k * k );
+  },
+
+  circularOut: function ( k )
+  {
+    return Math.sqrt( 1 - ( --k * k ) );
+  },
+
+  circularInOut: function (k)
+  {
+    if (( k *= 2 ) < 1) return -0.5 * ( Math.sqrt(1 - k * k) - 1);
+    return 0.5 * ( Math.sqrt(1 - ( k -= 2) * k) + 1);
+  },
+
+  elasticIn: function (k)
+  {
+
+    var s, a = 0.1, p = 0.4;
+    if (k === 0) return 0;
+    if (k === 1) return 1;
+    if (!a || a < 1)
+    {
+      a = 1;
+      s = p / 4;
+    }
+    else s = p * Math.asin(1 / a) / ( 2 * Math.PI );
+    return -( a * Math.pow(2, 10 * ( k -= 1 )) * Math.sin(( k - s ) * ( 2 * Math.PI ) / p) );
+
+  },
+
+  elasticOut: function (k)
+  {
+    var s, a = 0.1, p = 0.4;
+    if (k === 0) return 0;
+    if (k === 1) return 1;
+    if (!a || a < 1)
+    {
+      a = 1;
+      s = p / 4;
+    }
+    else s = p * Math.asin(1 / a) / ( 2 * Math.PI );
+    return ( a * Math.pow(2, -10 * k) * Math.sin(( k - s ) * ( 2 * Math.PI ) / p) + 1 );
+  },
+
+  elasticInOut: function (k)
+  {
+    var s, a = 0.1, p = 0.4;
+    if (k === 0) return 0;
+    if (k === 1) return 1;
+    if (!a || a < 1)
+    {
+      a = 1;
+      s = p / 4;
+    }
+    else s = p * Math.asin(1 / a) / ( 2 * Math.PI );
+    if (( k *= 2 ) < 1) return -0.5 * ( a * Math.pow(2, 10 * ( k -= 1 )) * Math.sin(( k - s ) * ( 2 * Math.PI ) / p) );
+    return a * Math.pow(2, -10 * ( k -= 1 )) * Math.sin(( k - s ) * ( 2 * Math.PI ) / p) * 0.5 + 1;
+  },
+
+  backIn: function (k)
+  {
+
+    var s = 1.70158;
+    return k * k * ( ( s + 1 ) * k - s );
+
+  },
+
+  backOut: function (k)
+  {
+    var s = 1.70158;
+    return --k * k * ( ( s + 1 ) * k + s ) + 1;
+  },
+
+  backInOut: function (k)
+  {
+    var s = 1.70158 * 1.525;
+    if (( k *= 2 ) < 1) return 0.5 * ( k * k * ( ( s + 1 ) * k - s ) );
+    return 0.5 * ( ( k -= 2 ) * k * ( ( s + 1 ) * k + s ) + 2 );
+  },
+
+  bounceIn: function (k)
+  {
+    return 1 - this.bounceOut(1 - k);
+  },
+
+  bounceOut: function (k)
+  {
+    if (k < ( 1 / 2.75 ))
+    {
+      return 7.5625 * k * k;
+    } else if (k < ( 2 / 2.75 ))
+    {
+      return 7.5625 * ( k -= ( 1.5 / 2.75 ) ) * k + 0.75;
+    } else if (k < ( 2.5 / 2.75 ))
+    {
+      return 7.5625 * ( k -= ( 2.25 / 2.75 ) ) * k + 0.9375;
+    } else
+    {
+      return 7.5625 * ( k -= ( 2.625 / 2.75 ) ) * k + 0.984375;
+    }
+  },
+
+  bounceInOut: function (k)
+  {
+    if (k < 0.5) return this.bounceIn(k * 2) * 0.5;
+    return this.bounceOut(k * 2 - 1) * 0.5 + 0.5;
+  }
+
+};
+
