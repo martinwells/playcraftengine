@@ -25,39 +25,31 @@ pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
       if (!mover._bound)
       {
         // set the distance we need to cover on the first run through
-        mover._distanceLeft = spatial.pos.distance(mover.targetPos);
         mover._bound = true;
+        mover._startTime = pc.device.now;
+        mover._startPos = spatial.pos.clone();
       }
 
-      var speed = mover.speed;
-      if (mover.time)
-        speed = spatial.pos.distance(mover.targetPos) / mover.time;
+      var elapsed = ( pc.device.now - mover._startTime ) / mover.duration;
+      elapsed = elapsed > 1 ? 1 : elapsed;
 
-      var dir = spatial.pos.dirTo(mover.targetPos);
+      var value = pc.Easing.ease(mover.easing, elapsed);
+      spatial.pos.x = mover._startPos.x + ( mover.targetPos.x - mover._startPos.x ) * value;
+      spatial.pos.y = mover._startPos.y + ( mover.targetPos.y - mover._startPos.y ) * value;
 
-      // figure out how far to move this cycle
-      var distanceThisCycle = speed * pc.device.elapsed;
-      // check we aren't jumping over where we need to be
-      if (mover._distanceLeft - distanceThisCycle < 0)
-        distanceThisCycle = mover._distanceLeft;
-
-      spatial.pos.moveInDir(dir, distanceThisCycle);
-      mover._distanceLeft -= distanceThisCycle;
-
-      if (mover._distanceLeft <= 0)
+      // are we at an end?
+      if (elapsed == 1)
       {
         mover.active = false;
-
         // force a move to the final position (to be exact)
         spatial.pos = mover.targetPos;
-
         if (mover.onComplete)
           mover.onComplete(entity);
         entity.removeComponent(mover);
       }
       else
-      // this is reset every cycle by processAll
-        this.numMoving++;
+        // keep count of the number of things moving in this system
+        this.numMoving++; // this is reset at the start of every cycle by processAll above
     }
 
   });
