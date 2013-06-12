@@ -145,7 +145,7 @@ pc.DebugPanel = pc.Base('pc.DebugPanel',
                 if (this.memGraph != null)
                     if (typeof console.memory !== 'undefined')
                         if (console.memory.totalJSHeapSize != 0)
-                            this.memGraph.addLine1((window.performance.memory.usedJSHeapSize / 1024 / 1024));
+                            this.memGraph.addLine1((console.memory.usedJSHeapSize / 1024 / 1024));
                 if (this.poolGraph != null)
                     this.poolGraph.addLine1(gamecore.Pool.totalPooled);
             }
