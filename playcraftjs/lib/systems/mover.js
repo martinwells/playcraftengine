@@ -1,6 +1,35 @@
+/**
+ * Playcraft Engine - (C)2013 Playcraft Labs, Inc.
+ * See licence.txt for details
+ */
+
+/**
+ * @class pc.systems.Mover
+ * @description
+ * [Extends <a href='pc.systems.EntitySystem'>pc.systems.Mover</a>]<BR>
+ * [Used in <a href='pc.systems.Mover'>pc.systems.Mover</a>]
+ * <p>
+ * Moves an entity to a target location, with tweening effects.
+ * <p>
+ * Just add a Mover component to make an entity move around, i.e.
+ * <pre><code>
+ * box.addComponent(pc.components.Mover.create(
+ * {
+ *   targetPos: { x:200, y:200 },
+ *   easing: pc.Easing.QUADRATIC_IN_OUT,
+ *   duration: 3000
+ * }));
+ *
+ * myLayer.addSystem( new pc.systems.Mover() );
+ * </code></pre>
+ * You can look at all the easing types in the pc.Easing class (inside math.js)
+ */
 pc.systems.Mover = pc.systems.EntitySystem.extend('MoverSystem',
+  /** @lends pc.systems.Mover */
   {},
+  /** @lends pc.systems.Mover.prototype */
   {
+    /** number of entities moving */
     numMoving: 0,
 
     init:function ()

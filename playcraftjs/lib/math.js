@@ -634,7 +634,6 @@ pc.Vector = pc.Point;
  * <p>
  * A collection of useful easing functions - partially from https://github.com/sole/tween.js
  */
-
 pc.Easing = {
 
   LINEAR: 0,

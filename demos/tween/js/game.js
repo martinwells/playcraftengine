@@ -17,8 +17,8 @@ TweenLayer = pc.EntityLayer.extend('TweenLayer',
       box.addComponent(pc.components.Mover.create(
       {
         targetPos: { x:200, y:200 },
-        easing: pc.Easing.BOUNCE_OUT,
-        duration: 1000
+        easing: pc.Easing.QUADRATIC_IN_OUT,
+        duration: 3000
       }));
 
       this.addSystem(new pc.systems.Render());

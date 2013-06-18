@@ -582,7 +582,7 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             // we found a gap, so create the physics body for his horizontal tile set
             if (w > 0)
             {
-              this.createStaticBody(x - this.layer.origin.x, ty * tileMap.tileHeight - this.layer.origin.y, w,
+              this.createStaticBody(x - (this.layer ? this.layer.origin.x : 0), ty * tileMap.tileHeight - (this.layer ? this.layer.origin.y : 0), w,
                 tileMap.tileHeight, collisionGroup, collisionCategory, collisionMask);
               w = 0;
             }
