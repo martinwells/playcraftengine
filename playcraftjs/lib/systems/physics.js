@@ -591,6 +591,13 @@ pc.systems.Physics = pc.systems.EntitySystem.extend('pc.systems.Physics',
             x = ((tx + 1) * tileMap.tileWidth);
           }
         }
+
+        // end of a row -- check we have a horizontal block at the edge
+        if (w > 0)
+        {
+          this.createStaticBody(x - (this.layer ? this.layer.origin.x : 0), ty * tileMap.tileHeight - (this.layer ? this.layer.origin.y : 0), w,
+            tileMap.tileHeight, collisionGroup, collisionCategory, collisionMask);
+        }
       }
     },
 
