@@ -99,29 +99,134 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
       var tile_width = this.tileMap.tileWidth;
       var tile_height = this.tileMap.tileHeight;
 
-      var screen_center = this.scene.viewPort.w / 2 - tile_width / 2;
-
-      var x, y, factor = 0.25;
+      var center_x = (this.scene.viewPort.w - tile_width) / 2;
+      var x, y;
       for (y = 0; y < tile_y; y++) {
-        var ypos = tile_height * (y + x) * factor;
         for (x = 0; x < tile_x; x++) {
-          var xpos;
 //          if (x < y) {
-//            xpos = screen_center + tile_width * (x - y) * factor;
+//            xpos = center_x + tile_width * (x - y) * factor;
 //            ypos = tile_height * (y + x) * factor;
 //          } else if (x > y) {
-//            xpos = screen_center - tile_width * (y - x) * factor;
+//            xpos = center_x - tile_width * (y - x) * factor;
 //            ypos = tile_height * (x + y) * factor;
 //          } else {
-//            xpos = screen_center;
+//            xpos = center_x;
 //            ypos = tile_height * y;
 //          }
-          xpos = (x - y) * tile_width/2 + screen_center;
-          ypos = (x + y) * tile_height * factor;
+          var xpos = (x - y) * tile_width/2 + center_x;
+          var ypos = (x + y) * tile_height/2;
           this.tileMap.drawTileTo(
               pc.device.ctx, x, y,
               this.screenX(xpos), this.screenY(ypos));
         }
       }
+    },
+
+    /**
+     * Calculate the pixel offset into this layer of the given tile.  This returns
+     * the X coordinate of the center of the tile.
+     *
+     * @param tileX Tile column
+     * @param tileY Tile row
+     * @returns {number} X coordinate relative to the layer for the center of the tile
+     */
+    tileWorldX:function(tileX,tileY) {
+      return ((tileX - tileY - 1) * this.tileMap.tileWidth + this.scene.viewPort.w) / 2;
+    },
+
+    /**
+     * Calculate the screen (well, viewport really) relative position of the tile.
+     *
+     * @param tileX Tile column
+     * @param tileY Tile row
+     * @returns {number} X coordinate relative to the left of the screen/viewport
+     */
+    tileScreenX:function(tileX,tileY) {
+      return this.screenX(this.tileWorldX(tileX,tileY));
+    },
+
+    /**
+     * Calculate the pixel offset into this layer of the given tile.  This returns
+     * the Y coordinate of the top edge of the tile.
+     *
+     * @param tileX Tile column
+     * @param tileY Tile row
+     * @returns {number} Y coordinate relative to the layer origin
+     */
+    tileWorldY:function(tileX,tileY) {
+      return (tileX + tileY - 1) * this.tileMap.tileHeight/2;
+    },
+
+    /**
+     * Calculate the screen (well, viewport really) relative position of the tile.
+     *
+     * @param tileX Tile column
+     * @param tileY Tile row
+     * @returns {number} Y coordinate relative to the top of the screen/viewport
+     */
+    tileScreenY:function(tileX,tileY) {
+      return this.screenY(this.tileWorldY(tileX,tileY));
+    },
+
+    /**
+     * Convert a coordinate relative to the layer into a tile
+     * column number.  The number is not rounded to a whole number,
+     * the caller can do this using Math.floor().
+     *
+     * @param worldX Layer X coordinate
+     * @param worldY Layer Y coordinate
+     */
+    worldTileX:function(worldX, worldY) {
+      var screenWidth = this.scene.viewPort.w;
+      var tileWidth = this.tileMap.tileWidth;
+      var tileHeight = this.tileMap.tileHeight;
+      return (worldX - screenWidth/2) / tileWidth + worldY / tileHeight;
+    },
+
+    /**
+     * Convert a coordinate relative to the layer into a tile
+     * row number.  The number is not rounded to a whole number,
+     * the caller must do this themself using Math.floor().
+     *
+     * @param worldX Layer X coordinate
+     * @param worloY Layer Y coordinate
+     */
+    worldTileY:function(worldX, worldY) {
+      var screenWidth = this.scene.viewPort.w;
+      var tileWidth = this.tileMap.tileWidth;
+      var tileHeight = this.tileMap.tileHeight;
+      return worldY / tileHeight - (worldX - screenWidth/2) / tileWidth;
+    },
+
+    /**
+     * Take a screen location and translate it into a
+     * tile column value.  The result is not rounded to
+     * a whole number - use Math.floor() to get the
+     * integer column number.
+     *
+     * @param screenX Screen x coordinate in pixels
+     * @param screenY Screen y coordinate in pixels
+     * @returns {number} World tile x coordinate in tiles
+     */
+    screenTileX:function(screenX,screenY) {
+      var worldX = this.worldX(screenX);
+      var worldY = this.worldY(screenY);
+      return this.worldTileX(worldX, worldY);
+    },
+
+    /**
+     * Take a screen location and translate it into a
+     * tile row value.  The result is not rounded to
+     * a whole number - use Math.floor() to get the
+     * integer row number.
+     *
+     * @param screenX Screen x coordinate in pixels
+     * @param screenY Screen y coordinate in pixels
+     * @returns {number} World tile x coordinate in tiles
+     */
+    screenTileY:function(screenX,screenY) {
+      var worldX = this.worldX(screenX);
+      var worldY = this.worldY(screenY);
+      return this.worldTileY(worldX, worldY);
     }
   });
