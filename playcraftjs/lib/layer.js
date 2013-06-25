@@ -428,12 +428,6 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
       if(pc.valid(trackLayer) && trackLayer != this.name)
         this.originTrackName = trackLayer;
 
-      var trackRatio = info.trackRatio || info.trackratio;
-      if(pc.valid(trackRatio))
-      {
-        this.originTrackXRatio = this.originTrackYRatio = trackRatio;
-      }
-
       var trackXRatio = info.trackxratio || info.trackXRatio || info.trackRatio || info.trackratio;
       if(pc.valid(trackXRatio))
         this.originTrackXRatio = trackXRatio;
