@@ -5,6 +5,15 @@
  */
 pc.ImageLayer = pc.Layer.extend('pc.ImageLayer',
     {
+      loadFromJson:function(scene, info)
+      {
+        var resource = (info.properties && info.properties.resource) || info.name;
+        var image = pc.device.loader.get(resource).resource;
+        var newLayer = new pc.ImageLayer(info.name, image);
+        newLayer.configFromJson(info);
+        scene.addLayer(newLayer);
+        return newLayer;
+      }
 
     },
     {

@@ -251,6 +251,24 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
     },
 
     /**
+     * @param {Number} screenX X position relative to the screen (based on the layer's current origin and the viewport
+     * of the scene)
+     * @return {Number} X position in world co-ordinates
+     */
+    worldX: function(screenX) {
+      return screenX - (this.scene.viewPort.x - this.origin.x + this.offset.x);
+    },
+
+    /**
+     * @param {Number} screenY Y position relative to the screen (based on the layer's current origin and the viewport
+     * of the scene)
+     * @return {Number} Y position in world co-ordinates
+     */
+    worldY: function(screenY) {
+      return screenY - (this.scene.viewPort.y - this.origin.y + this.offset.y);
+    },
+
+    /**
      * Adjust the offset for drawing the layer (think of it like the top left starting position for the layer
      * @param x
      * @param y
@@ -378,6 +396,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     configFromTMX:function(layerXML)
     {
+      var info = {}
+
       var pr = layerXML.getElementsByTagName('properties')[0];
       if(pr)
       {
@@ -386,25 +406,42 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
         for (var b = 0; b < props.length; b++)
         {
           var prop = props[b];
-          var name = prop.getAttribute('name');
-          var value = prop.getAttribute('value');
-          switch(name.toLowerCase())
-          {
-            case 'zindex': this.setZIndex(pc.checked(parseInt(value), this.zIndex)); break;
-            case 'tracklayer':
-              if(value != this.name)
-                  this.originTrackName = value;
-              break;
-            case 'trackratio':
-              this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio);
-              this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio);
-              break;
-            case 'trackxratio': this.originTrackXRatio = pc.checked(parseFloat(value), this.originTrackXRatio); break;
-            case 'trackyratio': this.originTrackYRatio = pc.checked(parseFloat(value), this.originTrackYRatio); break;
-
-          }
+          info[prop.getAttribute('name')] = prop.getAttribute('value');
         }
       }
+
+      this.configFromJson(info);
+    },
+
+    /**
+     * Configure the layer from layer custom properties in the Tiled
+     * JSON/JSONP file.
+     *
+     * @param info Layer object
+     */
+    configFromJson:function(info)
+    {
+      var zIndex = info.zIndex || info.zindex;
+      if(pc.valid(zIndex)) this.setZIndex(zIndex);
+
+      var trackLayer = info.tracklayer || info.trackLayer;
+      if(pc.valid(trackLayer) && trackLayer != this.name)
+        this.originTrackName = trackLayer;
+
+      var trackRatio = info.trackRatio || info.trackratio;
+      if(pc.valid(trackRatio))
+      {
+        this.originTrackXRatio = this.originTrackYRatio = trackRatio;
+      }
+
+      var trackXRatio = info.trackxratio || info.trackXRatio || info.trackRatio || info.trackratio;
+      if(pc.valid(trackXRatio))
+        this.originTrackXRatio = trackXRatio;
+
+      var trackYRatio = info.trackyratio || info.trackYRatio || info.trackRatio || info.trackratio;
+      if(pc.valid(trackYRatio))
+        this.originTrackYRatio = trackYRatio;
+
     }
 
   });
