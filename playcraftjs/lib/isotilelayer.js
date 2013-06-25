@@ -103,16 +103,6 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
       var x, y;
       for (y = 0; y < tile_y; y++) {
         for (x = 0; x < tile_x; x++) {
-//          if (x < y) {
-//            xpos = center_x + tile_width * (x - y) * factor;
-//            ypos = tile_height * (y + x) * factor;
-//          } else if (x > y) {
-//            xpos = center_x - tile_width * (y - x) * factor;
-//            ypos = tile_height * (x + y) * factor;
-//          } else {
-//            xpos = center_x;
-//            ypos = tile_height * y;
-//          }
           var xpos = (x - y) * tile_width/2 + center_x;
           var ypos = (x + y) * tile_height/2;
           this.tileMap.drawTileTo(
