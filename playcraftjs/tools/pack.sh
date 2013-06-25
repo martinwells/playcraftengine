@@ -31,6 +31,7 @@ cat $PLAYCRAFT_LIB/debug.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/device.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/sound.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/layer.js >> ${OUT_FILE}
+cat $PLAYCRAFT_LIB/imagelayer.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/entitylayer.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/tileset.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/tilemap.js >> ${OUT_FILE}
@@ -84,3 +85,4 @@ cat $PLAYCRAFT_LIB/systems/mover.js >> ${OUT_FILE}
 
 > ${OUT_MIN_FILE}
 java -jar yuicompressor-2.4.7.jar ${OUT_FILE} -v -o ${OUT_MIN_FILE}
+rm ${OUT_FILE}

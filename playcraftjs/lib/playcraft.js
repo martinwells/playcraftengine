@@ -161,6 +161,7 @@ pc.start = function (canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
     loader.add('device.js');
     loader.add('sound.js');
     loader.add('layer.js');
+    loader.add('imagelayer.js');
     loader.add('entitylayer.js');
     loader.add('tileset.js');
     loader.add('tilemap.js');

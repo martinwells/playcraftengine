@@ -124,7 +124,71 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
                     this.warn('Entity loaded from map with no "entity" type property set. x=' + x + ' y=' + y)
             }
 
+        },
+
+      /**
+       * Creates an entity layer from a Javascript object from a Tiled JSON/JSONP file
+       * @param {String} scene
+       * @param {String} info Json data for the entity layer
+       * @param {pc.EntityFactory} entityFactory
+       */
+      loadFromJson:function (scene, info, entityFactory, worldSizeX, worldSizeY)
+      {
+        var layerName = info.name;
+
+        // create the new layer and add it to the scene - when you have the name
+        var n = new pc.EntityLayer(layerName, worldSizeX, worldSizeY, entityFactory);
+        n.configFromJson(info);
+        scene.addLayer(n);
+
+        // Parse object xml instances and turn them into entities
+        // XML = <object type="EnemyShip" x="2080" y="256" width="32" height="32"/>
+        var objs = info.objects;
+        for (var i = 0; i < objs.length; i++)
+        {
+          var objData = objs[i];
+          var entityType = objData.type;
+          var x = objData.x;
+          var y = objData.y;
+          var w = objData.width;
+          var h = objData.height;
+          var shape = null;
+
+          // either it's a polygon shape, or it's a rectangle (has w and h)
+          var polygon = objData.polygon || objData.polyline || [];
+          if (polygon)
+          {
+            points = new Array(polygon.length);
+            polygon.forEach(function(pt) {
+              points.push([pt.x, pt.y]);
+            });
+            shape = pc.Poly.create(x, y, points);
+          }
+          else
+          {
+            // plain rectangle (just need the width and height)
+            shape = pc.Dim.create(w, h);
+          }
+
+          // parse parameters into options
+          var options = objData.properties;
+
+          if('entity' in options)
+          {
+            entityType = options.entity;
+          }
+
+          // create a new entity
+          // ask the entity factory to create entity of this type and on this layer
+          //
+          if (entityType)
+            entityFactory.createEntity(n, entityType, x, y, 0, shape, options);
+          else
+            this.warn('Entity loaded from map with no "entity" type property set. x=' + x + ' y=' + y)
         }
+
+      }
+
 
     },
     /** @lends pc.EntityLayer.prototype */

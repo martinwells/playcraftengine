@@ -68,8 +68,17 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
       this.tiles = tiles;
       this.tilesWide = pc.Math.round(tilesWide);
       this.tilesHigh = pc.Math.round(tilesHigh);
-      this.tileWidth = Math.round(pc.checked(tileWidth, tileSets[0].tileSpriteSheet.frameWidth));
-      this.tileHeight = Math.round(pc.checked(tileHeight, tileSets[0].tileSpriteSheet.frameHeight));
+
+      if(pc.valid(tileWidth))
+        this.tileWidth = tileWidth;
+      else if(tileSets.length > 0) // Maybe they don't have any tiles (yet?)
+        this.tileWidth = tileSets[0].tileSpriteSheet.frameWidth;
+
+      if(pc.valid(tileHeight))
+        this.tileHeight = tileHeight;
+      else if(tileSets.length > 0) // Maybe they don't have any tiles (yet?)
+        this.tileHeight = tileSets[0].tileSpriteSheet.frameHeight/2;
+
       this.tileSets = tileSets;
     },
 
@@ -168,6 +177,18 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     {
       if (!this.isOnMap(tx, ty)) return -1;
       return this.tiles[ty][tx];
+    },
+
+    /**
+     * True if the given x/y fit within the tilesWide/tilesHigh box of the
+     * map.
+     *
+     * @param tx Tile column to check
+     * @param ty Tile row to check
+     */
+    isValidTile: function(tx, ty) {
+      return (tx >= 0 && tx < this.tilesWide &&
+              ty >= 0 && ty < this.tilesHigh);
     },
 
     /**
@@ -283,7 +304,34 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
           }
         }
       }
+    },
+
+    /**
+     * Loads a tile map from a Tiled formatted javascript object
+     * @param {String} info Object loaded from Tiled JSON file
+     * @param tileHeight Width of each tile (pixels)
+     * @param tileWidth Height of each tile (pixels)
+     */
+    loadFromJson: function (info, tileWidth, tileHeight)
+    {
+      this.tileWidth = tileWidth;
+      this.tileHeight = tileHeight;
+
+      this.tilesWide = info.width;
+      this.tilesHigh = info.height;
+
+      this.tiles = new Array(this.tilesHigh);
+
+      // decode as an array
+      info.data.forEach(function(tileId, i) {
+        var atx = i % this.tilesWide;
+        var aty = Math.floor(i / this.tilesWide);
+        if(atx==0)
+          this.tiles[aty] = row = new Array(this.tilesWide);
+        row[atx] = tileId-1; // TMX uses zero for "no tile", playcraft uses -1
+      }, this)
     }
+
 
 
   });

@@ -83,7 +83,27 @@ pc.TileLayer = pc.Layer.extend('pc.TileLayer',
             newLayer.configFromTMX(layerXML);
             newLayer.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
             scene.addLayer(newLayer);
-        }
+        },
+
+      /**
+       * Constructs a tile layer using data from a TMX formatted (XML base 64) data stream
+       * @param {pc.Scene} scene Scene to add the new layer to
+       * @param {String} info Data for layer as a javascript object
+       * @param {Number} tileWidth Width of each tile
+       * @param tileHeight Height of each tile
+       */
+      loadFromJson:function (scene, info, tileWidth, tileHeight, tileSets)
+      {
+        var name = info.name;
+        var newLayer = new pc.TileLayer(name, true, null, tileSets);
+
+        // fill in the rest using the data from the TMX file
+
+        newLayer.configFromJson(info);
+        newLayer.tileMap.loadFromJson(info, tileWidth, tileHeight);
+        scene.addLayer(newLayer);
+      }
+
     },
     /** @lends pc.TileLayer.prototype */
     {
