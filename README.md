@@ -1,3 +1,18 @@
+## 0.5.7
+
+- Tweening support - see pc.components.Mover added
+- Tweening demo added
+- More support for cocoonJS
+- More flexible server support (thanks dobesv)
+- pc.CanvasImage now support rotation and composition (thanks dobesv)
+- Sub-image support
+- Better Tiled integration (loading spritesheet, zindex, origin parameters, multiple tilesets and empty block skipping)
+- [bug] Fixed objectId/uniqueId not being set correctly for components
+- [bug] getTile checked isOnMap correctly
+- [bug] Safari 6+ now support memory graphs properly
+- Lots and lots of other bugs fixed
+
+
 ## 0.5.6
 
 - hex tile maps now supported using (pc.HexTileLayer)

@@ -110,7 +110,7 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
                         var name = props[p].getAttribute("name");
                         var value = props[p].getAttribute("value");
                         options[name] = value;
-                        if (name === 'entity')
+                        if (name.toLowerCase() === 'entity')
                             entityType = value;
                     }
                 }

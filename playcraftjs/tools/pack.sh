@@ -2,7 +2,7 @@
 PLAYCRAFT_LIB=../lib
 
 OUT_FILE=playcraft-cat.js
-OUT_MIN_FILE=../dist/playcraft-0.5.6.min.js
+OUT_MIN_FILE=../dist/playcraft-0.5.7.min.js
 
 # empty it out
 > ${OUT_FILE}
@@ -67,6 +67,7 @@ cat $PLAYCRAFT_LIB/components/text.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/components/sprite.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/components/layout.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/components/particleemitter.js >> ${OUT_FILE}
+cat $PLAYCRAFT_LIB/components/mover.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/systems/system.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/es/entitymanager.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/es/systemmanager.js >> ${OUT_FILE}
@@ -79,6 +80,7 @@ cat $PLAYCRAFT_LIB/systems/expiry.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/systems/activation.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/systems/render.js >> ${OUT_FILE}
 cat $PLAYCRAFT_LIB/systems/layout.js >> ${OUT_FILE}
+cat $PLAYCRAFT_LIB/systems/mover.js >> ${OUT_FILE}
 
 > ${OUT_MIN_FILE}
 java -jar yuicompressor-2.4.7.jar ${OUT_FILE} -v -o ${OUT_MIN_FILE}
