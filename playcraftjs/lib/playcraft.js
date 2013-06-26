@@ -167,6 +167,7 @@ pc.start = function (canvasId, gameClass, gameBaseUrl, scripts, engineBaseURL)
     loader.add('tilemap.js');
     loader.add('tilelayer.js');
     loader.add('hextilelayer.js');
+    loader.add('isotilelayer.js');
     loader.add('entity.js');
     loader.add('sprite.js');
     loader.add('spritesheet.js');
