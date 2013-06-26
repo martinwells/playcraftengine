@@ -20,7 +20,7 @@
  *
  * // create a tile map to hold our tile data, using the supplied tile sheet
  * // 100 tiles wide by 100 tiles high with a tile height and width of 32
- * var tileMap = new pc.TileMap(new pc.TileSet(tileSheet), 100, 100, 32, 32);
+ * var tileMap = new pc.TileMap([new pc.TileSet(tileSheet)], 100, 100, 32, 32);
  *
  * // set all the tiles to empty
  * tileMap.generate(0);
