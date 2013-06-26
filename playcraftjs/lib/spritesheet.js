@@ -53,16 +53,6 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
   {},
   /** @lends pc.SpriteSheet.prototype */
   {
-    /** The source pc.Image resource */
-    image: null,
-    /** width of each frame (read-only) */
-    frameWidth: 0,
-    /** height of each frame (read-only) */
-    frameHeight: 0,
-    /** number of frames wide the sheet is (read-only) */
-    framesWide: 1,
-    /** number of frames high the sheet is (read-only) */
-    framesHigh: 1,
     /** X scale to draw the image at */
     scaleX: 1,
     /** Y scale to draw the image at */
@@ -85,8 +75,19 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     frameOffsetX: 0,
     frameOffsetY: 0,
 
-    _frameXPos: null,
-    _frameYPos: null,
+    /**
+     * Array of frame information; each element is an array with
+     * the positional values:
+     *
+     * [0] - x position
+     * [1] - y position
+     * [2] - width
+     * [3] - height
+     * [4] - image to draw from
+     * [5] - registration x
+     * [6] - regsitration y
+     */
+    frames: null,
 
     /**
      * Constructs a new sprite sheet with options. You can use either framesWide or frameWidth, and the logical
@@ -105,39 +106,47 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * @param {Number} options.frameOffsetY Offset frame drawing on the y-axis
      * @param {Number} options.alpha Alpha level to draw the image at (0.5 is 50% visible)
      * @param {Boolean} options.useRotation True means the canvas rotation will be used to draw images as an angle
+     * @param {Array} options.frames Specific definitions for each frame; defaults to a grid calculated from above options
+     * @param {Array} options.frames[n] Array with positional frame information
+     * @param {Array} options.frames[n][0] Left edge of the frame
+     * @param {Array} options.frames[n][1] Top edge of the frame
+     * @param {Array} options.frames[n][2] Width of the frame
+     * @param {Array} options.frames[n][3] Height of the frame
+     * @param {Array} options.frames[n][4] Source image for the frame
+     * @param {Array} options.frames[n][5] Registration X for the frame
+     * @param {Array} options.frames[n][6] Registration Y for the frame
      */
     init: function (options)
     {
       this._super();
 
-      if (pc.checked(options.image))
-        this.image = options.image;
-      else
-        throw "No image supplied";
+      var image = options.image;
+      var frameWidth = this.frameWidth =
+          ('frameWidth' in options) ? options.frameWidth :
+          ('framesWide' in options && options.framesWide > 0 && 'image' in options) ?
+              Math.floor(options.image.width / options.framesWide) :
+          ('image' in options) ? options.image.width :
+          0; // No fixed width
 
-      if (!this.image.width || !this.image.height)
-        throw "Invalid image (zero width or height)";
+      var frameHeight = this.frameHeight =
+          ('frameHeight' in options) ? options.frameHeight :
+          ('framesHigh' in options && options.framesHigh > 0 && 'image' in options) ?
+              Math.floor(options.image.height / options.framesHigh) :
+          ('image' in options) ? options.image.width :
+          0; // No fixed height
 
-      if (!pc.valid(options.frameWidth))
-      {
-        if (pc.valid(options.framesWide) && options.framesWide > 0)
-          this.frameWidth = Math.floor(this.image.width / options.framesWide);
-        else
-          this.frameWidth = this.image.width;
-      } else
-        this.frameWidth = options.frameWidth;
+      var framesWide = this.framesWide =
+        ('framesWide' in options) ? options.framesWide :
+        ('image' in options && frameWidth > 0) ?
+            Math.floor(options.image.width / frameWidth) :
+        ('frames' in options) ? this.framesWide = options.frames.length :
+        1;
+      var framesHigh = this.framesHigh =
+        ('framesHigh' in options) ? options.framesHigh :
+        ('image' in options && 'frameHeight' in options) ?
+            Math.floor(options.image.height / frameHeight) :
+        1;
 
-      if (!pc.valid(options.frameHeight))
-      {
-        if (pc.valid(options.framesHigh) && options.framesHigh > 0)
-          this.frameHeight = Math.floor(this.image.height / options.framesHigh);
-        else
-          this.frameHeight = this.image.height;
-      } else
-        this.frameHeight = options.frameHeight;
-
-      this.framesWide = Math.floor(pc.checked(options.framesWide, this.image.width / this.frameWidth));
-      this.framesHigh = Math.floor(pc.checked(options.framesHigh, this.image.height / this.frameHeight));
       this.scaleX = pc.checked(options.scaleX, 1);
       this.scaleY = pc.checked(options.scaleY, 1);
       this.sourceX = pc.checked(options.sourceX, 0);
@@ -147,16 +156,61 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
       this.alpha = pc.checked(options.alpha, 1);
       this.useRotation = pc.checked(options.useRotation, true);
 
-      this.totalFrames = this.framesWide * this.framesHigh;
-      this.animations = new pc.Hashtable();
+      this.options = options; //DELME
 
-      // pre-calcs for speed
-      this._frameXPos = [];
-      for (var fx = 0; fx < this.framesWide; fx++)
-        this._frameXPos.push(fx * this.frameWidth);
-      this._frameYPos = [];
-      for (var fy = 0; fy < this.framesHigh; fy++)
-        this._frameYPos.push(fy * this.frameHeight);
+      this.animations = new pc.Hashtable();
+      if('frames' in options)
+      {
+        this.frames = options.frames;
+        this.totalFrames = options.frames.length;
+      }
+      else
+      {
+        if (!pc.valid(image))
+          throw "No image and no frames supplied";
+        if (!image.width || !image.height)
+          throw "Invalid image (zero width or height)";
+
+        this.image = image;
+        this.totalFrames = framesWide * framesHigh;
+        this.frames = [];
+        var frameIndex = 0;
+        for (var fy = 0; fy < framesHigh; fy++)
+        {
+          for (var fx = 0; fx < framesWide; fx++)
+          {
+            // x, y, width, height, image, regX, regY
+            this.frames.push([
+              fx * frameWidth,
+              fy * frameHeight,
+              frameWidth,
+              frameHeight,
+              image, 0, 0
+            ]);
+          }
+        }
+      }
+
+      if('animations' in options)
+      {
+        if('forEach' in options.animations)
+        {
+          options.animations.forEach(this.addAnimation, this);
+        }
+        else
+        {
+          for(var animName in options.animations)
+          {
+            if(options.animations.hasOwnProperty(animName))
+            {
+              var anim = options.animations[animName];
+              if(!('name' in anim))
+                anim.name = animName;
+              this.addAnimation(anim);
+            }
+          }
+        }
+      }
     },
 
     /**
@@ -167,7 +221,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * @param {Number} options.frames A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
      * to automatically sequence through all frames across the image, or specify frame count
      * @param {Number} options.frameCount number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
-     * @param {Number} options.time Seconds to loop through entire sequence defaults to 1000
+     * @param {Number} options.frameRate Frames per second; by default, calculated from "time"
+     * @param {Number} options.time Milliseconds to loop through entire sequence defaults to 1000; ignored if frameRate specified.
      * @param {Number} options.loops Number of times to cycle through this animation, use 0 to loop infinitely (defaults to 0)
      * @param {Boolean} options.holdOnEnd Whether to hold the last frame when the animation has played through
      * @param {Number} options.scaleX X scaling to apply (negative values reverse the image)
@@ -192,27 +247,44 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
       options.offsetY = pc.checked(options.offsetY, 0);
       options.framesWide = pc.checked(options.framesWide, this.framesWide);
       options.framesHigh = pc.checked(options.framesHigh, this.framesHigh);
-      options.frameCount = pc.checked(options.frameCount, this.framesWide * this.framesHigh);
-
-      if (options.frameCount == 0)
-      {
-        options.frameCount = pc.checked(options.frameCount, this.framesWide * this.framesHigh);
-      }
+      options.frameCount = pc.checked(options.frameCount, 0);
 
       // no frames specified, create the frames array automagically
       if (!pc.valid(options.frames))
       {
-        var frameStart = options.frameX + (options.frameY * options.framesWide);
-        options.frames = [];
-        // use the frameCount and frameX, frameY
-        for (var frame = frameStart; frame < frameStart + options.frameCount; frame++)
+        var frames = options.frames = [];
+
+        // If they don't provide a frameCount, calculate
+        // it from framesWide/framesHigh.
+        // TODO This is a pretty confusing and probably incorrect feature ...
+        if (options.frameCount == 0)
+          options.frameCount = options.framesWide * options.framesHigh;
+
+        var startFrame = options.frameX + (options.frameY * this.framesWide);
+        var endFrame = startFrame + options.frameCount;
+
+        // start at frameX, frameY and move across and down.  When
+        // moving to the next row, fall back to the start of the row.
+        for(var n = startFrame; n < endFrame; n++)
         {
-          options.frames.push([frame % options.framesWide, Math.floor(frame / options.framesWide) ]);
+          x = n % this.framesWide
+          y = Math.floor(n / this.framesWide)
+          frames.push([x, y]);
         }
       }
 
-      options.frameRate = (options.time / options.frames.length);
-      options.degreesPerDir = (360 / options.directions);
+      options.frameCount = options.frames.length;
+
+
+      if('frameRate' in options)
+      {
+        options.time = 1000 * options.frameRate / options.frames.length;
+      }
+      else
+      {
+        options.frameRate = options.frames.length / options.time;
+      }
+      options.frameTime = options.time / options.frames.length;
 
       this.animations.put(options.name, options);
     },
@@ -272,94 +344,66 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      */
     draw: function (ctx, state, x, y, dir)
     {
-      if (!this.image.loaded || state == null || !state.active) return;
+      var frame;
+      var offsetX;
+      var offsetY;
+      var scaleX = this.scaleX;
+      var scaleY = this.scaleY;
+      if(state.currentAnim == null)
+      {
+        frame = this.frames[state.currentFrame];
+        offsetX = offsetY = 0;
+      }
+      else
+      {
+        var fx = state.currentAnim.frames[state.currentFrame][0];
+        var fy = state.currentAnim.frames[state.currentFrame][1];
+        offsetX = state.currentAnim.offsetX;
+        offsetY = state.currentAnim.offsetY;
+        scaleX *= state.currentAnim.scaleX;
+        scaleY *= state.currentAnim.scaleY;
+        frame = this.frames[fx + fy*this.framesWide];
+      }
+      if(!pc.valid(frame))
+        throw new Error('Frame out of bounds: '+state.currentFrame);
 
-      if (this.scaleX != 1 || this.scaleY != 1)
-        this.image.setScale(this.scaleX, this.scaleY);
+      var frameSourceX = frame[0];
+      var frameSourceY = frame[1];
+      var frameWidth = frame[2];
+      var frameHeight = frame[3];
+      var frameImage = frame[4];
+      var frameRegX = frame[5];
+      var frameRegY = frame[6];
+
+      if (!frameImage.loaded || state == null || !state.active) return;
+
+      if (scaleX != 1 || scaleY != 1)
+        frameImage.setScale(scaleX, scaleY);
 
       if (state.alpha != 1)
-        this.image.alpha = state.alpha;
+        frameImage.alpha = state.alpha;
 
       if (this.compositeOperation != null)
-        this.image.setCompositeOperation(this.compositeOperation);
+        frameImage.setCompositeOperation(this.compositeOperation);
 
-      if (state.currentAnim == null)
-      {
-        if (this.scaleX != 1 || this.scaleY != 1)
-          this.image.setScale(this.scaleX, this.scaleY);
-
-        this.image.draw(ctx,
-          this.sourceX + this._frameXPos[state.currentFrame % this.framesWide],
-          this.sourceY + this._frameYPos[Math.floor(state.currentFrame / this.framesWide)],
-          Math.round(x + this.frameOffsetX), Math.round(y + this.frameOffsetY),
-          this.frameWidth, this.frameHeight,
-          this.useRotation ? dir : 0);
-      } else
-      {
-        var fx = 0;
-        var fy = 0;
-
-        if (state.currentAnim.scaleX != 1 || state.currentAnim.scaleY != 1 || this.scaleX != 1 || this.scaleY != 1)
-          this.image.setScale(state.currentAnim.scaleX * this.scaleX, state.currentAnim.scaleY * this.scaleY);
-
-        if (this.useRotation)
-        {
-          // rotation/direction drawing is done using canvas rotation (slower)
-          fx = state.currentAnim.frames[state.currentFrame][0];
-          fy = state.currentAnim.frames[state.currentFrame][1];
-
-          this.image.draw(ctx,
-            this.sourceX + this._frameXPos[fx],
-            this.sourceY + this._frameYPos[fy],
-            state.currentAnim.offsetX + pc.Math.round(x) + this.frameOffsetX,
-            state.currentAnim.offsetY + pc.Math.round(y) + this.frameOffsetY, this.frameWidth, this.frameHeight, dir);
-        }
-        else
-        {
-          // rely on the sprite images to draw rotation
-
-          this.dirTmp = Math.round(dir / state.currentAnim.degreesPerDir);
-
-          if (this.dirTmp > state.currentAnim.directions - 1) this.dirTmp = 0; // accommodate the edge case causing by rounding back
-
-//                if (!state.currentAnim.dirAcross)
-//                {
-//                    fx = this.dirTmp + state.currentAnim.frameX;
-//                    fy = state.currentAnim.frames[state.currentFrame][0] + state.currentAnim.frameY;
-//                } else
-          {
-            fx = state.currentAnim.frames[state.currentFrame][1] + this.dirTmp;
-            fy = state.currentAnim.frames[state.currentFrame][0];
-          }
-
-          if (state.currentAnim.directions == 1)
-          {
-            fy = state.currentAnim.frames[state.currentFrame][1];
-            fx = state.currentAnim.frames[state.currentFrame][0];
-          }
-
-          this.image.draw(ctx,
-            this.sourceX + this._frameXPos[fx], this.sourceY + this._frameYPos[fy],
-            state.currentAnim.offsetX + pc.Math.round(x) + this.frameOffsetX,
-            state.currentAnim.offsetY + pc.Math.round(y) + this.frameOffsetY,
-            this.frameWidth, this.frameHeight);
-
-          if (state.currentAnim.scaleX != 1 || state.currentAnim.scaleY != 1 || this.scaleX != 1 || this.scaleY != 1)
-            this.image.setScale(state.currentAnim.scaleX * this.scaleX, state.currentAnim.scaleY * this.scaleY);
-        }
-
-      }
+      frameImage.draw(ctx,
+        this.sourceX + frameSourceX,
+        this.sourceY + frameSourceY,
+        Math.round(x + offsetX + this.frameOffsetX - frameRegX),
+        Math.round(y + offsetY + this.frameOffsetY - frameRegY),
+        frameWidth, frameHeight,
+        this.useRotation ? dir : 0);
 
       // restore scaling (as images can be used amongst spritesheets, we need to be nice)
-      if (this.image.scaleX != 1 || this.image.scaleY != 1)
-        this.image.setScale(1, 1);
+      if (scaleX != 1 || scaleY != 1)
+        frameImage.setScale(1, 1);
 
       // set the alpha back to normal
       if (state.alpha != 1)
-        this.image.alpha = 1;
+        frameImage.alpha = 1;
 
       if (this.compositeOperation != null)
-        this.image.setCompositeOperation('source-over');
+        frameImage.setCompositeOperation('source-over');
 
     },
 
@@ -374,28 +418,41 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      */
     drawFrame: function (ctx, frameX, frameY, x, y, angle)
     {
-      if (!this.image.loaded) return;
+      var frame = this.frames[frameX + frameY * this.framesWide];
+      if(!pc.valid(frame))
+        throw new Error('Frame out of bounds: '+x+','+y);
+
+      var frameSourceX = frame[0];
+      var frameSourceY = frame[1];
+      var frameWidth = frame[2];
+      var frameHeight = frame[3];
+      var frameImage = frame[4];
+      var frameRegX = frame[5];
+      var frameRegY = frame[6];
+
       if (this.alpha != 1)
         ctx.globalAlpha = this.alpha;
 
       if (this.scaleX != 1 || this.scaleY != 1)
-        this.image.setScale(this.scaleX, this.scaleY);
+        frameImage.setScale(this.scaleX, this.scaleY);
 
       if (this.compositeOperation != null)
-        this.image.setCompositeOperation(this.compositeOperation);
+        frameImage.setCompositeOperation(this.compositeOperation);
 
-      this.image.draw(ctx,
-        this.sourceX + this._frameXPos[frameX],
-        this.sourceY + this._frameYPos[frameY],
-        pc.Math.round(x) + this.frameOffsetX,
-        pc.Math.round(y) + this.frameOffsetY,
-        this.frameWidth, this.frameHeight, angle);
+      frameImage.draw(ctx,
+        this.sourceX + frameSourceX,
+        this.sourceY + frameSourceY,
+        pc.Math.round(x) + this.frameOffsetX - frameRegX,
+        pc.Math.round(y) + this.frameOffsetY - frameRegY,
+        frameWidth, frameHeight, angle);
 
-      if (this.image.scaleX != 1 || this.image.scaleY != 1)
-        this.image.setScale(1, 1);
+      if (this.scaleX != 1 || this.scaleY != 1)
+        frameImage.setScale(1, 1);
       if (this.alpha != 1) ctx.globalAlpha = 1;
       if (this.compositeOperation != null)
-        this.image.setCompositeOperation('source-over');
+        frameImage.setCompositeOperation('source-over');
+
+      return frame;
     },
 
     /**
@@ -412,6 +469,52 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
           this.drawFrame(ctx, fx, fy, x + (fx * this.frameWidth), y + (fy * this.frameHeight));
     },
 
+    getFrameInfo: function(x, y)
+    {
+      return this.frames[x + (pc.checked(y, 0) * this.framesWide)];
+    },
+
+    /**
+     * Get the width of a given frame on the source image
+     *
+     * @param x Spritesheet grid x
+     * @param y Spritesheet grid y
+     */
+    getFrameWidth: function(x, y)
+    {
+      return this.getFrameInfo(x, y)[2];
+    },
+
+    /**
+     * Get the height of a given frame on the source image
+     *
+     * @param x Spritesheet grid x
+     * @param y Spritesheet grid y
+     */
+    getFrameHeight: function(x, y)
+    {
+      return this.getFrameInfo(x, y)[2];
+    },
+
+    /**
+     * Get a sprite off the sheet as a Subimage that
+     * can be used indepently to draw or create another
+     * spritesheet.
+     *
+     * @param x Spritesheet grid x
+     * @param y Spritesheet grid y
+     */
+    getFrameAsImage: function(x, y)
+    {
+      var frame = this.getFrameInfo(x,y);
+      return new pc.Subimage(frame[4], {
+        x:frame[0],
+        y:frame[1],
+        w:frame[2],
+        h:frame[3]
+      });
+    },
+
     /**
      * Update the sprite based on the current animation, frame and timing. Typically called automatically
      * from the sprite class
@@ -422,10 +525,10 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     {
       if (state.currentAnim == null || !state.active || state.held) return;
 
-      // see if enough time has past to increment the frame count
       if (state.currentAnim.frames.length <= 1) return;
 
-      if (state._acDelta > (state.currentAnim.frameRate + state.animSpeedOffset))
+      // see if enough time has past to increment the frame count
+      if (state._acDelta > (state.currentAnim.frameTime + state.animSpeedOffset))
       {
         state.currentFrame++;
         if (state.currentFrame >= state.currentAnim.frames.length)
@@ -446,7 +549,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
           if (!state.held) state.currentFrame = 0; // take it from the top
         }
-        state._acDelta -= state.currentAnim.frameRate;
+        state._acDelta -= state.currentAnim.frameTime;
       } else
       {
         state._acDelta += delta;
@@ -460,6 +563,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     {
       this.image = null;
       this.animations = null;
+      this.frames = null;
     }
 
   });
