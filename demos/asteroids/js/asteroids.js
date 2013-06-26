@@ -159,7 +159,7 @@ GameScene = pc.Scene.extend('GameScene',
             // stars layer
             //-----------------------------------------------------------------------------
             this.starSheet = new pc.SpriteSheet({  image:pc.device.loader.get('stars').resource, frameWidth:512, frameHeight:512 });
-            var tileMap = new pc.TileMap(new pc.TileSet(this.starSheet),
+            var tileMap = new pc.TileMap([new pc.TileSet(this.starSheet)],
                 2 + (pc.device.canvasWidth / this.starSheet.frameWidth),
                 2 + (pc.device.canvasHeight / this.starSheet.frameHeight),
                 this.starSheet.frameHeight, this.starSheet.frameHeight);

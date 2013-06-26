@@ -16,7 +16,7 @@
  * <p>
  * An example tile map setup:
  * <pre><code>
- * var tileMap = new pc.TileMap(new pc.TileSet(tileSheet), 100, 100, 32, 32);
+ * var tileMap = new pc.TileMap([new pc.TileSet(tileSheet)], 100, 100, 32, 32);
  *
  * // set all the tiles to empty
  * tileMap.generate(0);
@@ -92,7 +92,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     {
       // get the number of the tile at tileX, tileY
       var tileNumber = this.getTile(tileX, tileY);
-      if (tileNumber == 0)
+      if (tileNumber == this.Class.EMPTY_TILE)
         return false;
 
       //for(var i=0; i < this.tileSets.length; i++) {
@@ -241,8 +241,7 @@ pc.TileMap = pc.Base.extend('pc.TileMap',
     drawTileTo: function(ctx, tileX, tileY, x, y)
     {
       var tileId = this.tiles[tileY][tileX];
-      if(!pc.valid(tileId)) console.log('drawTileTo', this, tileX, tileY, tileId);
-      if(tileId != -1) {
+      if(tileId != this.Class.EMPTY_TILE) {
         var tileSet = this.getTileSetForTileId(tileId);
         tileSet.drawTile(ctx, tileId, x, y);
         return true;

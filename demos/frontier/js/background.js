@@ -41,7 +41,7 @@ StarFieldLayer = pc.TileLayer('StarFieldLayer', {},
             var tilesWide = Math.ceil(width / tileSize)+4;
             var tilesHigh = Math.ceil(height / tileSize)+4;
 
-            var tileMap = new pc.TileMap(tileSet, tilesWide, tilesHigh, tileSize, tileSize);
+            var tileMap = new pc.TileMap([tileSet], tilesWide, tilesHigh, tileSize, tileSize);
             tileMap.generate(-1);
 
             for (var ty = 0; ty < tilesHigh; ty++)
