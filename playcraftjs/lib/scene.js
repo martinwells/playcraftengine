@@ -399,9 +399,6 @@ pc.Scene = pc.Base.extend('pc.Scene',
             var tileWidth = parseInt(mapXML.getAttribute('tilewidth'));
             var tileHeight = parseInt(mapXML.getAttribute('tileheight'));
 
-            // load up the tilesets (note: only 1 is supported right now)
-            // todo: add support for multiple tile sets
-
             //
             // TILESETS
             //
@@ -490,6 +487,80 @@ pc.Scene = pc.Base.extend('pc.Scene',
                     layer.originTrackName = null;
                 }
             }
+        },
+
+        /**
+         * Load tilemap and tilesets from a Javascript object as
+         * exported by the Tiled map editor when you export to
+         * JSON or JSONP.
+         */
+        loadFromJson: function(info, entityFactory)
+        {
+          var tileWidth = info.tileheight;
+          var tileHeight = info.tilewidth;
+
+          var tileSets = []
+          info.tilesets.forEach(function(ts) {
+            var tsName = (ts.properties.resourceName || ts.name);
+            var tsImageWidth = ts.imagewidth;
+            var tsImageHeight = ts.imageheight;
+            var tsTileWidth = ts.tilewidth;
+            var tsTileHeight = ts.tileheight;
+            var tsIdOffset = ts.firstgid-1;
+            tileSheetLoaderItem = pc.device.loader.get(tsName);
+            pc.assert(tileSheetLoaderItem, 'Unable to locate tile image resource: ' + tsName + '. It must match the tileset name in tiled.');
+
+            var tsImageResource = tileSheetLoaderItem.resource;
+            var tsSpriteSheet = new pc.SpriteSheet({ image:tsImageResource, frameWidth:tsTileWidth, frameHeight:tsTileHeight });
+
+
+            // create a tileset object which marries (one or more spritesheet's) and contains tileproperty data
+            // pulled from tiled
+            var tileSet = new pc.TileSet(tsSpriteSheet, 0,0, tsIdOffset);
+            tileSets.push(tileSet);
+
+            if('tileproperties' in tileSet) {
+              var props = tileSet.tileproperties;
+              for(var idStr in  props) {
+                if(!props.hasOwnProperty(idStr)) continue;
+                var tileId = parseInt(idStr);
+                tileProperties = props[idStr];
+                for(var name in tileProperties) {
+                  if(!tileProperties.hasOwnProperty(name)) continue;
+                  tileSet.addProperty(tileId + tsIdOffset, name, tileProperties[name]);
+                }
+              }
+            }
+          }, this);
+
+          info.layers.forEach(function(lyr) {
+            switch(lyr.type) {
+              case 'tilelayer':
+                switch(info.orientation) {
+                  case 'isometric':
+                    pc.IsoTileLayer.loadFromJson(this, lyr, tileWidth, tileHeight, tileSets);
+                    break;
+
+                  default:
+                    pc.TileLayer.loadFromJson(this, lyr, tileWidth, tileHeight, tileSets);
+                    break;
+                }
+                break;
+
+              case 'imagelayer':
+                pc.ImageLayer.loadFromJson(this, lyr)
+                break;
+
+              case 'objectgroup':
+                pc.EntityLayer.loadFromJson(this, lyr, entityFactory, lyr.width*tileWidth, lyr.height*tileHeight);
+                break;
+
+              default:
+                console.log('Warning: fould tiled map layer of unsupported type: '+lyr.type);
+                break;
+
+            }
+          }, this);
         }
 
 

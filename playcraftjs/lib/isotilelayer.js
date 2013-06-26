@@ -63,6 +63,24 @@ pc.IsoTileLayer = pc.TileLayer.extend("IsoTileLayer",
       newLayer.configFromTMX(layerXML);
       newLayer.tileMap.loadFromTMX(layerXML, tileWidth, tileHeight);
       scene.addLayer(newLayer);
+    },
+
+    /**
+     * Constructs a iso tile layer using data from a javascript object
+     * @param {pc.Scene} scene Scene to add the new layer to
+     * @param {String} Information about the layer
+     * @param {Number} tileWidth Width of each tile
+     * @param tileHeight Height of each tile
+     * @param tileSets {Array} Array of TileSets
+     */
+    loadFromJson: function (scene, info, tileWidth, tileHeight, tileSets) {
+      var name = info.name;
+      var newLayer = new pc.IsoTileLayer(name, true, null, tileSets);
+
+      // fill in the rest using the data from the TMX file
+      newLayer.configFromJson(info);
+      newLayer.tileMap.loadFromJson(info, tileWidth, tileHeight);
+      scene.addLayer(newLayer);
     }
   },
   {
