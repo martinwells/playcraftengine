@@ -85,20 +85,17 @@ pc.BaseImage = pc.Base.extend('pc.BaseImage',
         }
         else
         {
-          if (pc.valid(rotationAngle))
+          if (typeof(rotationAngle) == 'number' && rotationAngle != 0)
           {
             ctx.save();
 
             if (this.alpha != 1)
               ctx.globalAlpha = this.alpha;
-            if (this.scaleX < 0 || this.scaleY < 0)
-            {
-              var yf = this.scaleY == 1 ? 0 : this.scaleY;
-              var xf = this.scaleX == 1 ? 0 : this.scaleX;
 
-              ctx.translate((x + (width / 2) * xf), (y + (height / 2) * yf));
-            } else
-              ctx.translate(x + (width / 2), y + (height / 2));
+            ctx.translate(
+                x + (this.scaleX > 0 ? width/2 : 0),
+                y + (this.scaleY > 0 ? height/2 : 0)
+            );
 
             ctx.rotate(rotationAngle * (Math.PI / 180));
             ctx.scale(this.scaleX, this.scaleY);
@@ -111,14 +108,11 @@ pc.BaseImage = pc.Base.extend('pc.BaseImage',
 
             if (this.alpha != 1)
               ctx.globalAlpha = this.alpha;
-            if (this.scaleX < 0 || this.scaleY < 0)
-            {
-              var yf2 = this.scaleY == 1 ? 0 : this.scaleY;
-              var xf2 = this.scaleX == 1 ? 0 : this.scaleX;
 
-              ctx.translate(x + (-(width / 2) * xf2), y + (-(height / 2) * yf2));
-            } else
-              ctx.translate(x, y);
+            ctx.translate(
+                x + (this.scaleX < 0 ? width/2 : 0),
+                y + (this.scaleY < 0 ? height/2 : 0)
+            );
 
             ctx.scale(this.scaleX, this.scaleY);
             ctx.drawImage(this.image, sx, sy, width, height, 0, 0, width, height);
