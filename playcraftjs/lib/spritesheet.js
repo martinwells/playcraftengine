@@ -164,10 +164,9 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
         this.frames = options.frames;
         this.totalFrames = options.frames.length;
       }
-      else
+      else if(pc.valid(image))
       {
-        if (!pc.valid(image))
-          throw "No image and no frames supplied";
+        // In this case, used a fixed size grid over the image provided
         if (!image.width || !image.height)
           throw "Invalid image (zero width or height)";
 
@@ -189,6 +188,17 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
             ]);
           }
         }
+      }
+      else
+      {
+        if(frameWidth || frameHeight)
+        {
+          // Probably a mistake
+          throw new Error('No image provided for sprite sheet grid');
+        }
+        // Add frames later
+        this.frames = [];
+        this.totalFrames = 0;
       }
 
       if('animations' in options)
