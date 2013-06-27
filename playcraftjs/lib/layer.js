@@ -396,8 +396,8 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     configFromTMX:function(layerXML)
     {
-      var info = {}
-
+      var info = {properties:{}};
+      var props = info.properties;
       var pr = layerXML.getElementsByTagName('properties')[0];
       if(pr)
       {
@@ -406,7 +406,7 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
         for (var b = 0; b < props.length; b++)
         {
           var prop = props[b];
-          info[prop.getAttribute('name')] = prop.getAttribute('value');
+          props[prop.getAttribute('name')] = prop.getAttribute('value');
         }
       }
 
@@ -421,20 +421,24 @@ pc.Layer = pc.Base.extend('pc.Layer', {},
      */
     configFromJson:function(info)
     {
-      var zIndex = info.zIndex || info.zindex;
-      if(pc.valid(zIndex)) this.setZIndex(zIndex);
+      if('properties' in info)
+      {
+        var props = info.properties;
+        var zIndex = props.zIndex || props.zindex;
+        if(pc.valid(zIndex)) this.setZIndex(zIndex);
 
-      var trackLayer = info.tracklayer || info.trackLayer;
-      if(pc.valid(trackLayer) && trackLayer != this.name)
-        this.originTrackName = trackLayer;
+        var trackLayer = props.tracklayer || props.trackLayer;
+        if(pc.valid(trackLayer) && trackLayer != this.name)
+          this.originTrackName = trackLayer;
 
-      var trackXRatio = info.trackxratio || info.trackXRatio || info.trackRatio || info.trackratio;
-      if(pc.valid(trackXRatio))
-        this.originTrackXRatio = trackXRatio;
+        var trackXRatio = props.trackxratio || props.trackXRatio || props.trackRatio || props.trackratio;
+        if(pc.valid(trackXRatio))
+          this.originTrackXRatio = trackXRatio;
 
-      var trackYRatio = info.trackyratio || info.trackYRatio || info.trackRatio || info.trackratio;
-      if(pc.valid(trackYRatio))
-        this.originTrackYRatio = trackYRatio;
+        var trackYRatio = props.trackyratio || props.trackYRatio || props.trackRatio || props.trackratio;
+        if(pc.valid(trackYRatio))
+          this.originTrackYRatio = trackYRatio;
+      }
 
     }
 
