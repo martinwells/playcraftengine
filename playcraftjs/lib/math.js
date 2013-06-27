@@ -566,9 +566,7 @@ pc.Poly = pc.Pooled('pc.Poly',
     create: function (x, y, points)
     {
       var n = this._super();
-      n.x = x;
-      n.y = y;
-      n.points = points;
+      n.init(x, y, points);
       return n;
     }
   },
@@ -589,11 +587,40 @@ pc.Poly = pc.Pooled('pc.Poly',
       this.y = y;
       this.points = points;
       this._boundingRect = pc.Rect.create(0, 0, 0, 0);
+      this.calcBoundingRect();
+    },
+
+    /**
+     * If you modify the points or position of this polygon,
+     * and you want to use getBoundingRect(), call this
+     * to update the cached bounding rectangle.
+     */
+    calcBoundingRect:function()
+    {
+      if(!pc.valid(this.points) || !this.points.length)
+        return;
+      var minX=this.points[0].x;
+      var maxX=minX;
+      var minY=this.points[0].y;
+      var maxY=minY;
+      for(var i=1; i < this.points.length; i++)
+      {
+        var px = this.points[i].x;
+        minX = Math.min(px, minX);
+        maxX = Math.max(px, maxX);
+        var py = this.points[i].y;
+        minY = Math.min(py, minY);
+        maxY = Math.max(py, maxY);
+      }
+      this._boundingRect.x = this.x+minX;
+      this._boundingRect.y = this.y+minY;
+      this._boundingRect.w = maxX-minX;
+      this._boundingRect.h = maxY-minY;
     },
 
     getBoundingRect: function ()
     {
-      // todo
+      return this._boundingRect;
     },
 
     containsPoint: function (p)
