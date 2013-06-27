@@ -288,13 +288,14 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
       if('frameRate' in options)
       {
-        options.time = 1000 * options.frameRate / options.frames.length;
+        options.frameTime = 1000 / options.frameRate;
+        options.time = options.frameTime * options.frames.length;
       }
       else
       {
         options.frameRate = options.frames.length / options.time;
+        options.frameTime = options.time / options.frames.length;
       }
-      options.frameTime = options.time / options.frames.length;
 
       this.animations.put(options.name, options);
     },
