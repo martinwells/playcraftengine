@@ -16,8 +16,11 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
     {
         /**
          * Constructs (or acquires from the pool) a sprite component.
-         * @param {pc.Sprite} options.sprite Sprite object to use
-         * @param {pc.Point} options.offset Object containing x, y properties. Offset position of the sprite.
+         * @param {pc.SpriteSheet} options.spriteSheet SpriteSheet to use
+         * @param {pc.Point} [options.offset] Object containing x, y properties. Offset position of the sprite.
+         * @param {string} [options.animationStart] Initial animation to play
+         * @param {string} [options.animationStartDelay=0] Delay in playing initial animation
+         * @param {Number} [options.currentFrame=0] Starting frame, or if not animated, the image index into the sprite sheet to show
          * @return {pc.components.Sprite} A newly configured sprite component
          */
         create: function(options)
@@ -36,7 +39,7 @@ pc.components.Sprite = pc.components.Component.extend('pc.components.Sprite',
 
         /**
          * Constructs a new component. See create method for options
-         * @param {Object} options Options
+         * @param {Object} [options] Options
          */
         init: function(options)
         {
