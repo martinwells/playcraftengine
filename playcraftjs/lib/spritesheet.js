@@ -226,15 +226,15 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     /**
      * Defines an animation
      * @param {String} options.name A descriptive name for the animation (required)
-     * @param {Number} options.frameX The starting frame X position (in frames, not pixels) defaults to 0
-     * @param {Number} options.frameY The starting frame Y position (in frames, not pixels) defaults to 0
-     * @param {Number} options.frames A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
+     * @param {Number} [options.frameX] The starting frame X position (in frames, not pixels) defaults to 0
+     * @param {Number} [options.frameY] The starting frame Y position (in frames, not pixels) defaults to 0
+     * @param {Number} [options.frames] A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
      * to automatically sequence through all frames across the image, or specify frame count
-     * @param {Number} options.frameCount number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
-     * @param {Number} options.frameRate Frames per second; by default, calculated from "time"
-     * @param {Number} options.time Milliseconds to loop through entire sequence defaults to 1000; ignored if frameRate specified.
-     * @param {Number} options.loops Number of times to cycle through this animation, use 0 to loop infinitely (defaults to 0)
-     * @param {Boolean} options.holdOnEnd Whether to hold the last frame when the animation has played through
+     * @param {Number} [options.frameCount] number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
+     * @param {Number} [options.frameRate] Frames per second; by default, calculated from "time"
+     * @param {Number} [options.time=1000] Milliseconds to loop through entire sequence; ignored if frameRate specified.
+     * @param {Number} [options.loops=0] Number of times to cycle through this animation, use 0 to loop infinitely
+     * @param {Boolean} [options.holdOnEnd] Whether to hold the last frame when the animation has played through
      * @param {Number} options.scaleX X scaling to apply (negative values reverse the image)
      * @param {Number} options.scaleY Y scaling to apply (negative values reverse the image)
      * @param {Number} options.framesWide Number of frames to go across before stepping down
@@ -482,14 +482,14 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
     getFrameInfo: function(x, y)
     {
-      return this.frames[x + (pc.checked(y, 0) * this.framesWide)];
+      return this.frames[pc.checked(x, 0) + (pc.checked(y, 0) * this.framesWide)];
     },
 
     /**
      * Get the width of a given frame on the source image
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameWidth: function(x, y)
     {
@@ -499,8 +499,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     /**
      * Get the height of a given frame on the source image
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameHeight: function(x, y)
     {
@@ -512,8 +512,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * can be used indepently to draw or create another
      * spritesheet.
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameAsImage: function(x, y)
     {
