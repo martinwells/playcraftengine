@@ -235,10 +235,10 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * @param {Number} [options.time=1000] Milliseconds to loop through entire sequence; ignored if frameRate specified.
      * @param {Number} [options.loops=0] Number of times to cycle through this animation, use 0 to loop infinitely
      * @param {Boolean} [options.holdOnEnd] Whether to hold the last frame when the animation has played through
-     * @param {Number} options.scaleX X scaling to apply (negative values reverse the image)
-     * @param {Number} options.scaleY Y scaling to apply (negative values reverse the image)
-     * @param {Number} options.framesWide Number of frames to go across before stepping down
-     * @param {Number} options.framesHigh Number of frames down
+     * @param {Number} [options.scaleX] X scaling to apply (negative values reverse the image)
+     * @param {Number} [options.scaleY] Y scaling to apply (negative values reverse the image)
+     * @param {Number} [options.framesWide] Number of frames to go across before stepping down
+     * @param {Number} [options.framesHigh] Number of frames down
      */
     addAnimation: function (options)
     {
