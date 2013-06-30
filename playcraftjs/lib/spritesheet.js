@@ -139,7 +139,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
         ('framesWide' in options) ? options.framesWide :
         ('image' in options && frameWidth > 0) ?
             Math.floor(options.image.width / frameWidth) :
-        ('frames' in options) ? this.framesWide = options.frames.length :
+        ('frames' in options) ? options.frames.length :
         1;
       var framesHigh = this.framesHigh =
         ('framesHigh' in options) ? options.framesHigh :
