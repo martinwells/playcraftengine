@@ -188,7 +188,7 @@ pc.Game = pc.Base.extend('pc.Game', {},
          * Add a scene to the game. Automatically makes the scene active. Once added, the game's onSceneAdded method
          * will be called.
          * @param {pc.Scene} scene Scene to add
-         * @param {boolean} [activate] Make the scene active on adding it (defaults to true)
+         * @param {boolean} [activate=true] Make the scene active on adding it
          */
         addScene:function (scene, activate)
         {
