@@ -222,7 +222,7 @@ pc.Sprite = pc.Pooled.extend('pc.Sprite',
         {
             var f = pc.checked(force, true);
             if (!f)
-                if (this.currentAnim.name === name) return;
+                if (this.currentAnim && this.currentAnim.name === name) return;
 
             this.currentAnim = this.spriteSheet.animations.get(name);
             this.currentFrame = 0;

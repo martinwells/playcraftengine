@@ -155,14 +155,10 @@ pc.EntityLayer = pc.Layer.extend('pc.EntityLayer',
           var shape = null;
 
           // either it's a polygon shape, or it's a rectangle (has w and h)
-          var polygon = objData.polygon || objData.polyline || [];
-          if (polygon)
+          var polygon = pc.checked(objData.polygon, objData.polyline);
+          if(pc.valid(polygon))
           {
-            points = new Array(polygon.length);
-            polygon.forEach(function(pt) {
-              points.push([pt.x, pt.y]);
-            });
-            shape = pc.Poly.create(x, y, points);
+            shape = pc.Poly.create(x, y, polygon);
           }
           else
           {

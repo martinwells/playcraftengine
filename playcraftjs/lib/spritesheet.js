@@ -132,14 +132,14 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
           ('frameHeight' in options) ? options.frameHeight :
           ('framesHigh' in options && options.framesHigh > 0 && 'image' in options) ?
               Math.floor(options.image.height / options.framesHigh) :
-          ('image' in options) ? options.image.width :
+          ('image' in options) ? options.image.height :
           0; // No fixed height
 
       var framesWide = this.framesWide =
         ('framesWide' in options) ? options.framesWide :
         ('image' in options && frameWidth > 0) ?
             Math.floor(options.image.width / frameWidth) :
-        ('frames' in options) ? this.framesWide = options.frames.length :
+        ('frames' in options) ? options.frames.length :
         1;
       var framesHigh = this.framesHigh =
         ('framesHigh' in options) ? options.framesHigh :
@@ -164,10 +164,9 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
         this.frames = options.frames;
         this.totalFrames = options.frames.length;
       }
-      else
+      else if(pc.valid(image))
       {
-        if (!pc.valid(image))
-          throw "No image and no frames supplied";
+        // In this case, used a fixed size grid over the image provided
         if (!image.width || !image.height)
           throw "Invalid image (zero width or height)";
 
@@ -189,6 +188,17 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
             ]);
           }
         }
+      }
+      else
+      {
+        if(frameWidth || frameHeight)
+        {
+          // Probably a mistake
+          throw new Error('No image provided for sprite sheet grid');
+        }
+        // Add frames later
+        this.frames = [];
+        this.totalFrames = 0;
       }
 
       if('animations' in options)
@@ -216,19 +226,19 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     /**
      * Defines an animation
      * @param {String} options.name A descriptive name for the animation (required)
-     * @param {Number} options.frameX The starting frame X position (in frames, not pixels) defaults to 0
-     * @param {Number} options.frameY The starting frame Y position (in frames, not pixels) defaults to 0
-     * @param {Number} options.frames A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
+     * @param {Number} [options.frameX] The starting frame X position (in frames, not pixels) defaults to 0
+     * @param {Number} [options.frameY] The starting frame Y position (in frames, not pixels) defaults to 0
+     * @param {Number} [options.frames] A 2d-array of frame numbers ([ [0, 0], [0, 1] ]) , note these are OFFSET by frameX and frameY. Use null
      * to automatically sequence through all frames across the image, or specify frame count
-     * @param {Number} options.frameCount number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
-     * @param {Number} options.frameRate Frames per second; by default, calculated from "time"
-     * @param {Number} options.time Milliseconds to loop through entire sequence defaults to 1000; ignored if frameRate specified.
-     * @param {Number} options.loops Number of times to cycle through this animation, use 0 to loop infinitely (defaults to 0)
-     * @param {Boolean} options.holdOnEnd Whether to hold the last frame when the animation has played through
-     * @param {Number} options.scaleX X scaling to apply (negative values reverse the image)
-     * @param {Number} options.scaleY Y scaling to apply (negative values reverse the image)
-     * @param {Number} options.framesWide Number of frames to go across before stepping down
-     * @param {Number} options.framesHigh Number of frames down
+     * @param {Number} [options.frameCount] number of frames to use, starting from frameX, frameY and stepping forward across the spritesheet
+     * @param {Number} [options.frameRate] Frames per second; by default, calculated from "time"
+     * @param {Number} [options.time=1000] Milliseconds to loop through entire sequence; ignored if frameRate specified.
+     * @param {Number} [options.loops=0] Number of times to cycle through this animation, use 0 to loop infinitely
+     * @param {Boolean} [options.holdOnEnd] Whether to hold the last frame when the animation has played through
+     * @param {Number} [options.scaleX] X scaling to apply (negative values reverse the image)
+     * @param {Number} [options.scaleY] Y scaling to apply (negative values reverse the image)
+     * @param {Number} [options.framesWide] Number of frames to go across before stepping down
+     * @param {Number} [options.framesHigh] Number of frames down
      */
     addAnimation: function (options)
     {
@@ -278,13 +288,14 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
       if('frameRate' in options)
       {
-        options.time = 1000 * options.frameRate / options.frames.length;
+        options.frameTime = 1000 / options.frameRate;
+        options.time = options.frameTime * options.frames.length;
       }
       else
       {
         options.frameRate = options.frames.length / options.time;
+        options.frameTime = options.time / options.frames.length;
       }
-      options.frameTime = options.time / options.frames.length;
 
       this.animations.put(options.name, options);
     },
@@ -471,14 +482,14 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
     getFrameInfo: function(x, y)
     {
-      return this.frames[x + (pc.checked(y, 0) * this.framesWide)];
+      return this.frames[pc.checked(x, 0) + (pc.checked(y, 0) * this.framesWide)];
     },
 
     /**
      * Get the width of a given frame on the source image
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameWidth: function(x, y)
     {
@@ -488,8 +499,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
     /**
      * Get the height of a given frame on the source image
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameHeight: function(x, y)
     {
@@ -501,8 +512,8 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * can be used indepently to draw or create another
      * spritesheet.
      *
-     * @param x Spritesheet grid x
-     * @param y Spritesheet grid y
+     * @param {Number} [x=0] Spritesheet grid x
+     * @param {Number} [y=0] Spritesheet grid y
      */
     getFrameAsImage: function(x, y)
     {

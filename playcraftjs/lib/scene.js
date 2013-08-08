@@ -561,9 +561,15 @@ pc.Scene = pc.Base.extend('pc.Scene',
 
             }
           }, this);
+
+          for(var next = this.layers.first; next; next = next.next())
+          {
+            var layer = next.obj;
+            if(layer.originTrackName)
+            {
+              layer.originTrack = this.get(layer.originTrackName);
+              layer.originTrackName = null;
+            }
+          }
         }
-
-
-
-
     });
