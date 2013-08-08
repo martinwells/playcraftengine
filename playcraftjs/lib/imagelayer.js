@@ -60,7 +60,20 @@ pc.ImageLayer = pc.Layer.extend('pc.ImageLayer',
           if(yy > -h) {
             for(var xx = x; xx < cw; xx += w) {
               if(xx > -w) {
-                this.image.draw(ctx,xx+adjustX,yy+adjustY);
+                var xxx = xx+adjustX;
+                var yyy = yy+adjustY;
+                // All this clipping code here may be redundant ...
+                var dx = Math.max(xxx, 0);
+                var dy = Math.max(yyy, 0);
+                var sx = Math.max(-xxx, 0);
+                var sy = Math.max(-yyy, 0);
+                var dw = Math.min(cw-dx, w);
+                var dh = Math.min(ch-dy, h);
+                this.image.draw(ctx,
+                    sx, sy,
+                    dx, dy,
+                    dw, dh
+                );
               }
               if(!this.repeatX)
                 break;

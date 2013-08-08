@@ -110,8 +110,8 @@ pc.BaseImage = pc.Base.extend('pc.BaseImage',
               ctx.globalAlpha = this.alpha;
 
             ctx.translate(
-                x + (this.scaleX < 0 ? width/2 : 0),
-                y + (this.scaleY < 0 ? height/2 : 0)
+                x + (this.scaleX < 0 ? width : 0),
+                y + (this.scaleY < 0 ? height : 0)
             );
 
             ctx.scale(this.scaleX, this.scaleY);

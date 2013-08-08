@@ -18,8 +18,13 @@ pc.components.Spatial = pc.components.Component.extend('pc.components.Spatial',
     {
         /**
          * Constructs (or acquires from the pool) a spatial component configuring it with the given options
-         * @param {pc.Point} options.pos Position (containing x, y) to place the entity
-         * @param {pc.Dim} options.dim Size (containing x, y) of the entity (x=width, y=height)
+         * @param {Number} [options.x=0] Entity horizontal coordinate (pixels from the left)
+         * @param {Number} [options.y=0] Entity vertical coordinate (pixels from the top)
+         * @param {Number} [options.w=0] Entity width (pixels)
+         * @param {Number} [options.h=0] Entity height (pixels)
+         * @param {Number} [options.dir=0] Rotation; 0 is upright, rotation is clockwise
+         * @param {Number} [options.scaleX=1] Horizontal scaling factor (1 is no scaling, -1 flips horizontally)
+         * @param {Number} [options.scaleY=1] Vertical scaling factor (1 is no scaling, -1 flips vertically)
          * @return {pc.components.Spatial} A shiney new component
          */
         create: function(options)
