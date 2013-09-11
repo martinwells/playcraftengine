@@ -344,11 +344,12 @@ pc.Input = pc.Base('pc.Input',
       eventSource.addEventListener('mouseup', this._mouseUp.bind(this), true);
       eventSource.addEventListener('mousedown', this._mouseDown.bind(this), true);
       eventSource.addEventListener('mousemove', this._mouseMove.bind(this), true);
-
+      eventSource.addEventListener('dblclick', this._mouseDoubleClick.bind(this), true);
       if (!pc.device.isCocoonJS)
       {
-        eventSource.addEventListener('mousewheel', this._mouseWheel.bind(this), true);
-        eventSource.addEventListener('contextmenu', this._contextMenu.bind(this), true);
+          eventSource.addEventListener('mousewheel', this._mouseWheel.bind(this), true);
+          eventSource.addEventListener('DOMMouseScroll', this._mouseWheel.bind(this), true);
+          eventSource.addEventListener('contextmenu', this._contextMenu.bind(this), true);
 
         // key input
         window.addEventListener('keydown', this._keyDown.bind(this), true);
@@ -583,7 +584,16 @@ pc.Input = pc.Base('pc.Input',
         this.mouseRightButtonDown = true;
       }
     },
-
+    _mouseDoubleClick: function (event) {
+        if (event.button == 0 || event.button == 1) {
+            this._changeState(pc.InputType.MOUSE_BUTTON_LEFT_DBLCICK, true, event);
+            this.fireAction(pc.InputType.MOUSE_BUTTON_LEFT_DBLCICK, event);
+        }
+        else {
+            this._changeState(pc.InputType.MOUSE_BUTTON_RIGHT_DBLCICK, true, event);
+            this.fireAction(pc.InputType.MOUSE_BUTTON_RIGHT_DBLCICK, event);
+        }
+    },
     _mouseMove: function (event)
     {
       this._lastMouseMove = event;
@@ -595,12 +605,17 @@ pc.Input = pc.Base('pc.Input',
       this.fireAction(pc.InputType.MOUSE_BUTTON_RIGHT_UP, event);
     },
 
-    _mouseWheel: function (event)
-    {
-      if (event.wheel > 0)
-        this.fireAction(pc.InputType.MOUSE_WHEEL_UP, event);
-      else
-        this.fireAction(pc.InputType.MOUSE_WHEEL_DOWN, event);
+    _mouseWheel: function (event) {
+        // event.wheelDelta supported by IE and Chrome
+        // event.detail supported by firefox
+        if (event.wheelDelta > 0 || event.detail > 0) {
+            this.fireAction(pc.InputType.MOUSE_WHEEL_UP, event);
+        }
+        else {
+            this.fireAction(pc.InputType.MOUSE_WHEEL_DOWN, event);
+
+        }        
+        event.preventDefault();
     }
   });
 
@@ -614,8 +629,10 @@ pc.InputType = pc.Base.extend('pc.InputType',
     MOUSE_MOVE: 1100, // Basic mouse movement
     MOUSE_BUTTON_LEFT_UP: 1110,
     MOUSE_BUTTON_LEFT_DOWN: 1111,
+    MOUSE_BUTTON_LEFT_DBLCICK: 1112,
     MOUSE_BUTTON_RIGHT_UP: 1120,
     MOUSE_BUTTON_RIGHT_DOWN: 1121,
+    MOUSE_BUTTON_RIGHT_DBLCICK: 1122,
     MOUSE_WHEEL_UP: 1130,
     MOUSE_WHEEL_DOWN: 1131,
     TOUCH: 1000,
@@ -708,9 +725,10 @@ pc.InputType = pc.Base.extend('pc.InputType',
 
       this.addInput(this.MOUSE_BUTTON_LEFT_DOWN, 'MOUSE_BUTTON_LEFT_DOWN');
       this.addInput(this.MOUSE_BUTTON_LEFT_UP, 'MOUSE_BUTTON_LEFT_UP');
+      this.addInput(this.MOUSE_BUTTON_LEFT_DBLCICK, 'MOUSE_BUTTON_LEFT_DBLCICK');
       this.addInput(this.MOUSE_BUTTON_RIGHT_DOWN, 'MOUSE_BUTTON_RIGHT_DOWN');
       this.addInput(this.MOUSE_BUTTON_RIGHT_UP, 'MOUSE_BUTTON_RIGHT_UP');
-
+      this.addInput(this.MOUSE_BUTTON_RIGHT_DBLCICK, 'MOUSE_BUTTON_RIGHT_DBLCICK');
       // add some legacy support for the old MOUSE_BUTTON refs
       this.nameToCode.put("MOUSE_LEFT_BUTTON", this.MOUSE_BUTTON_LEFT_UP);
       this.nameToCode.put("MOUSE_RIGHT_BUTTON", this.MOUSE_BUTTON_RIGHT_UP);
