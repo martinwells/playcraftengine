@@ -76,6 +76,7 @@ pc.components.Input = pc.components.Component.extend('pc.components.Input',
             if (!options.states && !options.actions)
                 throw 'Input requires at least an action or state set';
 
+            this._bound = false;
             this.states = options.states;
             this.actions = options.actions;
             this.target = options.target;
