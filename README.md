@@ -1,3 +1,5 @@
+Playcraft is a javascript HTML5 game engine focused on an entity systems design. You can find more information and documentation at http://playcraftlabs.com
+
 ## 0.5.7
 
 - Tweening support - see pc.components.Mover added
