@@ -239,6 +239,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
      * @param {Number} [options.scaleY] Y scaling to apply (negative values reverse the image)
      * @param {Number} [options.framesWide] Number of frames to go across before stepping down
      * @param {Number} [options.framesHigh] Number of frames down
+     * @param {String} [options.allowDroppedFrames] True means frames may be skipped if needed in attempt to "tween" over the time
      */
     addAnimation: function (options)
     {
@@ -258,6 +259,7 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
       options.framesWide = pc.checked(options.framesWide, this.framesWide);
       options.framesHigh = pc.checked(options.framesHigh, this.framesHigh);
       options.frameCount = pc.checked(options.frameCount, 0);
+      options.allowDroppedFrames = pc.checked(options.allowDroppedFrames, false);
 
       // no frames specified, create the frames array automagically
       if (!pc.valid(options.frames))
@@ -538,6 +540,23 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
 
       if (state.currentAnim.frames.length <= 1) return;
 
+      if (state.currentAnim.allowDroppedFrames)
+      {
+        this._updateWithTimePriority(state, delta);
+
+      } else
+      {
+        this._updateWithFramePriority(state, delta);
+      }
+    },
+
+    /**
+    * Play each frame.
+    * @param {pc.Sprite} state Sprite to update
+    * @param {Number} delta Amount of time to move forward by
+    */
+    _updateWithFramePriority: function (state, delta)
+    {
       // see if enough time has past to increment the frame count
       if (state._acDelta > (state.currentAnim.frameTime + state.animSpeedOffset))
       {
@@ -565,6 +584,43 @@ pc.SpriteSheet = pc.Base.extend('pc.SpriteSheet',
       {
         state._acDelta += delta;
       }
+    },
+
+    /**
+    * Drop frames if needed, in attempt to play the animation uniformly over the allotted time
+    * @param {pc.Sprite} state Sprite to update
+    * @param {Number} delta Amount of time to move forward by
+    */
+    _updateWithTimePriority: function (state, delta)
+    {
+      var elapsedCount;
+
+      // see if enough time has past to increment the frame count
+      if (state._acDelta > (state.currentAnim.frameTime + state.animSpeedOffset))
+      {
+        elapsedCount = Math.floor(state._acDelta / (state.currentAnim.frameTime + state.animSpeedOffset));
+        state.currentFrame += elapsedCount;
+        if (state.currentFrame >= state.currentAnim.frames.length)
+        {
+          state.loopCount++;
+          // checked if we have looped the animation enough times
+          if (state.currentAnim.loops) // 0 means loop forever
+            if (state.loopCount >= state.currentAnim.loops)
+            {
+              if (state.currentAnim.holdOnEnd)
+              {
+                state.held = true;
+                state.currentFrame = state.currentAnim.frames.length - 1;
+              }
+              else
+                state.active = false;
+            }
+
+          if (!state.held) state.currentFrame = 0; // take it from the top
+        }
+        state._acDelta -= elapsedCount * state.currentAnim.frameTime;
+      }
+      state._acDelta += delta;
     },
 
     /**
